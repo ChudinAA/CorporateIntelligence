@@ -109,9 +109,15 @@ class DocumentProcessor:
                     }
                 )
                 
-                # Update chunk with vector ID
-                chunk.vector_id = vector_id
-                chunk_objects.append(chunk)
+                if vector_id is not None:
+                    # Update chunk with vector ID and save immediately
+                    chunk.vector_id = vector_id
+                    db.session.add(chunk)
+                    db.session.flush()
+                    chunk_objects.append(chunk)
+                else:
+                    self.logger.error(f"Failed to get vector_id for chunk {i}")
+                    raise Exception("Vector store embedding failed")
             
             # Mark document as processed
             document.processed = True
