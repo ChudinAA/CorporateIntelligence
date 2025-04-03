@@ -3,7 +3,9 @@ import numpy as np
 import logging
 from flask import current_app
 from vector_store import VectorStore
+# Import both LLM services for flexibility
 from llm_integration import LLMService
+from openai_integration import OpenAIService
 from models import Document, DocumentChunk, ChatHistory
 from app import db
 
@@ -12,8 +14,15 @@ class RAGEngine:
     
     def __init__(self):
         self.vector_store = VectorStore()
-        self.llm_service = LLMService()
-        self.logger = logging.getLogger(__name__)
+        # Choose the preferred LLM service - using OpenAI if key available
+        if os.environ.get("OPENAI_API_KEY"):
+            self.llm_service = OpenAIService()
+            self.logger = logging.getLogger(__name__)
+            self.logger.info("Using OpenAI service for LLM capabilities")
+        else:
+            self.llm_service = LLMService()
+            self.logger = logging.getLogger(__name__)
+            self.logger.warning("OpenAI API key not found, using fallback LLM service")
     
     def process_query(self, query, user_id, session_id, chat_context=None):
         """
@@ -52,8 +61,26 @@ class RAGEngine:
                 ])
             
             # Generate response with LLM
-            prompt = self._create_rag_prompt(query, context_text, chat_history_text)
-            response = self.llm_service.generate_response(prompt)
+            # If using OpenAI, use the specialized RAG method
+            if isinstance(self.llm_service, OpenAIService):
+                # Format chat history for OpenAI format
+                formatted_history = []
+                if chat_context and len(chat_context) > 0:
+                    for msg in chat_context[-5:]:  # Use last 5 messages
+                        formatted_history.append({
+                            'content': msg['content'],
+                            'is_user': msg['is_user']
+                        })
+                
+                response = self.llm_service.rag_prompt_with_context(
+                    user_query=query, 
+                    context=context_text,
+                    chat_history=formatted_history
+                )
+            else:
+                # Fall back to standard prompt method
+                prompt = self._create_rag_prompt(query, context_text, chat_history_text)
+                response = self.llm_service.generate_response(prompt)
             
             # Create metadata for response
             metadata = {
@@ -118,24 +145,37 @@ Use a professional, helpful tone and format your answer clearly.
             if not messages or len(messages) < 2:  # Need at least one exchange
                 return "Not enough conversation to summarize."
             
-            # Format messages for summarization
-            conversation = "\n".join([
-                f"{'User' if msg.is_user else 'Assistant'}: {msg.content}"
-                for msg in messages
-            ])
-            
-            # Create summarization prompt
-            prompt = """Generate a concise summary of the following conversation between a user and an AI assistant.
+            # If using OpenAI, use specialized method
+            if isinstance(self.llm_service, OpenAIService):
+                # Format messages for OpenAI
+                formatted_messages = []
+                for msg in messages:
+                    formatted_messages.append({
+                        'content': msg.content,
+                        'is_user': msg.is_user
+                    })
+                
+                # Generate summary with OpenAI
+                summary = self.llm_service.summarize_chat(formatted_messages)
+            else:
+                # Format messages for standard LLM
+                conversation = "\n".join([
+                    f"{'User' if msg.is_user else 'Assistant'}: {msg.content}"
+                    for msg in messages
+                ])
+                
+                # Create summarization prompt
+                prompt = """Generate a concise summary of the following conversation between a user and an AI assistant.
 Focus on the main topics discussed, key questions asked, and important information provided.
 The summary should be around 2-3 sentences, highlighting the most important points.
 
 Conversation:
 """
-            prompt += conversation
-            prompt += "\n\nSummary: "
-            
-            # Generate summary with LLM
-            summary = self.llm_service.generate_response(prompt)
+                prompt += conversation
+                prompt += "\n\nSummary: "
+                
+                # Generate summary with LLM
+                summary = self.llm_service.generate_response(prompt)
             
             return summary
             

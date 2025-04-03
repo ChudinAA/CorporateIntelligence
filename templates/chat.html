@@ -246,7 +246,8 @@
 {% block scripts %}
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        const socket = io();
+        // Initialize Socket.IO with configuration
+        const socket = io(window.location.origin, socketIOConfig);
         const messageForm = document.getElementById('message-form');
         const messageInput = document.getElementById('message-input');
         const chatContainer = document.getElementById('chat-container');
@@ -264,6 +265,13 @@
         // Connect to Socket.IO
         socket.on('connect', function() {
             console.log('Connected to Socket.IO server');
+            // Remove any error messages about connection when connected
+            const errorElements = document.querySelectorAll('.message.ai-message .text-danger');
+            errorElements.forEach(element => {
+                if (element.textContent.includes('Unable to connect')) {
+                    element.closest('.message.ai-message').remove();
+                }
+            });
         });
         
         // Handle connection error

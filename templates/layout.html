@@ -17,6 +17,17 @@
     <!-- Socket.IO client -->
     <script src="https://cdn.socket.io/4.6.0/socket.io.min.js"></script>
     
+    <script>
+        // Configure Socket.IO connection with correct URI
+        const socketIOConfig = {
+            path: '/socket.io',
+            transports: ['websocket', 'polling'],
+            reconnectionAttempts: 5,
+            reconnectionDelay: 1000, 
+            reconnectionDelayMax: 5000
+        };
+    </script>
+    
     {% block head %}{% endblock %}
 </head>
 <body>

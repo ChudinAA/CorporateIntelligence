@@ -1,3 +1,6 @@
+# Note: eventlet monkey_patch is now done in main.py to ensure
+# it happens before any imports in the entire application
+
 import os
 import logging
 from flask import Flask
@@ -30,7 +33,9 @@ def create_app():
     
     # Initialize extensions with app
     db.init_app(app)
-    socketio.init_app(app, cors_allowed_origins="*")
+    # Use threading for easier compatibility with standard workers
+    # In production, you would use eventlet with proper worker configuration
+    socketio.init_app(app, cors_allowed_origins="*", async_mode=None, manage_session=False)
     
     # Configure login manager
     login_manager.init_app(app)
