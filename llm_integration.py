@@ -1,6 +1,7 @@
 import os
 import logging
 import numpy as np
+import json
 from flask import current_app
 try:
     from llama_cpp import Llama
@@ -9,56 +10,58 @@ except ImportError:
 
 class LLMService:
     """
-    Provides integration with Llama3.1 model for text generation and embeddings.
+    Provides integration with TinyLlama model for text generation and embeddings.
     """
     
     def __init__(self):
         self.logger = logging.getLogger(__name__)
         self.llm = None
         self.embedding_model = None
+        self.model_path = "models/tinyllama.gguf"
         
         # Initialize LLM model
         self._initialize_llm()
     
     def _initialize_llm(self):
-        """Initialize the Llama model."""
+        """Initialize the TinyLlama model."""
         try:
-            model_path = current_app.config['LLM_MODEL_PATH']
-            
             if Llama is None:
                 self.logger.warning("llama-cpp-python is not installed. Using mock responses for development.")
                 return
             
-            if not os.path.exists(model_path):
-                self.logger.warning(f"Model path {model_path} does not exist. Using mock responses for development.")
+            if not os.path.exists(self.model_path):
+                self.logger.warning(f"Model path {self.model_path} does not exist. Using mock responses for development.")
                 return
+            
+            self.logger.info(f"Loading TinyLlama model from {self.model_path}")
             
             # Load the model
             self.llm = Llama(
-                model_path=model_path,
-                n_ctx=4096,  # Context window size
+                model_path=self.model_path,
+                n_ctx=2048,  # Context window size - smaller for TinyLlama
                 n_batch=512,  # Batch size for prompt processing
                 n_gpu_layers=-1,  # Use all available GPU layers
                 verbose=False
             )
             
-            self.logger.info(f"LLM model loaded from {model_path}")
+            self.logger.info(f"TinyLlama model loaded successfully")
             
             # For embeddings, we use the same model
             self.embedding_model = self.llm
             
         except Exception as e:
-            self.logger.error(f"Error initializing LLM: {str(e)}", exc_info=True)
+            self.logger.error(f"Error initializing TinyLlama: {str(e)}", exc_info=True)
             self.logger.warning("Using mock responses for development.")
     
-    def generate_response(self, prompt, max_tokens=1024, temperature=0.7):
+    def generate_response(self, prompt, max_tokens=512, temperature=0.7, system_prompt=None):
         """
-        Generate a response from the LLM.
+        Generate a response from TinyLlama model.
         
         Args:
             prompt (str): The prompt to send to the model
             max_tokens (int): Maximum number of tokens to generate
             temperature (float): Sampling temperature (0.0-1.0)
+            system_prompt (str): Optional system prompt
             
         Returns:
             str: Generated response
@@ -68,17 +71,27 @@ class LLMService:
                 # Return a mock response for development
                 return self._mock_generate_response(prompt)
             
+            # Format prompt properly for chat model
+            if system_prompt:
+                formatted_prompt = f"<|system|>\n{system_prompt}\n<|user|>\n{prompt}\n<|assistant|>"
+            else:
+                formatted_prompt = f"<|user|>\n{prompt}\n<|assistant|>"
+            
+            self.logger.info(f"Generating response with TinyLlama for prompt: {prompt[:50]}...")
+            
             # Generate response with the model
             response = self.llm(
-                prompt,
+                formatted_prompt,
                 max_tokens=max_tokens,
                 temperature=temperature,
-                stop=["User:", "\n\n"],
+                stop=["<|user|>", "<|system|>"],
                 echo=False
             )
             
             # Extract the generated text
             generated_text = response['choices'][0]['text']
+            self.logger.info(f"Generated response: {generated_text[:50]}...")
+            
             return generated_text.strip()
             
         except Exception as e:

@@ -14,15 +14,10 @@ class RAGEngine:
     
     def __init__(self):
         self.vector_store = VectorStore()
-        # Choose the preferred LLM service - using OpenAI if key available
-        if os.environ.get("OPENAI_API_KEY"):
-            self.llm_service = OpenAIService()
-            self.logger = logging.getLogger(__name__)
-            self.logger.info("Using OpenAI service for LLM capabilities")
-        else:
-            self.llm_service = LLMService()
-            self.logger = logging.getLogger(__name__)
-            self.logger.warning("OpenAI API key not found, using fallback LLM service")
+        # Always use local TinyLlama model
+        self.llm_service = LLMService()
+        self.logger = logging.getLogger(__name__)
+        self.logger.info("Using TinyLlama local model for LLM capabilities")
     
     def process_query(self, query, user_id, session_id, chat_context=None):
         """
@@ -60,27 +55,10 @@ class RAGEngine:
                     for msg in chat_context[-5:]  # Use last 5 messages
                 ])
             
-            # Generate response with LLM
-            # If using OpenAI, use the specialized RAG method
-            if isinstance(self.llm_service, OpenAIService):
-                # Format chat history for OpenAI format
-                formatted_history = []
-                if chat_context and len(chat_context) > 0:
-                    for msg in chat_context[-5:]:  # Use last 5 messages
-                        formatted_history.append({
-                            'content': msg['content'],
-                            'is_user': msg['is_user']
-                        })
-                
-                response = self.llm_service.rag_prompt_with_context(
-                    user_query=query, 
-                    context=context_text,
-                    chat_history=formatted_history
-                )
-            else:
-                # Fall back to standard prompt method
-                prompt = self._create_rag_prompt(query, context_text, chat_history_text)
-                response = self.llm_service.generate_response(prompt)
+            # Generate response with TinyLlama
+            prompt = self._create_rag_prompt(query, context_text, chat_history_text)
+            self.logger.info(f"Generating response for query: {query[:50]}...")
+            response = self.llm_service.generate_response(prompt)
             
             # Create metadata for response
             metadata = {
@@ -118,20 +96,22 @@ class RAGEngine:
         return "\n".join(context_parts)
     
     def _create_rag_prompt(self, query, context, chat_history=""):
-        """Create a prompt for the LLM using retrieved context."""
-        prompt = """You are an AI assistant for a company knowledge base search. Answer the question based on the provided context.
-If you don't know the answer, simply say that you don't know, don't try to make up an answer.
-Use a professional, helpful tone and format your answer clearly.
+        """Create a prompt for TinyLlama using retrieved context."""
+        system_msg = """You are an AI assistant for a company knowledge base search. Answer the question based on the provided context.
+If the context doesn't contain the answer, simply say that you don't know, don't try to make up an answer.
+Use a professional, helpful tone and format your answer clearly."""
 
-"""
+        user_prompt = ""
         if chat_history:
-            prompt += f"Chat History:\n{chat_history}\n\n"
+            user_prompt += f"Chat History:\n{chat_history}\n\n"
         
-        prompt += f"Context:\n{context}\n\n"
-        prompt += f"Question: {query}\n"
-        prompt += "Answer: "
+        user_prompt += f"Context from company documents:\n{context}\n\n"
+        user_prompt += f"Question: {query}"
         
-        return prompt
+        # For TinyLlama chat format
+        formatted_prompt = f"<|system|>\n{system_msg}\n<|user|>\n{user_prompt}\n<|assistant|>"
+        
+        return formatted_prompt
     
     def generate_session_summary(self, session_id):
         """Generate a summary of the chat session."""
@@ -145,37 +125,25 @@ Use a professional, helpful tone and format your answer clearly.
             if not messages or len(messages) < 2:  # Need at least one exchange
                 return "Not enough conversation to summarize."
             
-            # If using OpenAI, use specialized method
-            if isinstance(self.llm_service, OpenAIService):
-                # Format messages for OpenAI
-                formatted_messages = []
-                for msg in messages:
-                    formatted_messages.append({
-                        'content': msg.content,
-                        'is_user': msg.is_user
-                    })
-                
-                # Generate summary with OpenAI
-                summary = self.llm_service.summarize_chat(formatted_messages)
-            else:
-                # Format messages for standard LLM
-                conversation = "\n".join([
-                    f"{'User' if msg.is_user else 'Assistant'}: {msg.content}"
-                    for msg in messages
-                ])
-                
-                # Create summarization prompt
-                prompt = """Generate a concise summary of the following conversation between a user and an AI assistant.
-Focus on the main topics discussed, key questions asked, and important information provided.
-The summary should be around 2-3 sentences, highlighting the most important points.
+            # Format messages for TinyLlama
+            conversation = "\n".join([
+                f"{'User' if msg.is_user else 'Assistant'}: {msg.content}"
+                for msg in messages
+            ])
+            
+            # Create summarization prompt
+            system_msg = """You are an AI assistant tasked with summarizing conversations. 
+Create a concise summary of the conversation, focusing on the main topics, key questions, and important information.
+Keep the summary to 2-3 sentences, highlighting only the most important points."""
 
-Conversation:
-"""
-                prompt += conversation
-                prompt += "\n\nSummary: "
-                
-                # Generate summary with LLM
-                summary = self.llm_service.generate_response(prompt)
+            user_prompt = f"Here is the conversation to summarize:\n\n{conversation}"
+            
+            # Format for TinyLlama chat format
+            prompt = f"<|system|>\n{system_msg}\n<|user|>\n{user_prompt}\n<|assistant|>"
+            
+            # Generate summary with TinyLlama
+            self.logger.info("Generating chat summary...")
+            summary = self.llm_service.generate_response(prompt)
             
             return summary
             
