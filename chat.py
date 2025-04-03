@@ -5,13 +5,17 @@ import json
 from flask import Blueprint, render_template, request, redirect, url_for, jsonify, flash, current_app
 from flask_login import login_required, current_user
 from flask_socketio import emit
-from extensions import db, socketio
-from models import User, ChatHistory, ChatMessage, Document
+from app import db, socketio
+from models import ChatHistory, ChatMessage, Document
+from rag_engine import RAGEngine
+from document_processor import DocumentProcessor
 
 # Create Blueprint
 chat_bp = Blueprint('chat', __name__)
 
-# Set up logging
+# Initialize services
+rag_engine = RAGEngine()
+document_processor = DocumentProcessor()
 logger = logging.getLogger(__name__)
 
 # Routes
@@ -114,7 +118,7 @@ def upload_document():
         return redirect(request.referrer or url_for('chat.documents_page'))
     
     # Process the uploaded file
-    result = current_app.document_processor.process_uploaded_file(file, current_user.id)
+    result = document_processor.process_uploaded_file(file, current_user.id)
     
     if result['success']:
         flash(f'Document "{result["document_name"]}" uploaded and processed successfully', 'success')
@@ -167,7 +171,7 @@ def end_chat(session_id):
     
     try:
         # Generate session summary
-        summary = current_app.rag_engine.generate_session_summary(session_id)
+        summary = rag_engine.generate_session_summary(session_id)
         
         # Update chat history
         chat_history.is_active = False
@@ -238,7 +242,7 @@ def handle_message(data):
             })
         
         # Process query with RAG engine
-        response = current_app.rag_engine.process_query(
+        response = rag_engine.process_query(
             query=message,
             user_id=user_id,
             session_id=session_id,

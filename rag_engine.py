@@ -7,25 +7,22 @@ from vector_store import VectorStore
 from llm_integration import LLMService
 from openai_integration import OpenAIService
 from models import Document, DocumentChunk, ChatHistory
-from extensions import db
+from app import db
 
 class RAGEngine:
     """Retrieval-Augmented Generation engine for knowledge search and response generation."""
     
-    def __init__(self, app=None):
-        self.vector_store = None
-        self.llm_service = None
-        self.logger = logging.getLogger(__name__)
-        
-        if app is not None:
-            self.init_app(app)
-    
-    def init_app(self, app):
-        """Initialize with Flask app."""
-        self.vector_store = VectorStore(app)
-        # By user request, use local Llama model instead of OpenAI
-        self.llm_service = LLMService()
-        self.logger.info("Using local Llama model for LLM capabilities")
+    def __init__(self):
+        self.vector_store = VectorStore()
+        # Choose the preferred LLM service - using OpenAI if key available
+        if os.environ.get("OPENAI_API_KEY"):
+            self.llm_service = OpenAIService()
+            self.logger = logging.getLogger(__name__)
+            self.logger.info("Using OpenAI service for LLM capabilities")
+        else:
+            self.llm_service = LLMService()
+            self.logger = logging.getLogger(__name__)
+            self.logger.warning("OpenAI API key not found, using fallback LLM service")
     
     def process_query(self, query, user_id, session_id, chat_context=None):
         """

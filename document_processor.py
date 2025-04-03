@@ -8,30 +8,20 @@ import re
 from flask import current_app
 from werkzeug.utils import secure_filename
 from models import Document, DocumentChunk
-from extensions import db
+from app import db
 from vector_store import VectorStore
 from llm_integration import LLMService
 
 class DocumentProcessor:
     """Handles document processing, text extraction, and chunking."""
     
-    def __init__(self, app=None):
-        self.vector_store = None
-        self.llm_service = None
-        self.logger = logging.getLogger(__name__)
-        self.app = app
-        
-        if app is not None:
-            self.init_app(app)
-    
-    def init_app(self, app):
-        """Initialize with Flask app instance."""
-        self.app = app
-        self.vector_store = VectorStore(app)
+    def __init__(self):
+        self.vector_store = VectorStore()
         self.llm_service = LLMService()
+        self.logger = logging.getLogger(__name__)
         
         # Create upload directory if it doesn't exist
-        os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+        os.makedirs(current_app.config['UPLOAD_FOLDER'], exist_ok=True)
     
     def process_uploaded_file(self, file, user_id):
         """
@@ -53,7 +43,7 @@ class DocumentProcessor:
             original_filename = file.filename
             secure_name = secure_filename(original_filename)
             filename = f"{user_id}_{secure_name}"
-            file_path = os.path.join(self.app.config['UPLOAD_FOLDER'], filename)
+            file_path = os.path.join(current_app.config['UPLOAD_FOLDER'], filename)
             file.save(file_path)
             
             # Get file size
@@ -149,7 +139,7 @@ class DocumentProcessor:
     
     def _is_allowed_file(self, filename):
         """Check if file type is allowed."""
-        allowed_extensions = self.app.config['ALLOWED_EXTENSIONS']
+        allowed_extensions = current_app.config['ALLOWED_EXTENSIONS']
         return '.' in filename and filename.rsplit('.', 1)[1].lower() in allowed_extensions
     
     def _extract_text(self, file_path, file_type):

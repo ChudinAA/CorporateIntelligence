@@ -1,13 +1,9 @@
 from datetime import datetime
-from werkzeug.security import generate_password_hash, check_password_hash
+from app import db
 from flask_login import UserMixin
-from sqlalchemy import Column, Integer, String, Text, ForeignKey, DateTime, Boolean
-from sqlalchemy.orm import relationship
+from werkzeug.security import generate_password_hash, check_password_hash
 
-# Import db object from extensions
-from extensions import db
-
-# Association table for many-to-many relationship between User and Role
+# Association table for user-role relationship
 user_roles = db.Table('user_roles',
     db.Column('user_id', db.Integer, db.ForeignKey('user.id'), primary_key=True),
     db.Column('role_id', db.Integer, db.ForeignKey('role.id'), primary_key=True)
@@ -43,7 +39,6 @@ class User(UserMixin, db.Model):
     def __repr__(self):
         return f'<User {self.username}>'
 
-
 class Role(db.Model):
     """Role model for RBAC."""
     id = db.Column(db.Integer, primary_key=True)
@@ -52,7 +47,6 @@ class Role(db.Model):
     
     def __repr__(self):
         return f'<Role {self.name}>'
-
 
 class Document(db.Model):
     """Document model for storing uploaded files metadata."""
@@ -74,7 +68,6 @@ class Document(db.Model):
     def __repr__(self):
         return f'<Document {self.original_filename}>'
 
-
 class DocumentChunk(db.Model):
     """Model for storing document chunks for vector database indexing."""
     id = db.Column(db.Integer, primary_key=True)
@@ -86,8 +79,7 @@ class DocumentChunk(db.Model):
     document_id = db.Column(db.Integer, db.ForeignKey('document.id'), nullable=False)
     
     def __repr__(self):
-        return f'<DocumentChunk {self.id} of Document {self.document_id}>'
-
+        return f'<DocumentChunk {self.id} from Document {self.document_id}>'
 
 class ChatHistory(db.Model):
     """Model for storing chat history."""
@@ -103,8 +95,7 @@ class ChatHistory(db.Model):
     messages = db.relationship('ChatMessage', backref='chat_history', lazy='dynamic', cascade='all, delete-orphan')
     
     def __repr__(self):
-        return f'<ChatHistory {self.session_id}>'
-
+        return f'<ChatHistory {self.id} for User {self.user_id}>'
 
 class ChatMessage(db.Model):
     """Model for storing individual chat messages."""
@@ -114,8 +105,9 @@ class ChatMessage(db.Model):
     is_user = db.Column(db.Boolean, default=True)  # True if sent by user, False if by AI
     timestamp = db.Column(db.DateTime, default=datetime.utcnow)
     
-    # JSON string of document IDs used for response
-    related_documents = db.Column(db.Text, nullable=True)
+    # Additional metadata
+    related_documents = db.Column(db.Text, nullable=True)  # JSON string of document IDs used for response
     
     def __repr__(self):
-        return f'<ChatMessage {self.id} in {self.chat_history_id}>'
+        sender = "User" if self.is_user else "AI"
+        return f'<ChatMessage {self.id} from {sender}>'
