@@ -6,24 +6,14 @@ import os
 import json
 import logging
 from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
-from flask_login import LoginManager
-from sqlalchemy.orm import DeclarativeBase
-from flask_socketio import SocketIO
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 logger.info("Initializing application with eventlet support")
 
-# Create base class for SQLAlchemy models
-class Base(DeclarativeBase):
-    pass
-
-# Initialize Flask extensions
-db = SQLAlchemy(model_class=Base)
-socketio = SocketIO(async_mode='eventlet')
-login_manager = LoginManager()
+# Import extensions
+from extensions import db, login_manager, socketio
 
 def create_app():
     # Create Flask app

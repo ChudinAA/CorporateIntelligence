@@ -5,6 +5,7 @@ import json
 import faiss
 from flask import current_app
 from models import DocumentChunk, Document
+from extensions import db
 
 class VectorStore:
     """
@@ -12,18 +13,29 @@ class VectorStore:
     Creates separate indexes for each user to maintain data isolation.
     """
     
-    def __init__(self):
+    def __init__(self, app=None):
         self.logger = logging.getLogger(__name__)
-        self.vector_db_path = current_app.config['VECTOR_DB_PATH']
-        self.dimension = current_app.config['EMBEDDINGS_DIMENSION']
-        
-        # Create vector DB directory if it doesn't exist
-        os.makedirs(self.vector_db_path, exist_ok=True)
+        self.app = app
+        self.vector_db_path = None
+        self.dimension = None
         
         # Dictionary to store indexes by user_id
         self.indexes = {}
         # Dictionary to map vector IDs to document chunk IDs
         self.id_mappings = {}
+        
+        # If app is provided, initialize
+        if app is not None:
+            self.init_app(app)
+    
+    def init_app(self, app):
+        """Initialize with Flask app instance."""
+        self.app = app
+        self.vector_db_path = app.config['VECTOR_DB_PATH']
+        self.dimension = app.config['EMBEDDINGS_DIMENSION']
+        
+        # Create vector DB directory if it doesn't exist
+        os.makedirs(self.vector_db_path, exist_ok=True)
     
     def _get_user_index_path(self, user_id):
         """Get path for user's FAISS index file."""

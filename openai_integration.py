@@ -14,32 +14,46 @@ class OpenAIService:
     Service for interacting with OpenAI API for text generation and embeddings.
     """
     
-    def __init__(self):
+    def __init__(self, app=None):
         """
         Initialize the OpenAI service with proper configuration and error handling.
         Sets up the OpenAI client and configures embedding dimensions based on the
         latest text-embedding-3-large model which has 3072 dimensions.
         """
+        self.app = app
         self.api_key = os.environ.get("OPENAI_API_KEY")
-        
-        if not self.api_key:
-            logger.warning("OpenAI API key not found in environment variables. Service will use fallback methods.")
-            self.client = None
-        else:
-            try:
-                # Initialize with timeout and proper error handling
-                self.client = OpenAI(
-                    api_key=self.api_key,
-                    timeout=60.0,  # 60 second timeout for API calls
-                    max_retries=2  # Retry failed requests twice
-                )
-                logger.info("OpenAI service initialized successfully")
-            except Exception as e:
-                logger.error(f"Failed to initialize OpenAI client: {str(e)}")
-                self.client = None
+        self.client = None
         
         # Update to the correct embedding dimension for text-embedding-3-large
         self.embedding_dimension = 3072  # Latest OpenAI embedding model dimension
+        
+        self._initialize_client()
+        
+        if app is not None:
+            self.init_app(app)
+    
+    def init_app(self, app):
+        """Initialize with Flask app instance."""
+        self.app = app
+        
+    def _initialize_client(self):
+        """Initialize the OpenAI client with proper error handling."""
+        if not self.api_key:
+            logger.warning("OpenAI API key not found in environment variables. Service will use fallback methods.")
+            self.client = None
+            return
+            
+        try:
+            # Initialize with timeout and proper error handling
+            self.client = OpenAI(
+                api_key=self.api_key,
+                timeout=60.0,  # 60 second timeout for API calls
+                max_retries=2  # Retry failed requests twice
+            )
+            logger.info("OpenAI service initialized successfully")
+        except Exception as e:
+            logger.error(f"Failed to initialize OpenAI client: {str(e)}")
+            self.client = None
     
     def generate_response(self, prompt, max_tokens=1024, temperature=0.7, system_prompt=None):
         """

@@ -5,7 +5,7 @@ from wtforms import StringField, PasswordField, SubmitField, EmailField
 from wtforms.validators import DataRequired, Email, Length, EqualTo, ValidationError
 from werkzeug.security import generate_password_hash
 from models import User, Role
-from app import db
+from extensions import db
 import logging
 
 # Create Blueprint
