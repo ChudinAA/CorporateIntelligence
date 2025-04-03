@@ -1,0 +1,134 @@
+{% extends "layout.html" %}
+
+{% block title %}Dashboard - AI Knowledge Platform{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8">
+        <div class="card shadow">
+            <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                <h3 class="card-title mb-0"><i class="fas fa-comments me-2"></i>Your Conversations</h3>
+                <a href="{{ url_for('chat.new_chat') }}" class="btn btn-light btn-sm">
+                    <i class="fas fa-plus me-1"></i> New Chat
+                </a>
+            </div>
+            <div class="card-body">
+                {% if active_sessions %}
+                    <div class="list-group">
+                        {% for session in active_sessions %}
+                            <a href="{{ url_for('chat.chat_page', session_id=session.session_id) }}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h5 class="mb-1">Chat Session #{{ session.id }}</h5>
+                                    <p class="mb-1 text-muted">
+                                        <small>Last updated: {{ session.updated_at.strftime('%Y-%m-%d %H:%M') }}</small>
+                                    </p>
+                                    {% if session.summary %}
+                                        <p class="mb-0">{{ session.summary }}</p>
+                                    {% endif %}
+                                </div>
+                                <span class="badge bg-primary rounded-pill">
+                                    {{ session.messages.count() }} messages
+                                </span>
+                            </a>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="text-center py-5">
+                        <i class="fas fa-comment-slash fa-4x mb-3 text-muted"></i>
+                        <h4>No active chat sessions</h4>
+                        <p class="lead">Start a new conversation with the AI assistant.</p>
+                        <a href="{{ url_for('chat.new_chat') }}" class="btn btn-primary">
+                            <i class="fas fa-plus me-1"></i> Start New Chat
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <!-- Recent Documents -->
+        <div class="card shadow mb-4">
+            <div class="card-header bg-secondary text-white d-flex justify-content-between align-items-center">
+                <h4 class="card-title mb-0"><i class="fas fa-file-alt me-2"></i>Recent Documents</h4>
+                <a href="{{ url_for('chat.documents_page') }}" class="btn btn-light btn-sm">
+                    <i class="fas fa-folder-open me-1"></i> All Documents
+                </a>
+            </div>
+            <div class="card-body">
+                {% if documents %}
+                    <div class="list-group">
+                        {% for doc in documents[:5] %}
+                            <div class="list-group-item">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <h5 class="mb-1">
+                                        {% if doc.file_type == 'pdf' %}
+                                            <i class="fas fa-file-pdf text-danger me-2"></i>
+                                        {% elif doc.file_type in ['docx', 'doc'] %}
+                                            <i class="fas fa-file-word text-primary me-2"></i>
+                                        {% elif doc.file_type in ['xlsx', 'xls', 'csv'] %}
+                                            <i class="fas fa-file-excel text-success me-2"></i>
+                                        {% else %}
+                                            <i class="fas fa-file-alt me-2"></i>
+                                        {% endif %}
+                                        {{ doc.original_filename }}
+                                    </h5>
+                                </div>
+                                <p class="mb-1 text-muted">
+                                    <small>Uploaded: {{ doc.upload_date.strftime('%Y-%m-%d') }}</small>
+                                </p>
+                                <div class="d-flex justify-content-between">
+                                    <small>{{ (doc.file_size / 1024)|round(1) }} KB</small>
+                                    <small>
+                                        {% if doc.processed %}
+                                            <span class="text-success">
+                                                <i class="fas fa-check-circle me-1"></i>Processed
+                                            </span>
+                                        {% else %}
+                                            <span class="text-warning">
+                                                <i class="fas fa-clock me-1"></i>Processing
+                                            </span>
+                                        {% endif %}
+                                    </small>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                    {% if documents|length > 5 %}
+                        <div class="text-center mt-3">
+                            <a href="{{ url_for('chat.documents_page') }}" class="btn btn-outline-primary btn-sm">
+                                View All Documents
+                            </a>
+                        </div>
+                    {% endif %}
+                {% else %}
+                    <div class="text-center py-4">
+                        <i class="fas fa-folder-open fa-3x mb-3 text-muted"></i>
+                        <p>No documents uploaded yet.</p>
+                        <a href="{{ url_for('chat.documents_page') }}" class="btn btn-outline-primary btn-sm">
+                            Upload Documents
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="card shadow">
+            <div class="card-header bg-info text-white">
+                <h4 class="card-title mb-0"><i class="fas fa-bolt me-2"></i>Quick Actions</h4>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-3">
+                    <a href="{{ url_for('chat.new_chat') }}" class="btn btn-primary">
+                        <i class="fas fa-comments me-2"></i>Start New Chat
+                    </a>
+                    <a href="{{ url_for('chat.documents_page') }}" class="btn btn-secondary">
+                        <i class="fas fa-file-upload me-2"></i>Upload Documents
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

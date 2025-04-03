@@ -1,0 +1,126 @@
+/* Global style adjustments */
+body {
+    background-color: var(--bs-dark);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+main {
+    flex: 1;
+}
+
+/* Card styling */
+.card {
+    border: none;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    margin-bottom: 1.5rem;
+}
+
+.card-header {
+    border-bottom: none;
+    padding: 1rem 1.25rem;
+}
+
+.card .list-group-item {
+    border-left: none;
+    border-right: none;
+}
+
+/* Chat-specific styling */
+#chat-container::-webkit-scrollbar {
+    width: 6px;
+}
+
+#chat-container::-webkit-scrollbar-track {
+    background: var(--bs-dark);
+}
+
+#chat-container::-webkit-scrollbar-thumb {
+    background-color: var(--bs-gray-600);
+    border-radius: 3px;
+}
+
+/* Dashboard cards hover effect */
+.dashboard-card {
+    transition: transform 0.2s ease-in-out;
+}
+
+.dashboard-card:hover {
+    transform: translateY(-5px);
+}
+
+/* Custom button styles */
+.btn-icon {
+    padding: 0.25rem 0.5rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* File type icons */
+.file-icon {
+    width: 24px;
+    height: 24px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 0.5rem;
+}
+
+/* Status badges */
+.status-badge {
+    padding: 0.35em 0.65em;
+    font-size: 0.75em;
+    font-weight: 700;
+    border-radius: 0.25rem;
+}
+
+/* Code blocks in AI responses */
+.ai-message pre {
+    background-color: rgba(0, 0, 0, 0.2);
+    border-radius: 0.25rem;
+    padding: 0.75rem;
+    margin: 0.5rem 0;
+    overflow-x: auto;
+}
+
+.ai-message code {
+    font-family: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    font-size: 0.875em;
+}
+
+/* Markdown-like formatting in AI responses */
+.ai-message h1, .ai-message h2, .ai-message h3, 
+.ai-message h4, .ai-message h5, .ai-message h6 {
+    margin-top: 1rem;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+}
+
+.ai-message a {
+    color: var(--bs-primary);
+    text-decoration: underline;
+}
+
+.ai-message ul, .ai-message ol {
+    margin-top: 0.5rem;
+    margin-bottom: 0.5rem;
+    padding-left: 1.5rem;
+}
+
+.ai-message blockquote {
+    padding-left: 1rem;
+    border-left: 3px solid var(--bs-gray-600);
+    margin-left: 0.5rem;
+    color: var(--bs-gray-400);
+}
+
+/* Table styling */
+.table {
+    color: inherit;
+}
+
+.table-hover tbody tr:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+}
