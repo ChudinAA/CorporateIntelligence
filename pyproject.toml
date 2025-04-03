@@ -27,4 +27,8 @@ dependencies = [
     "llama-cpp-python>=0.3.8",
     "tqdm>=4.67.1",
     "requests>=2.32.3",
+    "langchain>=0.3.22",
+    "langchain-openai>=0.3.12",
+    "python-dotenv>=1.1.0",
+    "chromadb>=0.6.3",
 ]

@@ -1,257 +1,220 @@
 import os
 import logging
 import tempfile
+from typing import List, Dict
 import PyPDF2
 import docx
 import pandas as pd
-import re
-from flask import current_app
 from werkzeug.utils import secure_filename
+from flask import current_app
 from models import Document, DocumentChunk
 from app import db
 from vector_store import VectorStore
-from llm_integration import LLMService
 from openai_integration import OpenAIService
 
 class DocumentProcessor:
-    """Handles document processing, text extraction, and chunking."""
-    
     def __init__(self):
         self.vector_store = VectorStore()
-        self.llm_service = OpenAIService()
         self.logger = logging.getLogger(__name__)
-        
-        # Create upload directory if it doesn't exist
-        os.makedirs(current_app.config['UPLOAD_FOLDER'], exist_ok=True)
-    
-    def process_uploaded_file(self, file, user_id):
-        """
-        Process an uploaded file and store in vector database.
-        
-        Args:
-            file: File object from Flask request
-            user_id: ID of the user uploading the file
-            
-        Returns:
-            dict: Processing status information
-        """
+
+    def process_uploaded_file(self, file, user_id: int) -> Dict:
+        """Process uploaded file and store in vector database"""
         try:
-            # Validate file
             if not self._is_allowed_file(file.filename):
                 return {"success": False, "error": "File type not supported"}
-            
-            # Secure filename and save file
+
+            # Save and process file
+            file_info = self._save_file(file, user_id)
+            if not file_info["success"]:
+                return file_info
+
+            # Create document record
+            document = self._create_document_record(file_info, user_id)
+
+            # Extract and process text
+            text = self._extract_text(file_info["file_path"], file_info["file_type"])
+            if not text:
+                return self._handle_extraction_error(document)
+
+            # Create and store chunks
+            chunks = self._process_chunks(text, document.id, user_id)
+            if not chunks["success"]:
+                return self._handle_chunking_error(document, chunks["error"])
+
+            # Update document status
+            document.processed = True
+            db.session.commit()
+
+            return {
+                "success": True,
+                "document_id": document.id,
+                "chunks_count": len(chunks["chunks"]),
+                "document_name": file_info["original_filename"]
+            }
+
+        except Exception as e:
+            self.logger.error(f"Document processing error: {str(e)}", exc_info=True)
+            return {"success": False, "error": str(e)}
+
+    def _save_file(self, file, user_id: int) -> Dict:
+        """Save uploaded file and return file info"""
+        try:
             original_filename = file.filename
             secure_name = secure_filename(original_filename)
             filename = f"{user_id}_{secure_name}"
             file_path = os.path.join(current_app.config['UPLOAD_FOLDER'], filename)
+
             file.save(file_path)
-            
-            # Get file size
-            file_size = os.path.getsize(file_path)
-            
-            # Get file type
-            file_type = original_filename.rsplit('.', 1)[1].lower()
-            
-            # Create document record
-            document = Document(
-                filename=filename,
-                original_filename=original_filename,
-                file_type=file_type,
-                file_size=file_size,
-                user_id=user_id,
-                processed=False
-            )
-            db.session.add(document)
-            db.session.commit()
-            
-            # Extract text from file
-            text = self._extract_text(file_path, file_type)
-            
-            # If text extraction failed
-            if not text:
-                document.processing_error = "Failed to extract text from document"
-                db.session.commit()
-                return {
-                    "success": False, 
-                    "error": "Failed to extract text from document",
-                    "document_id": document.id
-                }
-            
-            # Create chunks from text
-            chunks = self._create_chunks(text, chunk_size=1000, chunk_overlap=100)
-            
-            # Store chunks in database and vector store
+
+            return {
+                "success": True,
+                "file_path": file_path,
+                "filename": filename,
+                "original_filename": original_filename,
+                "file_type": original_filename.rsplit('.', 1)[1].lower(),
+                "file_size": os.path.getsize(file_path)
+            }
+        except Exception as e:
+            return {"success": False, "error": f"File save error: {str(e)}"}
+
+    def _create_document_record(self, file_info: Dict, user_id: int) -> Document:
+        """Create document record in database"""
+        document = Document(
+            filename=file_info["filename"],
+            original_filename=file_info["original_filename"],
+            file_type=file_info["file_type"],
+            file_size=file_info["file_size"],
+            user_id=user_id,
+            processed=False
+        )
+        db.session.add(document)
+        db.session.commit()
+        return document
+
+    def _process_chunks(self, text: str, document_id: int, user_id: int) -> Dict:
+        """Process text into chunks and store in vector database"""
+        try:
+            # Create chunks
+            chunks = self._create_chunks(text)
             chunk_objects = []
+
+            # Create chunk records
             for i, chunk_text in enumerate(chunks):
-                # Create embedding for chunk
-                embedding = self.llm_service.get_embedding(chunk_text)
-                
-                # Create chunk record
                 chunk = DocumentChunk(
-                    document_id=document.id,
+                    document_id=document_id,
                     chunk_text=chunk_text,
                     chunk_index=i
                 )
                 db.session.add(chunk)
-                db.session.flush()  # Get ID without committing
-                
-                # Add to vector store
-                vector_id = self.vector_store.add_embedding(
-                    embedding=embedding,
-                    doc_chunk_id=chunk.id,
-                    document_id=document.id,
-                    user_id=user_id,
-                    metadata={
-                        "file_type": file_type,
-                        "chunk_index": i,
-                        "original_filename": original_filename
-                    }
-                )
-                
-                if vector_id is not None:
-                    # Update chunk with vector ID and save immediately
-                    chunk.vector_id = vector_id
-                    db.session.add(chunk)
-                    db.session.flush()
-                    chunk_objects.append(chunk)
-                else:
-                    self.logger.error(f"Failed to get vector_id for chunk {i}")
-                    raise Exception("Vector store embedding failed")
-            
-            # Mark document as processed
-            document.processed = True
+                chunk_objects.append(chunk)
+
+            db.session.flush()
+
+            # Prepare metadata for vector store
+            metadata_list = [{
+                "chunk_id": chunk.id,
+                "document_id": document_id,
+                "chunk_index": chunk.chunk_index
+            } for chunk in chunk_objects]
+
+            # Store in vector database
+            if not self.vector_store.add_document_chunks(chunk_objects, metadata_list, user_id):
+                raise Exception("Failed to store chunks in vector database")
+
             db.session.commit()
-            
-            return {
-                "success": True,
-                "document_id": document.id,
-                "chunks_count": len(chunks),
-                "document_name": original_filename
-            }
-            
+            return {"success": True, "chunks": chunk_objects}
+
         except Exception as e:
             db.session.rollback()
-            self.logger.error(f"Document processing error: {str(e)}", exc_info=True)
-            
-            # Update document with error if it was created
-            try:
-                if 'document' in locals() and document.id:
-                    document.processing_error = str(e)[:255]  # Truncate if too long
-                    db.session.commit()
-            except:
-                pass
-                
             return {"success": False, "error": str(e)}
-    
-    def _is_allowed_file(self, filename):
-        """Check if file type is allowed."""
-        allowed_extensions = current_app.config['ALLOWED_EXTENSIONS']
-        return '.' in filename and filename.rsplit('.', 1)[1].lower() in allowed_extensions
-    
-    def _extract_text(self, file_path, file_type):
-        """Extract text from different file formats."""
+
+    def _is_allowed_file(self, filename: str) -> bool:
+        """Check if file type is allowed"""
+        return '.' in filename and \
+               filename.rsplit('.', 1)[1].lower() in current_app.config['ALLOWED_EXTENSIONS']
+
+    def _extract_text(self, file_path: str, file_type: str) -> str:
+        """Extract text from document based on file type"""
         try:
-            if file_type == 'pdf':
-                return self._extract_from_pdf(file_path)
-            elif file_type == 'txt':
-                return self._extract_from_txt(file_path)
-            elif file_type == 'docx':
-                return self._extract_from_docx(file_path)
-            elif file_type in ['xlsx', 'csv']:
-                return self._extract_from_spreadsheet(file_path, file_type)
-            else:
-                self.logger.error(f"Unsupported file type for extraction: {file_type}")
-                return None
+            extractors = {
+                'pdf': self._extract_from_pdf,
+                'txt': self._extract_from_txt,
+                'docx': self._extract_from_docx,
+                'xlsx': lambda x: self._extract_from_spreadsheet(x, 'xlsx'),
+                'csv': lambda x: self._extract_from_spreadsheet(x, 'csv')
+            }
+
+            extractor = extractors.get(file_type)
+            if not extractor:
+                raise ValueError(f"Unsupported file type: {file_type}")
+
+            return extractor(file_path)
+
         except Exception as e:
-            self.logger.error(f"Error extracting text from {file_type} file: {str(e)}", exc_info=True)
+            self.logger.error(f"Text extraction error: {str(e)}")
             return None
-    
-    def _extract_from_pdf(self, file_path):
-        """Extract text from PDF file."""
-        text = ""
+
+    def _extract_from_pdf(self, file_path: str) -> str:
         with open(file_path, 'rb') as f:
-            pdf_reader = PyPDF2.PdfReader(f)
-            for page_num in range(len(pdf_reader.pages)):
-                text += pdf_reader.pages[page_num].extract_text() + "\n"
-        return text
-    
-    def _extract_from_txt(self, file_path):
-        """Extract text from TXT file."""
+            reader = PyPDF2.PdfReader(f)
+            return "\n".join(page.extract_text() for page in reader.pages)
+
+    def _extract_from_txt(self, file_path: str) -> str:
         with open(file_path, 'r', encoding='utf-8', errors='replace') as f:
             return f.read()
-    
-    def _extract_from_docx(self, file_path):
-        """Extract text from DOCX file."""
+
+    def _extract_from_docx(self, file_path: str) -> str:
         doc = docx.Document(file_path)
-        text = ""
-        for para in doc.paragraphs:
-            text += para.text + "\n"
-        return text
-    
-    def _extract_from_spreadsheet(self, file_path, file_type):
-        """Extract text from Excel/CSV file."""
-        if file_type == 'xlsx':
-            df = pd.read_excel(file_path)
-        else:  # CSV
-            df = pd.read_csv(file_path)
-        
-        # Convert DataFrame to string representation
-        text = df.to_string(index=False)
-        return text
-    
-    def _create_chunks(self, text, chunk_size=1000, chunk_overlap=100):
-        """
-        Split text into overlapping chunks.
-        
-        Args:
-            text (str): The text to split
-            chunk_size (int): Maximum size of each chunk
-            chunk_overlap (int): Amount of overlap between chunks
-            
-        Returns:
-            list: List of text chunks
-        """
-        if not text:
-            return []
-        
-        # Split text into sentences (rough heuristic)
-        sentences = re.split(r'(?<=[.!?])\s+', text)
-        
+        return "\n".join(para.text for para in doc.paragraphs)
+
+    def _extract_from_spreadsheet(self, file_path: str, file_type: str) -> str:
+        df = pd.read_excel(file_path) if file_type == 'xlsx' else pd.read_csv(file_path)
+        return df.to_string(index=False)
+
+    def _create_chunks(self, text: str, chunk_size: int = 1000) -> List[str]:
+        """Create chunks from text using smart splitting"""
+        import re
+
+        def split_into_sentences(text):
+            return re.split(r'(?<=[.!?])\s+', text)
+
+        sentences = split_into_sentences(text)
         chunks = []
         current_chunk = []
         current_size = 0
-        
+
         for sentence in sentences:
             sentence_size = len(sentence)
-            
-            # If adding this sentence exceeds chunk size and we have content, create a new chunk
+
             if current_size + sentence_size > chunk_size and current_chunk:
-                # Join the current chunk and add to chunks list
                 chunks.append(" ".join(current_chunk))
-                
-                # Keep some sentences for overlap
-                overlap_sentences = []
-                overlap_size = 0
-                
-                # Work backwards to create overlap
-                for s in reversed(current_chunk):
-                    if overlap_size + len(s) <= chunk_overlap:
-                        overlap_sentences.insert(0, s)
-                        overlap_size += len(s) + 1  # +1 for space
-                    else:
-                        break
-                
-                # Start new chunk with overlap
-                current_chunk = overlap_sentences
-                current_size = overlap_size
-            
-            # Add the current sentence
+                current_chunk = []
+                current_size = 0
+
             current_chunk.append(sentence)
-            current_size += sentence_size + 1  # +1 for space
-        
-        # Add the last chunk if it has content
+            current_size += sentence_size + 1
+
         if current_chunk:
             chunks.append(" ".join(current_chunk))
-        
+
         return chunks
+
+    def _handle_extraction_error(self, document: Document) -> Dict:
+        """Handle text extraction error"""
+        document.processing_error = "Failed to extract text from document"
+        db.session.commit()
+        return {
+            "success": False,
+            "error": "Failed to extract text from document",
+            "document_id": document.id
+        }
+
+    def _handle_chunking_error(self, document: Document, error: str) -> Dict:
+        """Handle chunking error"""
+        document.processing_error = f"Chunking error: {error}"
+        db.session.commit()
+        return {
+            "success": False,
+            "error": f"Failed to process document chunks: {error}",
+            "document_id": document.id
+        }
