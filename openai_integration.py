@@ -21,7 +21,7 @@ class OpenAIService:
         Sets up the OpenAI client and configures embedding dimensions based on the
         latest text-embedding-3-large model which has 3072 dimensions.
         """
-        self.api_key = os.environ.get("OPENROUTER_API_KEY")
+        self.api_key = os.environ.get("OPENAI_API_KEY")
 
         if not self.api_key:
             logger.warning(
@@ -289,7 +289,7 @@ class OpenAIService:
             # Generate response with enhanced parameters and error handling
             try:
                 response = self.client.chat.completions.create(
-                    model="gpt-4o-mini", # Using GPT-4o mini model
+                    model="gpt-4o-mini",  # Using GPT-4o mini model
                     messages=messages,
                     max_tokens=1024,
                     temperature=
