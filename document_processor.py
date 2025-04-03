@@ -17,7 +17,7 @@ class DocumentProcessor:
     
     def __init__(self):
         self.vector_store = VectorStore()
-        self.llm_service = LLMService()
+        self.llm_service = OpenAIService()
         self.logger = logging.getLogger(__name__)
         
         # Create upload directory if it doesn't exist

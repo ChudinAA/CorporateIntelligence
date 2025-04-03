@@ -38,8 +38,8 @@ class VectorStore:
         if user_id in self.indexes:
             return self.indexes[user_id]
 
-        # TinyLlama embedding dimension
-        self.dimension = 1024
+        # OpenAI embedding dimension
+        self.dimension = 3072  # text-embedding-3-large dimension
         
         index_path = self._get_user_index_path(user_id)
         mapping_path = self._get_user_mapping_path(user_id)

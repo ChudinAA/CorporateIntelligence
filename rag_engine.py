@@ -35,6 +35,7 @@ class RAGEngine:
         try:
             # Get query embedding
             query_embedding = self.llm_service.get_embedding(query)
+            self.logger.info(f"Generated query embedding with shape: {query_embedding.shape}")
             
             # Retrieve relevant documents from vector store
             relevant_chunks = self.vector_store.similarity_search(
@@ -42,6 +43,10 @@ class RAGEngine:
                 limit=5,
                 user_id=user_id
             )
+            self.logger.info(f"Found {len(relevant_chunks)} relevant chunks")
+            
+            if not relevant_chunks:
+                self.logger.warning("No relevant chunks found in vector store")
             
             # Prepare context from retrieved documents
             context_text = self._prepare_context(relevant_chunks)
