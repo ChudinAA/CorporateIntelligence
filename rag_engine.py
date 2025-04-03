@@ -3,7 +3,7 @@ import logging
 from typing import Dict, List
 from langchain_core.prompts import PromptTemplate
 from langchain.chains.conversational_retrieval.base import ConversationalRetrievalChain
-from langchain_openai import OpenAIEmbeddings, OpenAI 
+from langchain_openai import OpenAIEmbeddings, ChatOpenAI 
 from langchain.memory import ConversationBufferMemory
 from langchain_community.vectorstores import Chroma
 from vector_store import VectorStore
@@ -14,8 +14,8 @@ class RAGEngine:
         self.vector_store = VectorStore()
         self.logger = logging.getLogger(__name__)
         self.embeddings = OpenAIEmbeddings(model="text-embedding-3-small")
-        self.llm = OpenAI(
-            model="gpt-3.5-turbo",
+        self.llm = ChatOpenAI(
+            model_name="gpt-3.5-turbo",
             temperature=0.7,
             max_tokens=512
         )
