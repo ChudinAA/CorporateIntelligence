@@ -1,4 +1,7 @@
-# Eventlet monkey-patching is handled in main.py
+# Apply eventlet monkey patching before any other imports
+import eventlet
+eventlet.monkey_patch()
+
 import os
 import json
 import logging
@@ -11,7 +14,7 @@ from flask_socketio import SocketIO
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
-logger.info("Initializing application with Socket.IO support")
+logger.info("Initializing application with eventlet support")
 
 # Create base class for SQLAlchemy models
 class Base(DeclarativeBase):
@@ -19,9 +22,7 @@ class Base(DeclarativeBase):
 
 # Initialize Flask extensions
 db = SQLAlchemy(model_class=Base)
-# Initialize Socket.IO with flexible async mode detection
-# This will adapt to the available environment (eventlet, gevent, or threading)
-socketio = SocketIO(cors_allowed_origins="*", manage_session=False)
+socketio = SocketIO(async_mode='eventlet')
 login_manager = LoginManager()
 
 def create_app():
@@ -45,10 +46,9 @@ def create_app():
     
     # Initialize extensions with app
     db.init_app(app)
-    # Initialize Socket.IO with the application
-    # It will use the best available async mode (eventlet, gevent, or threading)
-    socketio.init_app(app, cors_allowed_origins="*", manage_session=False)
-    logger.info(f"Socket.IO initialized with {socketio.async_mode} mode")
+    # Use eventlet for WebSocket support
+    socketio.init_app(app, cors_allowed_origins="*", async_mode='eventlet', manage_session=False)
+    logger.info("Socket.IO initialized with eventlet mode")
     
     # Configure login manager
     login_manager.init_app(app)

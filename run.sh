@@ -1,6 +1,6 @@
 #!/bin/bash
-# Start the Flask application using our custom server script
-# This ensures WebSocket support works properly with Socket.IO
-
-# Execute our custom script for starting gunicorn with proper configuration
-python start_server.py
+# Start the Flask application with gunicorn and eventlet worker
+# This ensures the WebSocket support works properly
+# The worker class eventlet is required for WebSocket support with Socket.IO
+# Use only 1 worker for WebSocket proper functionality
+exec gunicorn --worker-class eventlet -w 1 --bind 0.0.0.0:5000 --reuse-port --reload main:application

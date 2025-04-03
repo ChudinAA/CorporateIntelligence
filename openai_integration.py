@@ -90,7 +90,7 @@ class OpenAIService:
             # Make the API call with error handling
             try:
                 response = self.client.chat.completions.create(
-                    model="gpt-4o-mini",  # Using the latest smaller model for faster responses
+                    model="gpt-4o",  # Using the latest model
                     messages=messages,
                     max_tokens=max_tokens,
                     temperature=temperature,
@@ -258,7 +258,7 @@ class OpenAIService:
             # Generate response with enhanced parameters and error handling
             try:
                 response = self.client.chat.completions.create(
-                    model="gpt-4o-mini",  # Using the more efficient smaller model
+                    model="gpt-4o",
                     messages=messages,
                     max_tokens=1024,
                     temperature=0.4,  # Slightly reduced temperature for more focused answers
@@ -359,7 +359,7 @@ class OpenAIService:
             # Make the API call with optimized parameters and error handling
             try:
                 response = self.client.chat.completions.create(
-                    model="gpt-4o-mini",  # Using the more efficient smaller model for summaries
+                    model="gpt-4o",
                     messages=api_messages,
                     max_tokens=256,
                     temperature=0.3,  # Lower temperature for more focused, consistent summaries
