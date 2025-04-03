@@ -1,9 +1,11 @@
+
 import logging
 from typing import Dict, List
-from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain_openai import OpenAIEmbeddings, OpenAI
-from langchain.chains import ConversationalRetrievalQA
-from langchain.memory import ConversationBufferMemory
+from langchain_core.prompts import PromptTemplate
+from langchain.chains.conversational_retrieval.base import ConversationalRetrievalChain
+from langchain_openai import OpenAIEmbeddings, OpenAI 
+from langchain_core.memory import ConversationBufferMemory
+from langchain_community.vectorstores import Chroma
 from vector_store import VectorStore
 from models import ChatHistory
 
@@ -18,15 +20,13 @@ class RAGEngine:
                      chat_context: List[Dict] = None) -> Dict:
         """Process user query using RAG approach"""
         try:
-            # Search for relevant documents
-            search_results = self.vector_store.similarity_search(
-                query=query,
-                user_id=user_id,
-                limit=5
+            # Get Chroma collection
+            collection_name = f"user_{user_id}_docs"
+            vectorstore = Chroma(
+                collection_name=collection_name,
+                embedding_function=self.embeddings,
+                persist_directory=self.vector_store.client.persist_directory
             )
-
-            if not search_results:
-                return self._handle_no_results(query)
 
             # Prepare conversation memory
             memory = ConversationBufferMemory(
@@ -41,15 +41,15 @@ class RAGEngine:
                         memory.chat_memory.add_ai_message(msg["content"])
 
             # Create QA chain
-            qa_chain = ConversationalRetrievalQA.from_llm(
+            qa_chain = ConversationalRetrievalChain.from_llm(
                 llm=self.llm,
-                retriever=search_results,
+                retriever=vectorstore.as_retriever(),
                 memory=memory,
                 return_source_documents=True
             )
 
             # Get response
-            response = qa_chain({"question": query})
+            response = qa_chain.invoke({"question": query})
 
             return {
                 "answer": response["answer"],
@@ -93,18 +93,21 @@ class RAGEngine:
             if len(messages) < 2:
                 return "Not enough conversation to summarize."
 
-            prompt = f"""Please provide a concise summary of this conversation, focusing on:
-- Main topics discussed
-- Key questions asked
-- Important information provided
-- Any decisions or conclusions reached
+            prompt = PromptTemplate.from_template(
+                """Please provide a concise summary of this conversation, focusing on:
+                - Main topics discussed
+                - Key questions asked
+                - Important information provided
+                - Any decisions or conclusions reached
 
-Conversation:
-{messages}
+                Conversation:
+                {messages}
 
-Keep the summary to 2-3 sentences."""
+                Keep the summary to 2-3 sentences."""
+            )
 
-            response = self.llm.predict(prompt)
+            formatted_prompt = prompt.format(messages="\n".join(messages))
+            response = self.llm.predict(formatted_prompt)
             return response.strip()
 
         except Exception as e:
