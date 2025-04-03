@@ -37,6 +37,9 @@ class VectorStore:
         """Load or create FAISS index for a user."""
         if user_id in self.indexes:
             return self.indexes[user_id]
+            
+        # Ensure embedding dimension matches model output
+        self.dimension = 384  # TinyLlama embedding dimension
         
         index_path = self._get_user_index_path(user_id)
         mapping_path = self._get_user_mapping_path(user_id)
