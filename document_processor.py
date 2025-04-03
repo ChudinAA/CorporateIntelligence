@@ -11,6 +11,7 @@ from models import Document, DocumentChunk
 from app import db
 from vector_store import VectorStore
 from llm_integration import LLMService
+from openai_integration import OpenAIService
 
 class DocumentProcessor:
     """Handles document processing, text extraction, and chunking."""
