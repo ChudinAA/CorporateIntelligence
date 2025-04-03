@@ -14,10 +14,10 @@ class RAGEngine:
     
     def __init__(self):
         self.vector_store = VectorStore()
-        # Always use local TinyLlama model
-        self.llm_service = LLMService()
+        # Use OpenAI service instead of TinyLlama
+        self.llm_service = OpenAIService()
         self.logger = logging.getLogger(__name__)
-        self.logger.info("Using TinyLlama local model for LLM capabilities")
+        self.logger.info("Using OpenAI service for LLM capabilities")
     
     def process_query(self, query, user_id, session_id, chat_context=None):
         """
