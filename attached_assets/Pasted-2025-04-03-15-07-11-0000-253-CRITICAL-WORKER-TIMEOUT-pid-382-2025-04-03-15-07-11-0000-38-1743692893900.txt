@@ -1,0 +1,83 @@
+2025-04-03 15:07:11 +0000] [253] [CRITICAL] WORKER TIMEOUT (pid:382)
+[2025-04-03 15:07:11 +0000] [382] [ERROR] Error handling request /socket.io/?EIO=4&transport=websocket
+Traceback (most recent call last):
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/gunicorn/workers/sync.py", line 134, in handle
+    self.handle_request(listener, req, client, addr)
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/gunicorn/workers/sync.py", line 177, in handle_request
+    respiter = self.wsgi(environ, resp.start_response)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/flask/app.py", line 1536, in __call__
+    return self.wsgi_app(environ, start_response)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/flask_socketio/__init__.py", line 42, in __call__
+    return super().__call__(environ, start_response)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/engineio/middleware.py", line 63, in __call__
+    return self.engineio_app.handle_request(environ, start_response)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/socketio/server.py", line 434, in handle_request
+    return self.eio.handle_request(environ, start_response)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/engineio/server.py", line 261, in handle_request
+    r = self._handle_connect(environ, start_response,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/engineio/server.py", line 416, in _handle_connect
+    ret = s.handle_get_request(environ, start_response)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/engineio/socket.py", line 92, in handle_get_request
+    return getattr(self, '_upgrade_' + transport)(environ,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/engineio/socket.py", line 151, in _upgrade_websocket
+    return ws(environ, start_response)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/engineio/async_drivers/eventlet.py", line 42, in __call__
+    return super().__call__(environ, start_response)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/eventlet/websocket.py", line 141, in __call__
+    self.handler(ws)
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/engineio/socket.py", line 225, in _websocket_handler
+    p = websocket_wait()
+        ^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/engineio/socket.py", line 156, in websocket_wait
+    data = ws.wait()
+           ^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/eventlet/websocket.py", line 825, in wait
+    for i in self.iterator:
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/eventlet/websocket.py", line 666, in _iter_frames
+    message = self._recv_frame(message=fragmented_message)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/eventlet/websocket.py", line 692, in _recv_frame
+    header = recv(2)
+             ^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/eventlet/websocket.py", line 594, in _get_bytes
+    d = self.socket.recv(numbytes - len(data))
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/eventlet/greenio/base.py", line 352, in recv
+    return self._recv_loop(self.fd.recv, b'', bufsize, flags)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/eventlet/greenio/base.py", line 346, in _recv_loop
+    self._read_trampoline()
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/eventlet/greenio/base.py", line 314, in _read_trampoline
+    self._trampoline(
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/eventlet/greenio/base.py", line 206, in _trampoline
+    return trampoline(fd, read=read, write=write, timeout=timeout,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/eventlet/hubs/__init__.py", line 157, in trampoline
+    return hub.switch()
+           ^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/eventlet/hubs/hub.py", line 310, in switch
+    return self.greenlet.switch()
+           ^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/eventlet/hubs/hub.py", line 362, in run
+    self.wait(sleep_time)
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/eventlet/hubs/poll.py", line 80, in wait
+    presult = self.do_poll(seconds)
+              ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/eventlet/hubs/epolls.py", line 31, in do_poll
+    return self.poll.poll(seconds)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/workspace/.pythonlibs/lib/python3.11/site-packages/gunicorn/workers/base.py", line 204, in handle_abort
+    sys.exit(1)
+SystemExit: 1
+[2025-04-03 15:07:11 +0000] [382] [INFO] Worker exiting (pid: 382)
+[2025-04-03 15:07:12 +0000] [406] [INFO] Booting worker with pid: 406
