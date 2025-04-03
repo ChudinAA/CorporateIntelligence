@@ -13,7 +13,7 @@ class RAGEngine:
     def __init__(self):
         self.vector_store = VectorStore()
         self.logger = logging.getLogger(__name__)
-        self.embeddings = OpenAIEmbeddings(model="text-embedding-3-small")
+        self.embeddings = OpenAIEmbeddings(model="text-embedding-3-large")
         self.llm = ChatOpenAI(
             model_name="gpt-3.5-turbo",
             temperature=0.7,
