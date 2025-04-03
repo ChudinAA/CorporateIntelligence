@@ -4,7 +4,7 @@ from typing import Dict, List
 from langchain_core.prompts import PromptTemplate
 from langchain.chains.conversational_retrieval.base import ConversationalRetrievalChain
 from langchain_openai import OpenAIEmbeddings, OpenAI 
-from langchain_core.memory import ConversationBufferMemory
+from langchain.memory import ConversationBufferMemory
 from langchain_community.vectorstores import Chroma
 from vector_store import VectorStore
 from models import ChatHistory
