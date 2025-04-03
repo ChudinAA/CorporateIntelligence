@@ -41,7 +41,7 @@ mode = "sequential"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "python -u main.py --timeout 120"
+args = "python -u main.py"
 
 [[ports]]
 localPort = 5000

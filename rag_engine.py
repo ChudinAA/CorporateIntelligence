@@ -13,8 +13,12 @@ class RAGEngine:
     def __init__(self):
         self.vector_store = VectorStore()
         self.logger = logging.getLogger(__name__)
-        self.embeddings = OpenAIEmbeddings(model="text-embedding-3-large")
-        self.llm = OpenAI(model="gpt-4-turbo-preview", temperature=0.7)
+        self.embeddings = OpenAIEmbeddings(model="text-embedding-3-small")
+        self.llm = OpenAI(
+            model="gpt-3.5-turbo",
+            temperature=0.7,
+            max_tokens=512
+        )
 
     def process_query(self, query: str, user_id: int, session_id: str, 
                      chat_context: List[Dict] = None) -> Dict:
