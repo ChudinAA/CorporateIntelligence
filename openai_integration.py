@@ -51,13 +51,13 @@ class OpenAIService:
                           system_prompt=None):
         """
         Generate a response using OpenAI's GPT-4o model.
-        
+
         Args:
             prompt (str): The user prompt
             max_tokens (int): Maximum number of tokens to generate
             temperature (float): Sampling temperature (0.0-1.0)
             system_prompt (str): Optional system prompt for the model
-            
+
         Returns:
             str: Generated response
         """
@@ -106,7 +106,7 @@ class OpenAIService:
             # Make the API call with error handling
             try:
                 response = self.client.chat.completions.create(
-                    model="deepseek/deepseek-r1:free",  # Using the latest model
+                    model="gpt-4o-mini",  # Using GPT-4o mini model
                     messages=messages,
                     max_tokens=max_tokens,
                     temperature=temperature,
@@ -133,10 +133,10 @@ class OpenAIService:
         """
         Get embedding vector for a text using OpenAI's embeddings API.
         Uses the advanced text-embedding-3-large model for state-of-the-art semantic search.
-        
+
         Args:
             text (str): Text to embed
-            
+
         Returns:
             np.ndarray: Embedding vector
         """
@@ -168,10 +168,10 @@ class OpenAIService:
     def _preprocess_text_for_embedding(self, text):
         """
         Preprocess text before generating embeddings for better quality.
-        
+
         Args:
             text (str): Original text
-            
+
         Returns:
             str: Processed text
         """
@@ -200,12 +200,12 @@ class OpenAIService:
         """
         Generate a response using RAG (Retrieval-Augmented Generation) approach.
         Uses OpenAI's GPT-4o to synthesize answers from retrieved document contexts.
-        
+
         Args:
             user_query (str): User's question
             context (str): Retrieved context from documents
             chat_history (list, optional): List of previous messages
-            
+
         Returns:
             str: Generated response
         """
@@ -234,7 +234,7 @@ class OpenAIService:
             system_prompt = """
             You are an AI assistant for a company knowledge base search system.
             Your purpose is to help users find relevant information from company documents.
-            
+
             Guidelines:
             1. Answer questions based ONLY on the context provided. If information isn't in the context, say "I don't have enough information about that in the available documents."
             2. Be specific when citing information. Mention document names when referencing information.
@@ -275,7 +275,7 @@ class OpenAIService:
             ```
             {context}
             ```
-            
+
             Answer the user's question using ONLY the information in the retrieved documents above.
             If the documents don't contain the answer, acknowledge the limitations of the available information.
             """
@@ -289,7 +289,7 @@ class OpenAIService:
             # Generate response with enhanced parameters and error handling
             try:
                 response = self.client.chat.completions.create(
-                    model="gpt-4o",
+                    model="gpt-4o-mini", # Using GPT-4o mini model
                     messages=messages,
                     max_tokens=1024,
                     temperature=
@@ -319,10 +319,10 @@ class OpenAIService:
         """
         Generate a summary of a chat session using OpenAI's chat completions API.
         Creates a concise summary of the key points and topics discussed.
-        
+
         Args:
             messages (list): List of chat messages with format [{'content': str, 'is_user': bool}, ...]
-            
+
         Returns:
             str: Summary of the chat, 2-3 sentences long
         """
@@ -355,7 +355,7 @@ class OpenAIService:
                     - Key information provided by the assistant
                     - Any decisions or conclusions reached
                     - Action items or next steps if mentioned
-                    
+
                     Your summary should be 2-3 sentences and capture only the most significant points.
                     Be professional, clear, and focus on substance over style.
                     Avoid vague language like "various topics" - be specific about what was discussed.
