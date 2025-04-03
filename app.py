@@ -46,8 +46,15 @@ def create_app():
     
     # Initialize extensions with app
     db.init_app(app)
-    # Use eventlet for WebSocket support
-    socketio.init_app(app, cors_allowed_origins="*", async_mode='eventlet', manage_session=False)
+    # Use eventlet for WebSocket support with increased timeouts
+    socketio.init_app(
+        app,
+        cors_allowed_origins="*",
+        async_mode='eventlet',
+        manage_session=False,
+        ping_timeout=60,
+        ping_interval=25
+    )
     logger.info("Socket.IO initialized with eventlet mode")
     
     # Configure login manager

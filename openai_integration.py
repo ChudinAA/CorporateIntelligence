@@ -33,8 +33,9 @@ class OpenAIService:
                 # Initialize with timeout and proper error handling
                 self.client = OpenAI(
                     api_key=self.api_key,
-                    timeout=60.0,  # 60 second timeout for API calls
-                    max_retries=2  # Retry failed requests twice
+                    timeout=120.0,  # 120 second timeout for API calls
+                    max_retries=3,  # Retry failed requests three times
+                    request_timeout=60  # Request timeout in seconds
                 )
                 logger.info("OpenAI service initialized successfully")
             except Exception as e:

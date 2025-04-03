@@ -19,6 +19,12 @@ class RAGEngine:
     def process_query(self, query: str, user_id: int, session_id: str, 
                      chat_context: List[Dict] = None) -> Dict:
         """Process user query using RAG approach"""
+        if not query or not user_id:
+            return {
+                "answer": "I apologize, but I couldn't process your request. Please try again.",
+                "metadata": {"error": "Invalid input parameters"}
+            }
+            
         try:
             # Get Chroma collection
             collection_name = f"user_{user_id}_docs"
