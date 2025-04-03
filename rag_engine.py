@@ -31,7 +31,7 @@ class RAGEngine:
             vectorstore = Chroma(
                 collection_name=collection_name,
                 embedding_function=self.embeddings,
-                persist_directory=self.vector_store.client.persist_directory
+                persist_directory=self.vector_store.persist_directory
             )
 
             # Prepare conversation memory

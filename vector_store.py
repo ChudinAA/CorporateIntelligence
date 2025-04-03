@@ -6,14 +6,12 @@ from flask import current_app
 
 class VectorStore:
     def __init__(self):
+        """Initialize vector store with ChromaDB"""
+        self.persist_directory = "./vector_db"
+        self.client = chromadb.PersistentClient(path=self.persist_directory)
         self.logger = logging.getLogger(__name__)
         self.embeddings = OpenAIEmbeddings(model="text-embedding-3-large")
 
-        # Initialize ChromaDB with persistence
-        self.client = chromadb.PersistentClient(
-            path=current_app.config['VECTOR_DB_PATH'],
-            settings=Settings(allow_reset=True)
-        )
 
     def add_document_chunks(self, chunks, metadata_list, user_id):
         """Add document chunks to vector store"""
