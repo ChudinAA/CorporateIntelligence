@@ -41,6 +41,7 @@ class RAGEngine:
             # Prepare conversation memory
             memory = ConversationBufferMemory(
                 memory_key="chat_history",
+                output_key="answer",
                 return_messages=True
             )
 
