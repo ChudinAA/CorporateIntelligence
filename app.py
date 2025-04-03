@@ -2,6 +2,7 @@
 # it happens before any imports in the entire application
 
 import os
+import json
 import logging
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
@@ -30,6 +31,15 @@ def create_app():
     
     # Set secret key from environment variable
     app.secret_key = os.environ.get("SESSION_SECRET", "dev-secret-key-change-in-production")
+    
+    # Register custom Jinja2 filters
+    @app.template_filter('fromjson')
+    def fromjson_filter(value):
+        """Parse a JSON string into Python object."""
+        try:
+            return json.loads(value) if value else []
+        except (ValueError, TypeError):
+            return []
     
     # Initialize extensions with app
     db.init_app(app)
