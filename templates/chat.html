@@ -25,7 +25,9 @@
         border-bottom-right-radius: 0.25rem;
     }
 
-    .ai-message {
+    
+.ai-message {
+  background-color: var(--bg-light);
         background-color: var(--bs-dark);
         border: 1px solid var(--bs-secondary);
         margin-right: auto;
@@ -106,7 +108,7 @@
             </div>
 
             <!-- Chat Messages Container -->
-            <div id="chat-container" class="bg-dark">
+            <div id="chat-container">
                 {% if chat_history.summary %}
                     <div class="alert alert-info">
                         <strong>Previous Chat Summary:</strong> {{ chat_history.summary }}
