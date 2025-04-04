@@ -425,31 +425,6 @@
     </section>
 
     <div class="row">
-        <div class="col-lg-12">
-            <!-- Welcome Section with more compact styling -->
-            <section class="welcome-section mb-3">
-                <div class="welcome-content">
-                    <h1 class="mb-2 h4">Welcome, {{ current_user.username }}!</h1>
-                    <p class="small mb-2">Your AI-powered knowledge platform is ready to assist you.</p>
-                    <div class="welcome-stats">
-                        <div class="stat-item py-2">
-                            <div class="stat-value">{{ total_documents if total_documents is defined else 0 }}</div>
-                            <div class="stat-label small">Documents</div>
-                        </div>
-                        <div class="stat-item py-2">
-                            <div class="stat-value">{{ total_conversations if total_conversations is defined else 0 }}</div>
-                            <div class="stat-label small">Conversations</div>
-                        </div>
-                        <div class="stat-item py-2">
-                            <div class="stat-value">{{ last_activity.strftime('%d %b') if last_activity else 'New' }}</div>
-                            <div class="stat-label small">Last Activity</div>
-                        </div>
-                    </div>
-                </div>
-            </section>
-        </div>
-    </div>
-    <div class="row">
         <!-- Left Column -->
         <div class="col-lg-6">
             <!-- Chat Section -->
@@ -473,11 +448,7 @@
                             {% endif %}
                         </div>
 
-                        <div id="typing-indicator" class="typing-loader" style="display: none;">
-    <div class="typing-dot"></div>
-    <div class="typing-dot"></div>
-    <div class="typing-dot"></div>
-</div>
+                        <div id="typing-indicator" class="typing-indicator" style="display: none;">
                             <div class="typing-animation">
                                 <div class="dot"></div>
                                 <div class="dot"></div>
