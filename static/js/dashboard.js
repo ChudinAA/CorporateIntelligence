@@ -8,6 +8,56 @@ document.addEventListener('DOMContentLoaded', function() {
     // Document preview handlers
     setupDocumentPreviewHandlers();
     
+    // Setup chat message handling
+    const socket = io();
+    const messageForm = document.getElementById('message-form');
+    const messageInput = document.getElementById('message-input');
+    const chatContainer = document.getElementById('chat-container');
+    const sessionIdInput = document.getElementById('session-id-input');
+    
+    if (messageForm) {
+        messageForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const message = messageInput.value.trim();
+            if (!message) return;
+            
+            const sessionId = sessionIdInput.value;
+            
+            // Add user message to chat
+            addChatMessage(message, true);
+            messageInput.value = '';
+            
+            // Emit message via Socket.IO
+            socket.emit('send_message', {
+                message: message,
+                session_id: sessionId
+            });
+        });
+    }
+    
+    socket.on('receive_message', function(data) {
+        addChatMessage(data.message, false);
+    });
+    
+    function addChatMessage(message, isUser) {
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `message ${isUser ? 'user-message' : 'ai-message'} animate__animated animate__fadeInUp`;
+        
+        const now = new Date();
+        const timeString = now.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit' });
+        
+        messageDiv.innerHTML = `
+            <div class="message-content">${message}</div>
+            <div class="message-time">
+                ${timeString}
+                <i class="fas fa-${isUser ? 'user' : 'robot'} ms-1"></i>
+            </div>
+        `;
+        
+        chatContainer.appendChild(messageDiv);
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+    }
+    
     // Function to setup chat deletion handlers
     function setupChatDeletionHandlers() {
         document.querySelectorAll('.chat-delete-btn').forEach(button => {

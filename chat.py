@@ -28,7 +28,7 @@ def dashboard():
         user_id=current_user.id,
         is_active=True
     ).order_by(ChatHistory.updated_at.desc()).limit(5).all()
-    
+
     # Get recent messages for each session
     for session in active_sessions:
         session.recent_messages = ChatMessage.query.filter_by(
@@ -36,33 +36,33 @@ def dashboard():
         ).order_by(ChatMessage.timestamp.desc()).limit(3).all()
         # Reverse to show in chronological order
         session.recent_messages.reverse()
-    
+
     # Get most recent user documents for dashboard
     recent_documents = Document.query.filter_by(
         user_id=current_user.id
     ).order_by(Document.upload_date.desc()).limit(5).all()
-    
+
     # Get all documents for reference
     all_documents = Document.query.filter_by(
         user_id=current_user.id
     ).order_by(Document.upload_date.desc()).all()
-    
+
     # Generate statistics for dashboard
     total_documents = len(all_documents)
     total_conversations = ChatHistory.query.filter_by(user_id=current_user.id).count()
     last_activity = None
-    
+
     # Get last activity time (from either document upload or chat)
     latest_doc = Document.query.filter_by(user_id=current_user.id).order_by(Document.upload_date.desc()).first()
     latest_chat = ChatHistory.query.filter_by(user_id=current_user.id).order_by(ChatHistory.updated_at.desc()).first()
-    
+
     if latest_doc and latest_chat:
         last_activity = max(latest_doc.upload_date, latest_chat.updated_at)
     elif latest_doc:
         last_activity = latest_doc.upload_date
     elif latest_chat:
         last_activity = latest_chat.updated_at
-    
+
     return render_template(
         'dashboard.html',
         active_sessions=active_sessions,
@@ -82,20 +82,20 @@ def chat_page(session_id):
         session_id=session_id,
         user_id=current_user.id
     ).first()
-    
+
     messages = []
-    
+
     # If session exists, get messages
     if chat_history:
         messages = ChatMessage.query.filter_by(
             chat_history_id=chat_history.id
         ).order_by(ChatMessage.timestamp).all()
-    
+
     # Get user documents for upload section
     documents = Document.query.filter_by(
         user_id=current_user.id
     ).order_by(Document.upload_date.desc()).all()
-    
+
     return redirect(url_for('main.dashboard', session_id=session_id))
 
 @chat_bp.route('/chat/new')
@@ -104,14 +104,14 @@ def new_chat():
     """Create a new chat session."""
     # Generate a unique session ID
     session_id = str(uuid.uuid4())
-    
+
     # Create the session object in memory but don't commit it yet
     # We'll only save it after the first message is sent
     chat_history = ChatHistory(
         session_id=session_id,
         user_id=current_user.id
     )
-    
+
     # Store session_id in session to be able to detect abandoned chats
     return redirect(url_for('chat.chat_page', session_id=session_id))
 
@@ -122,7 +122,7 @@ def documents_page():
     documents = Document.query.filter_by(
         user_id=current_user.id
     ).order_by(Document.upload_date.desc()).all()
-    
+
     return render_template('documents.html', documents=documents)
 
 @chat_bp.route('/documents/upload', methods=['POST'])
@@ -132,20 +132,20 @@ def upload_document():
     if 'document' not in request.files:
         flash('No file selected', 'danger')
         return redirect(request.referrer or url_for('chat.documents_page'))
-    
+
     file = request.files['document']
     if file.filename == '':
         flash('No file selected', 'danger')
         return redirect(request.referrer or url_for('chat.documents_page'))
-    
+
     # Process the uploaded file
     result = document_processor.process_uploaded_file(file, current_user.id)
-    
+
     if result['success']:
         flash(f'Document "{result["document_name"]}" uploaded and processed successfully', 'success')
     else:
         flash(f'Error processing document: {result.get("error", "Unknown error")}', 'danger')
-    
+
     # Return to referring page or documents page
     return redirect(request.referrer or url_for('chat.documents_page'))
 
@@ -154,21 +154,21 @@ def upload_document():
 def preview_document(document_id):
     """Preview document content."""
     document = Document.query.filter_by(id=document_id, user_id=current_user.id).first()
-    
+
     if not document:
         return jsonify({'success': False, 'error': 'Document not found'}), 404
-    
+
     # Get the first few chunks to preview
     chunks = DocumentChunk.query.filter_by(document_id=document.id).order_by(DocumentChunk.chunk_index).limit(3).all()
-    
+
     preview_text = ""
     for chunk in chunks:
         preview_text += chunk.chunk_text + "\n\n"
-    
+
     # Truncate if too long
     if len(preview_text) > 1000:
         preview_text = preview_text[:1000] + "...\n\n(Preview truncated. Document contains more content.)"
-    
+
     return jsonify({
         'success': True,
         'content': preview_text,
@@ -183,36 +183,36 @@ def preview_document(document_id):
 def delete_document(document_id):
     """Delete a document."""
     document = Document.query.filter_by(id=document_id, user_id=current_user.id).first()
-    
+
     if not document:
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             return jsonify({'success': False, 'error': 'Document not found'})
         flash('Document not found', 'danger')
         return redirect(url_for('chat.documents_page'))
-    
+
     try:
         # Delete file from disk if it exists
         file_path = os.path.join(current_app.config['UPLOAD_FOLDER'], document.filename)
         if os.path.exists(file_path):
             os.remove(file_path)
-        
+
         # Delete document from database
         db.session.delete(document)
         db.session.commit()
-        
+
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             return jsonify({'success': True})
-        
+
         flash('Document deleted successfully', 'success')
     except Exception as e:
         db.session.rollback()
         logger.error(f"Error deleting document: {str(e)}", exc_info=True)
-        
+
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             return jsonify({'success': False, 'error': str(e)})
-        
+
         flash(f'Error deleting document: {str(e)}', 'danger')
-    
+
     return redirect(url_for('chat.documents_page'))
 
 
@@ -221,15 +221,15 @@ def delete_document(document_id):
 def delete_chat(chat_id):
     """Delete a chat session."""
     chat = ChatHistory.query.filter_by(id=chat_id, user_id=current_user.id).first_or_404()
-    
+
     try:
         # Delete all messages in the chat
         ChatMessage.query.filter_by(chat_history_id=chat.id).delete()
-        
+
         # Delete the chat history record
         db.session.delete(chat)
         db.session.commit()
-        
+
         return jsonify({"success": True, "message": "Chat deleted successfully"})
     except Exception as e:
         db.session.rollback()
@@ -242,25 +242,25 @@ def delete_chat(chat_id):
 def handle_message(data):
     """Handle incoming chat messages via Socket.IO."""
     user_id = current_user.id if current_user.is_authenticated else None
-    
+
     if not user_id:
         emit('error', {'message': 'Authentication required'})
         return
-    
+
     session_id = data.get('session_id')
     message = data.get('message', '').strip()
-    
+
     if not session_id or not message:
         emit('error', {'message': 'Missing session ID or message'})
         return
-    
+
     try:
         # Get chat history
         chat_history = ChatHistory.query.filter_by(
             session_id=session_id,
             user_id=user_id
         ).first()
-        
+
         if not chat_history:
             # Create new chat history if not found
             chat_history = ChatHistory(
@@ -269,7 +269,7 @@ def handle_message(data):
             )
             db.session.add(chat_history)
             db.session.flush()
-        
+
         # Save user message
         user_msg = ChatMessage(
             chat_history_id=chat_history.id,
@@ -278,12 +278,12 @@ def handle_message(data):
         )
         db.session.add(user_msg)
         db.session.flush()
-        
+
         # Get recent messages for context
         recent_messages = ChatMessage.query.filter_by(
             chat_history_id=chat_history.id
         ).order_by(ChatMessage.timestamp).all()
-        
+
         context = []
         for msg in recent_messages[-10:]:  # Last 10 messages
             context.append({
@@ -291,7 +291,7 @@ def handle_message(data):
                 'is_user': msg.is_user,
                 'timestamp': msg.timestamp.isoformat()
             })
-        
+
         # Process query with RAG engine
         response = rag_engine.process_query(
             query=message,
@@ -299,7 +299,7 @@ def handle_message(data):
             session_id=session_id,
             chat_context=context
         )
-        
+
         # Save AI response
         ai_msg = ChatMessage(
             chat_history_id=chat_history.id,
@@ -308,11 +308,11 @@ def handle_message(data):
             related_documents=json.dumps(response.get('metadata', {}).get('sources', []))
         )
         db.session.add(ai_msg)
-        
+
         # Update chat history timestamp
         chat_history.updated_at = db.func.now()
         db.session.commit()
-        
+
         # Emit response to client
         emit('receive_message', {
             'message': response['answer'],
@@ -320,7 +320,7 @@ def handle_message(data):
             'user_message_id': user_msg.id,
             'ai_message_id': ai_msg.id
         })
-        
+
     except Exception as e:
         db.session.rollback()
         logger.error(f"Error processing message: {str(e)}", exc_info=True)
@@ -339,15 +339,51 @@ def admin():
     if not current_user.has_role('admin'):
         flash('Access denied. Admin privileges required.', 'danger')
         return redirect(url_for('chat.dashboard'))
-    
+
     # Get system statistics
     user_count = db.session.query(db.func.count('*').label('count')).select_from(User).scalar()
     document_count = db.session.query(db.func.count('*').label('count')).select_from(Document).scalar()
     active_chats = db.session.query(db.func.count('*').label('count')).select_from(ChatHistory).filter_by(is_active=True).scalar()
-    
+
     return render_template(
         'admin.html',
         user_count=user_count,
         document_count=document_count,
         active_chats=active_chats
     )
+
+@chat_bp.route('/chat/messages/<session_id>')
+@login_required
+def get_chat_messages(session_id):
+    """Load chat messages."""
+    try:
+        chat_history = ChatHistory.query.filter_by(
+            session_id=session_id,
+            user_id=current_user.id
+        ).first()
+
+        if not chat_history:
+            return jsonify({
+                'success': False,
+                'message': 'Chat history not found'
+            }), 404
+
+        messages = ChatMessage.query.filter_by(
+            chat_history_id=chat_history.id
+        ).order_by(ChatMessage.timestamp).all()
+
+        messages_data = [{
+            'content': msg.content,
+            'is_user': msg.is_user,
+            'timestamp': msg.timestamp.strftime('%H:%M')
+        } for msg in messages]
+
+        return jsonify({
+            'success': True,
+            'messages': messages_data
+        })
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'message': str(e)
+        }), 500
