@@ -156,35 +156,7 @@ def delete_document(document_id):
     
     return redirect(url_for('chat.documents_page'))
 
-@chat_bp.route('/chat/end/<session_id>', methods=['POST'])
-@login_required
-def end_chat(session_id):
-    """End a chat session and generate summary."""
-    chat_history = ChatHistory.query.filter_by(
-        session_id=session_id,
-        user_id=current_user.id
-    ).first()
-    
-    if not chat_history:
-        flash('Chat session not found', 'danger')
-        return redirect(url_for('chat.dashboard'))
-    
-    try:
-        # Generate session summary
-        summary = rag_engine.generate_session_summary(session_id)
-        
-        # Update chat history
-        chat_history.is_active = False
-        chat_history.summary = summary
-        db.session.commit()
-        
-        flash('Chat session ended and summarized', 'success')
-    except Exception as e:
-        db.session.rollback()
-        logger.error(f"Error ending chat session: {str(e)}", exc_info=True)
-        flash(f'Error ending chat session: {str(e)}', 'danger')
-    
-    return redirect(url_for('chat.dashboard'))
+
 
 # Socket.IO event handlers
 @socketio.on('send_message')
