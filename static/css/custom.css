@@ -624,3 +624,267 @@ footer.footer .text-muted {
   color: #6c757d;
   margin-top: 0.3rem;
 }
+
+/* Additional changes for more compact design */
+main {
+  padding: 0.75rem 0 !important; /* Reduced padding */
+}
+
+/* Reduced spacing between page header and content */
+.container {
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+}
+
+.my-4 {
+  margin-top: 0.5rem !important;
+  margin-bottom: 0.5rem !important;
+}
+
+.mt-3 {
+  margin-top: 0.5rem !important;
+}
+
+/* More compact document item styling */
+.document-item {
+  padding: 0.6rem 1rem !important;
+}
+
+.document-item:hover .document-icon,
+.document-item:hover .document-title,
+.document-item:hover .document-meta {
+  transform: none !important; /* Prevent individual elements from moving */
+}
+
+.document-item:hover {
+  transform: translateX(3px) !important; /* Move the entire item together */
+}
+
+/* Make chat cards on dashboard more compact */
+.chat-card {
+  margin-bottom: 0.6rem !important;
+}
+
+.chat-header {
+  padding: 0.6rem 1rem !important;
+}
+
+.chat-body {
+  padding: 1rem !important;
+}
+
+.chat-summary {
+  margin-bottom: 0.6rem !important;
+  line-height: 1.4 !important;
+  max-height: 3.9rem !important;
+  overflow: hidden !important;
+}
+
+.welcome-section {
+  margin-bottom: 1rem !important;
+  padding: 1.2rem !important;
+}
+
+.stat-item {
+  padding: 0.7rem !important;
+}
+
+.chat-meta {
+  font-size: 0.8rem !important;
+  margin-top: 0.5rem !important;
+}
+
+.chat-time {
+  margin-top: 0.3rem !important;
+}
+
+.section-header {
+  margin-bottom: 0.8rem !important;
+}
+
+.mb-4 {
+  margin-bottom: 0.75rem !important;
+}
+
+/* For new chat button on dashboard */
+.new-chat-card {
+  padding: 1.5rem !important;
+}
+
+.new-chat-icon {
+  margin-bottom: 0.75rem !important;
+}
+
+/* Dialog animation styles */
+.modal-dialog {
+  transform: scale(0.8);
+  opacity: 0;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+.modal.show .modal-dialog {
+  transform: scale(1);
+  opacity: 1;
+}
+
+.modal.fade .modal-dialog {
+  transform: scale(0.8);
+  opacity: 0;
+}
+
+/* SweetAlert2 enhancements */
+.swal2-popup {
+  padding: 1.5rem !important;
+}
+
+.swal2-title {
+  font-size: 1.4rem !important;
+}
+
+.swal2-html-container {
+  font-size: 1rem !important;
+}
+
+.swal2-confirm, .swal2-cancel {
+  font-size: 0.95rem !important;
+  padding: 0.5rem 1.5rem !important;
+}
+
+/* Dialog animation for SweetAlert2 */
+.swal2-show {
+  animation: swal2-show 0.3s !important;
+}
+
+.swal2-hide {
+  animation: swal2-hide 0.3s !important;
+}
+
+@keyframes swal2-show {
+  0% {
+    transform: scale(0.9);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes swal2-hide {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(0.9);
+    opacity: 0;
+  }
+}
+
+/* More compact chat UI */
+.chat-container {
+  max-height: calc(100vh - 180px);
+  height: calc(100vh - 180px);
+}
+
+.chat-messages {
+  max-height: calc(100vh - 250px);
+  height: calc(100vh - 250px);
+}
+
+.message {
+  padding: 0.7rem 1rem;
+  margin-bottom: 0.7rem;
+}
+
+.message-user {
+  margin-left: 1rem;
+}
+
+.message-ai {
+  margin-right: 1rem;
+}
+
+.message-content {
+  margin-bottom: 0.3rem;
+}
+
+.message-time {
+  font-size: 0.7rem;
+}
+
+.chat-input-container {
+  padding: 0.7rem;
+}
+
+.chat-input {
+  padding: 0.6rem 1rem;
+}
+
+/* Document cards with smooth transition */
+.document-card {
+  transition: transform 0.3s ease, box-shadow 0.3s ease !important;
+}
+
+.document-card:hover {
+  transform: translateY(-5px) !important;
+}
+
+.document-card .document-icon,
+.document-card .document-info,
+.document-card .document-footer {
+  transition: none !important;
+}
+
+/* Document action buttons */
+.document-action {
+  opacity: 0.8;
+  transition: all 0.3s ease;
+}
+
+.document-action:hover {
+  opacity: 1;
+  transform: translateY(-2px);
+}
+
+/* Custom rounded corners for inputs */
+.form-control, .btn {
+  border-radius: 8px !important;
+}
+
+.alert {
+  border-radius: 8px !important;
+  padding: 0.7rem 1rem !important;
+}
+
+/* Scroll to top button with animation */
+.scroll-top-btn {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--primary-color);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: all 0.3s ease;
+  z-index: 1000;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.scroll-top-btn.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.scroll-top-btn:hover {
+  background: #5546c5;
+  transform: translateY(-3px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+}

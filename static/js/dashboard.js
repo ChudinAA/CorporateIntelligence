@@ -1,4 +1,7 @@
 document.addEventListener('DOMContentLoaded', function() {
+    // Setup all delete buttons
+    setupChatDeletionHandlers();
+    
     // Function to setup chat deletion handlers
     function setupChatDeletionHandlers() {
         document.querySelectorAll('.chat-delete-btn').forEach(button => {
@@ -8,6 +11,7 @@ document.addEventListener('DOMContentLoaded', function() {
             
             newButton.addEventListener('click', function(e) {
                 e.preventDefault();
+                e.stopPropagation();
                 const chatId = this.getAttribute('data-chat-id');
                 
                 // Show confirmation dialog with smoother animation
@@ -76,19 +80,47 @@ document.addEventListener('DOMContentLoaded', function() {
                                         icon: 'swal2-icon-hide'
                                     }
                                 }).then(() => {
-                                    // Remove the chat card from the UI with smooth animation
-                                    const chatCard = newButton.closest('.card');
-                                    chatCard.style.transition = 'all 0.5s ease';
-                                    chatCard.style.opacity = '0';
-                                    chatCard.style.transform = 'translateY(-20px)';
-                                    
-                                    setTimeout(() => {
-                                        chatCard.remove();
-                                        // Update chat counter
-                                        updateChatCounter();
-                                        // If no cards left, show empty state
-                                        checkEmptyState();
-                                    }, 500);
+                                    // Find and remove the specific chat card
+                                    const chatCard = newButton.closest('.col-md-6');
+                                    if (chatCard) {
+                                        chatCard.style.transition = 'all 0.4s ease';
+                                        chatCard.style.opacity = '0';
+                                        chatCard.style.transform = 'translateY(-15px)';
+                                        
+                                        setTimeout(() => {
+                                            chatCard.remove();
+                                            updateChatCounter();
+                                            
+                                            // Check if there are no chat cards left
+                                            const remainingCards = document.querySelectorAll('.chat-section .col-md-6:not([style*="opacity: 0"])');
+                                            // If only the "new chat" card is left (which is always there)
+                                            if (remainingCards.length <= 1) {
+                                                // Add empty state
+                                                const chatSection = document.querySelector('.chat-section .row');
+                                                const existingEmptyState = document.querySelector('.chat-section .empty-state');
+                                                
+                                                if (chatSection && !existingEmptyState) {
+                                                    // Clear the section
+                                                    chatSection.innerHTML = '';
+                                                    
+                                                    // Add empty state
+                                                    const emptyStateHtml = `
+                                                        <div class="col-12">
+                                                            <div class="empty-state">
+                                                                <i class="fas fa-comments empty-icon"></i>
+                                                                <h3 class="empty-title">No conversations yet</h3>
+                                                                <p class="empty-description">Start a new conversation to interact with the AI assistant.</p>
+                                                                <a href="/new-chat" class="btn btn-primary">
+                                                                    <i class="fas fa-plus me-2"></i>Start New Chat
+                                                                </a>
+                                                            </div>
+                                                        </div>
+                                                    `;
+                                                    chatSection.innerHTML = emptyStateHtml;
+                                                }
+                                            }
+                                        }, 400);
+                                    }
                                 });
                             } else {
                                 // Error
@@ -121,40 +153,30 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    // Function to check if there are no chats left and display empty state
-    function checkEmptyState() {
-        const remainingCards = document.querySelectorAll('.chat-list .card:not([style*="opacity: 0"])');
-        const chatList = document.querySelector('.chat-list');
-        const existingEmptyState = document.querySelector('.chat-list .alert');
-        
-        if (remainingCards.length === 0 && chatList && !existingEmptyState) {
-            const emptyState = document.createElement('div');
-            emptyState.className = 'alert alert-info mt-4';
-            emptyState.style.opacity = '0';
-            emptyState.style.transform = 'translateY(20px)';
-            emptyState.style.transition = 'all 0.5s ease';
-            emptyState.innerHTML = 'No chat sessions found. <a href="/new-chat" class="alert-link">Start a new chat</a>.';
-            chatList.appendChild(emptyState);
-            
-            // Trigger animation
-            setTimeout(() => {
-                emptyState.style.opacity = '1';
-                emptyState.style.transform = 'translateY(0)';
-            }, 50);
-        }
-    }
-    
     // Function to update the chat counter in the stats
     function updateChatCounter() {
-        const statValue = document.querySelector('.stat-item:nth-child(2) .stat-value');
+        const statValue = document.querySelector('.welcome-stats .stat-item:nth-child(2) .stat-value');
         if (statValue) {
-            const currentCount = parseInt(statValue.textContent);
+            const currentCount = parseInt(statValue.textContent, 10);
             if (!isNaN(currentCount) && currentCount > 0) {
                 statValue.textContent = (currentCount - 1).toString();
+                
+                // Update the last activity date if needed
+                const lastActivityStat = document.querySelector('.welcome-stats .stat-item:nth-child(3) .stat-value');
+                if (lastActivityStat) {
+                    const today = new Date();
+                    const formattedDate = formatDate(today);
+                    lastActivityStat.textContent = formattedDate;
+                }
             }
         }
     }
     
-    // Set up the initial handlers
-    setupChatDeletionHandlers();
+    // Helper function to format date
+    function formatDate(date) {
+        const day = date.getDate().toString().padStart(2, '0');
+        const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        const month = monthNames[date.getMonth()];
+        return `${day} ${month}`;
+    }
 });

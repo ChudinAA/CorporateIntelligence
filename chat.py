@@ -83,19 +83,13 @@ def chat_page(session_id):
         user_id=current_user.id
     ).first()
     
-    # If session doesn't exist, create it
-    if not chat_history:
-        chat_history = ChatHistory(
-            session_id=session_id,
-            user_id=current_user.id
-        )
-        db.session.add(chat_history)
-        db.session.commit()
+    messages = []
     
-    # Get messages for this session
-    messages = ChatMessage.query.filter_by(
-        chat_history_id=chat_history.id
-    ).order_by(ChatMessage.timestamp).all()
+    # If session exists, get messages
+    if chat_history:
+        messages = ChatMessage.query.filter_by(
+            chat_history_id=chat_history.id
+        ).order_by(ChatMessage.timestamp).all()
     
     # Get user documents for upload section
     documents = Document.query.filter_by(
@@ -117,14 +111,14 @@ def new_chat():
     # Generate a unique session ID
     session_id = str(uuid.uuid4())
     
-    # Create new chat history
+    # Create the session object in memory but don't commit it yet
+    # We'll only save it after the first message is sent
     chat_history = ChatHistory(
         session_id=session_id,
         user_id=current_user.id
     )
-    db.session.add(chat_history)
-    db.session.commit()
     
+    # Store session_id in session to be able to detect abandoned chats
     return redirect(url_for('chat.chat_page', session_id=session_id))
 
 @chat_bp.route('/documents', methods=['GET'])
