@@ -431,15 +431,49 @@
     </section>
     
     <div class="row">
-        <!-- Chat History Section -->
+        <!-- Main Chat Section -->
         <div class="col-lg-8">
             <section class="chat-section">
                 <div class="section-header">
-                    <h2><i class="fas fa-comment-dots section-icon"></i> Recent Conversations</h2>
-                    <a href="{{ url_for('chat.new_chat') }}" class="btn btn-primary">
-                        <i class="fas fa-plus me-1"></i> New Chat
-                    </a>
+                    <h2><i class="fas fa-comment-dots section-icon"></i> Chat</h2>
                 </div>
+                <div class="card">
+                    <div class="card-body p-0">
+                        <div id="chat-container" class="chat-container">
+                            {% if messages %}
+                                {% for message in messages %}
+                                    <div class="message {% if message.role == 'user' %}user-message{% else %}ai-message{% endif %} animate__animated animate__fadeInUp">
+                                        <div class="message-content">{{ message.content }}</div>
+                                        <div class="message-time">
+                                            {{ message.timestamp.strftime('%H:%M') }}
+                                            <i class="fas {% if message.role == 'user' %}fa-user{% else %}fa-robot{% endif %} ms-1"></i>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                        
+                        <div id="typing-indicator" class="typing-indicator" style="display: none;">
+                            <div class="typing-animation">
+                                <div class="dot"></div>
+                                <div class="dot"></div>
+                                <div class="dot"></div>
+                            </div>
+                        </div>
+                        
+                        <form id="message-form" class="chat-input-container">
+                            <div class="input-group">
+                                <input type="text" id="message-input" class="form-control chat-input" placeholder="Type your message..." autocomplete="off">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-paper-plane"></i>
+                                </button>
+                            </div>
+                            <input type="hidden" id="session-id-input" value="{{ session_id }}">
+                        </form>
+                    </div>
+                </div>
+            </section>
+        </div>
                 
                 <div class="row">
                     {% if active_sessions %}
@@ -512,9 +546,10 @@
             </section>
         </div>
         
-        <!-- Recent Documents Section -->
+        <!-- Sidebar -->
         <div class="col-lg-4">
-            <section class="documents-section">
+            <!-- Recent Documents Section -->
+            <section class="documents-section mb-4">
                 <div class="section-header">
                     <h2><i class="fas fa-file-alt section-icon"></i> Recent Documents</h2>
                     <a href="{{ url_for('chat.documents_page') }}" class="upload-btn">
@@ -553,12 +588,8 @@
                                                 title="Delete document">
                                                 <i class="fas fa-trash-alt"></i>
                                             </button>
-                                    <!-- Document preview area -->
-                                    <div class="document-preview-area" data-document-id="{{ doc.id }}" style="display: none;"></div>
-                                        </div>
                                     </div>
-                                    <!-- Document preview area -->
-                                    <div class="document-preview-area" data-document-id="{{ doc.id }}" style="display: none;"></div>
+                                    </div>
                                 {% endfor %}
                             </div>
                         {% else %}

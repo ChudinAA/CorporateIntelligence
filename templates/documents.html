@@ -9,7 +9,7 @@
         font-size: 2rem;
         transition: all 0.3s ease;
     }
-    
+
     .document-card {
         transition: all 0.3s ease;
         border-radius: var(--border-radius);
@@ -18,16 +18,16 @@
         border: none;
         box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
     }
-    
+
     .document-card:hover {
         transform: translateY(-5px);
         box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
     }
-    
+
     .document-card:hover .document-icon {
         transform: scale(1.2) rotate(5deg);
     }
-    
+
     .document-title {
         font-weight: 600;
         font-size: 1.1rem;
@@ -35,38 +35,38 @@
         margin-bottom: 0.25rem;
         transition: all 0.3s ease;
     }
-    
+
     .document-card:hover .document-title {
         color: var(--primary-color);
     }
-    
+
     .document-meta {
         color: #6c757d;
         font-size: 0.85rem;
     }
-    
+
     .document-actions {
         margin-top: 1rem;
         display: flex;
         gap: 0.5rem;
         justify-content: center;
     }
-    
+
     .document-actions .btn {
         padding: 0.375rem 0.75rem;
         font-size: 0.85rem;
     }
-    
+
     .document-filter {
         margin-bottom: 1.5rem;
     }
-    
+
     /* Enhanced upload zone */
     .upload-container {
         max-width: 800px;
         margin: 0 auto;
     }
-    
+
     .upload-zone {
         border: 2px dashed rgba(108, 92, 231, 0.4);
         border-radius: var(--border-radius);
@@ -79,7 +79,7 @@
         overflow: hidden;
         margin-bottom: 2rem;
     }
-    
+
     .upload-zone::before {
         content: "";
         position: absolute;
@@ -92,43 +92,43 @@
         animation: plasmaFlow 8s ease infinite;
         z-index: 0;
     }
-    
+
     .upload-zone > * {
         position: relative;
         z-index: 1;
     }
-    
+
     .upload-zone:hover, .upload-zone.dragover {
         border-color: var(--primary-color);
         background: rgba(108, 92, 231, 0.05);
         transform: translateY(-5px);
         box-shadow: 0 10px 30px rgba(108, 92, 231, 0.15);
     }
-    
+
     .upload-icon {
         font-size: 3rem;
         color: var(--primary-color);
         margin-bottom: 1rem;
         transition: all 0.3s ease;
     }
-    
+
     .upload-zone:hover .upload-icon {
         transform: translateY(-8px);
         color: rgba(88, 73, 196, 1);
     }
-    
+
     .upload-title {
         font-size: 1.5rem;
         font-weight: 600;
         margin-bottom: 0.5rem;
         color: var(--text-color);
     }
-    
+
     .upload-subtitle {
         color: #6c757d;
         margin-bottom: 1.5rem;
     }
-    
+
     .upload-formats {
         display: inline-flex;
         flex-wrap: wrap;
@@ -136,7 +136,7 @@
         justify-content: center;
         margin-top: 1rem;
     }
-    
+
     .format-badge {
         background: rgba(108, 92, 231, 0.1);
         color: var(--primary-color);
@@ -146,12 +146,12 @@
         font-size: 0.85rem;
         transition: all 0.3s ease;
     }
-    
+
     .format-badge:hover {
         background: rgba(108, 92, 231, 0.2);
         transform: translateY(-2px);
     }
-    
+
     /* Animated progress indicator */
     .processing-document {
         position: relative;
@@ -161,7 +161,7 @@
         margin-bottom: 1rem;
         overflow: hidden;
     }
-    
+
     .processing-document::before {
         content: "";
         position: absolute;
@@ -172,12 +172,12 @@
         background: linear-gradient(90deg, transparent, var(--primary-color), transparent);
         animation: progressAnimation 2s linear infinite;
     }
-    
+
     @keyframes progressAnimation {
         0% { left: -100%; }
         100% { left: 100%; }
     }
-    
+
     /* Document type icons */
     .file-icon {
         display: inline-flex;
@@ -189,76 +189,72 @@
         margin-bottom: 0.75rem;
         transition: all 0.3s ease;
     }
-    
+
     .file-icon-pdf {
         background: rgba(255, 100, 80, 0.1);
         color: #ff6450;
     }
-    
+
     .file-icon-txt {
         background: rgba(79, 195, 247, 0.1);
         color: #4fc3f7;
     }
-    
+
     .file-icon-docx {
         background: rgba(65, 105, 225, 0.1);
         color: #4169e1;
     }
-    
+
     .file-icon-xlsx {
         background: rgba(67, 160, 71, 0.1);
         color: #43a047;
     }
-    
+
     .file-icon-csv {
         background: rgba(156, 39, 176, 0.1);
         color: #9c27b0;
     }
-    
+
     .document-card:hover .file-icon {
         transform: scale(1.1);
     }
-    
+
     /* Empty state animation */
     .empty-state {
         text-align: center;
         padding: 4rem 2rem;
         animation: fadeIn 0.8s ease-out;
     }
-    
+
     .empty-state-icon {
         font-size: 5rem;
         color: rgba(108, 92, 231, 0.2);
         margin-bottom: 1.5rem;
     }
-    
+
     .empty-state-title {
         font-size: 1.5rem;
         font-weight: 600;
         margin-bottom: 0.75rem;
         color: var(--text-color);
     }
-    
+
     .pulse-animation {
         animation: pulse 3s infinite;
     }
-    
+
     /* Loading placeholder animation */
     @keyframes shimmer {
         0% { background-position: -1000px 0 }
         100% { background-position: 1000px 0 }
     }
-    
+
     .loading-placeholder {
         animation: shimmer 2s infinite linear;
         background: linear-gradient(to right, #f6f7f8 8%, #edeef1 18%, #f6f7f8 33%);
         background-size: 1000px 100%;
         border-radius: var(--border-radius);
         height: 200px;
-    }
-    
-    .document-preview-area {
-        cursor: pointer;
     }
 </style>
 {% endblock %}
@@ -268,7 +264,7 @@
     <div class="row justify-content-center">
         <div class="col-lg-10">
             <h1 class="mb-4 text-center">Document Management</h1>
-            
+
             <!-- Upload Area -->
             <div class="upload-container">
                 <form action="{{ url_for('chat.upload_document') }}" method="POST" enctype="multipart/form-data" id="upload-form">
@@ -277,7 +273,7 @@
                         <h3 class="upload-title">Upload your documents</h3>
                         <p class="upload-subtitle">Drag and drop files here or click to browse</p>
                         <input type="file" class="d-none" id="document-file" name="document" required>
-                        
+
                         <div class="upload-formats">
                             <span class="format-badge"><i class="fas fa-file-pdf me-1"></i> PDF</span>
                             <span class="format-badge"><i class="fas fa-file-alt me-1"></i> TXT</span>
@@ -288,7 +284,7 @@
                     </div>
                 </form>
             </div>
-            
+
             <!-- Document Filter -->
             <div class="document-filter mb-4">
                 <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
@@ -301,7 +297,7 @@
                     </div>
                 </div>
             </div>
-            
+
             <!-- Documents List -->
             <div class="row" id="documents-container">
                 {% if documents %}
@@ -309,8 +305,7 @@
                         <div class="col-lg-4 col-md-6 mb-4">
                             <div class="card document-card h-100" data-document-id="{{ document.id }}">
                                 <div class="card-body text-center">
-                                    <div class="document-preview-area document-preview" data-document-id="{{ document.id }}">
-                                        <div class="file-icon file-icon-{{ document.file_type.lower() }}">
+                                    <div class="file-icon file-icon-{{ document.file_type.lower() }}">
                                             {% if document.file_type.lower() == 'pdf' %}
                                                 <i class="fas fa-file-pdf"></i>
                                             {% elif document.file_type.lower() == 'txt' %}
@@ -325,7 +320,7 @@
                                                 <i class="fas fa-file"></i>
                                             {% endif %}
                                         </div>
-                                        
+
                                         <h5 class="document-title">{{ document.original_filename }}</h5>
                                         <div class="document-meta">
                                             <div>{{ (document.file_size / 1024)|int }} KB</div>
@@ -340,8 +335,7 @@
                                                 {% endif %}
                                             </div>
                                         </div>
-                                    </div>
-                                    
+
                                     <div class="document-actions">
                                         <button type="button" class="btn btn-sm btn-outline-info document-preview" data-document-id="{{ document.id }}">
                                             <i class="fas fa-info-circle"></i> Preview
@@ -351,7 +345,7 @@
                                         </button>
                                     </div>
                                 </div>
-                                
+
                                 {% if document.processing_error %}
                                     <div class="card-footer bg-danger bg-opacity-10 text-danger">
                                         <small><i class="fas fa-exclamation-circle me-1"></i> {{ document.processing_error }}</small>

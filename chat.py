@@ -96,13 +96,7 @@ def chat_page(session_id):
         user_id=current_user.id
     ).order_by(Document.upload_date.desc()).all()
     
-    return render_template(
-        'chat.html',
-        session_id=session_id,
-        chat_history=chat_history,
-        messages=messages,
-        documents=documents
-    )
+    return redirect(url_for('main.dashboard', session_id=session_id))
 
 @chat_bp.route('/chat/new')
 @login_required
