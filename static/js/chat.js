@@ -1,27 +1,61 @@
-// Chat functionality implementation
+
 document.addEventListener('DOMContentLoaded', function() {
-    // Initialize Socket.IO with configuration
     const socket = io(window.location.origin, socketIOConfig);
     const messageForm = document.getElementById('message-form');
     const messageInput = document.getElementById('message-input');
     const chatContainer = document.getElementById('chat-container');
     const typingIndicator = document.getElementById('typing-indicator');
-    const sessionId = document.getElementById('session-id-input') ? 
-                     document.getElementById('session-id-input').value : 
-                     window.sessionId; // Fallback to global variable if input not found
+    const sessionId = document.getElementById('session-id-input')?.value || window.sessionId;
+    const dropZone = document.getElementById('drop-zone');
+    const fileInput = document.getElementById('document');
+    const uploadForm = document.getElementById('upload-form');
 
-    // Scroll to bottom of chat container
+    // Drag and drop functionality
+    if (dropZone && fileInput) {
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+            });
+        });
+
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropZone.addEventListener(eventName, function() {
+                dropZone.classList.add('dragover');
+            });
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, function() {
+                dropZone.classList.remove('dragover');
+            });
+        });
+
+        dropZone.addEventListener('drop', function(e) {
+            const files = e.dataTransfer.files;
+            if (files.length) {
+                fileInput.files = files;
+                uploadForm.submit();
+            }
+        });
+
+        dropZone.addEventListener('click', () => fileInput.click());
+        
+        fileInput.addEventListener('change', () => {
+            if (fileInput.files.length) {
+                uploadForm.submit();
+            }
+        });
+    }
+
     function scrollToBottom() {
         chatContainer.scrollTop = chatContainer.scrollHeight;
     }
 
-    // Initially scroll to bottom
     scrollToBottom();
 
-    // Connect to Socket.IO
     socket.on('connect', function() {
         console.log('Connected to Socket.IO server');
-        // Remove any error messages about connection when connected
         const errorElements = document.querySelectorAll('.message.ai-message .text-danger');
         errorElements.forEach(element => {
             if (element.textContent.includes('Unable to connect')) {
@@ -30,60 +64,42 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Handle connection error
     socket.on('connect_error', function(error) {
         console.error('Connection error:', error);
         addErrorMessage('Unable to connect to the server. Please refresh the page.');
     });
 
-    // Handle incoming messages
     socket.on('receive_message', function(data) {
-        // Hide typing indicator
         typingIndicator.style.display = 'none';
-
-        // Add AI message to chat
-        const message = data.message;
-        const sources = data.sources || [];
-
-        addAIMessage(message, sources);
+        addAIMessage(data.message);
         scrollToBottom();
     });
 
-    // Handle errors
     socket.on('error', function(data) {
         typingIndicator.style.display = 'none';
         addErrorMessage(data.message || 'An error occurred.');
         scrollToBottom();
     });
 
-    // Send message on form submit
     messageForm.addEventListener('submit', function(e) {
         e.preventDefault();
-
         const message = messageInput.value.trim();
         if (!message) return;
 
-        // Add user message to chat
         addUserMessage(message);
-
-        // Clear input
         messageInput.value = '';
-
-        // Show typing indicator
         typingIndicator.style.display = 'block';
         scrollToBottom();
 
-        // Send message to server
         socket.emit('send_message', {
             message: message,
             session_id: sessionId
         });
     });
 
-    // Add user message to chat
     function addUserMessage(message) {
         const messageElement = document.createElement('div');
-        messageElement.className = 'message user-message new-message';
+        messageElement.className = 'message user-message animate__animated animate__fadeInUp';
 
         const now = new Date();
         const timeString = now.getHours().toString().padStart(2, '0') + ':' + 
@@ -101,16 +117,13 @@ document.addEventListener('DOMContentLoaded', function() {
         scrollToBottom();
     }
 
-    // Add AI message to chat
-    function addAIMessage(message, sources = []) {
+    function addAIMessage(message) {
         const messageElement = document.createElement('div');
-        messageElement.className = 'message ai-message new-message';
+        messageElement.className = 'message ai-message animate__animated animate__fadeInUp';
 
         const now = new Date();
         const timeString = now.getHours().toString().padStart(2, '0') + ':' + 
                           now.getMinutes().toString().padStart(2, '0');
-        
-        // Remove sources section as requested
 
         messageElement.innerHTML = `
             <div class="message-content">${message}</div>
@@ -124,10 +137,9 @@ document.addEventListener('DOMContentLoaded', function() {
         scrollToBottom();
     }
 
-    // Add error message to chat
     function addErrorMessage(message) {
         const messageElement = document.createElement('div');
-        messageElement.className = 'message ai-message new-message';
+        messageElement.className = 'message ai-message animate__animated animate__fadeInUp';
 
         const now = new Date();
         const timeString = now.getHours().toString().padStart(2, '0') + ':' + 
@@ -145,8 +157,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         chatContainer.appendChild(messageElement);
     }
-    
-    // Add some interactivity to the message input
+
     messageInput.addEventListener('focus', function() {
         this.parentElement.classList.add('shadow-sm');
     });
