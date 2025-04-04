@@ -82,21 +82,57 @@
                 <h4 class="card-title mb-0"><i class="fas fa-file-upload me-2"></i>Upload Document</h4>
             </div>
             <div class="card-body">
-                <form action="{{ url_for('chat.upload_document') }}" method="POST" enctype="multipart/form-data">
-                    <div class="mb-3">
-                        <label for="document" class="form-label">Select Document</label>
-                        <input type="file" class="form-control" id="document" name="document" required>
-                        <div class="form-text">
-                            Supported formats: PDF, TXT, DOCX, XLSX, CSV
-                        </div>
-                    </div>
-                    <div class="d-grid">
-                        <button type="submit" class="btn btn-primary">
-                            <i class="fas fa-upload me-1"></i> Upload Document
-                        </button>
+                <form id="upload-form" action="{{ url_for('chat.upload_document') }}" method="POST" enctype="multipart/form-data">
+                    <div class="upload-zone" id="drop-zone">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <h5>Drop files here or click to upload</h5>
+                        <p class="text-muted">Supported: PDF, TXT, DOCX, XLSX, CSV</p>
+                        <input type="file" id="document" name="document" class="d-none" required>
                     </div>
                 </form>
             </div>
+            <script>
+                const dropZone = document.getElementById('drop-zone');
+                const fileInput = document.getElementById('document');
+                const uploadForm = document.getElementById('upload-form');
+
+                ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                    dropZone.addEventListener(eventName, preventDefaults, false);
+                    document.body.addEventListener(eventName, preventDefaults, false);
+                });
+
+                function preventDefaults (e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                }
+
+                ['dragenter', 'dragover'].forEach(eventName => {
+                    dropZone.addEventListener(eventName, highlight, false);
+                });
+
+                ['dragleave', 'drop'].forEach(eventName => {
+                    dropZone.addEventListener(eventName, unhighlight, false);
+                });
+
+                function highlight(e) {
+                    dropZone.classList.add('dragover');
+                }
+
+                function unhighlight(e) {
+                    dropZone.classList.remove('dragover');
+                }
+
+                dropZone.addEventListener('drop', handleDrop, false);
+                dropZone.addEventListener('click', () => fileInput.click());
+                fileInput.addEventListener('change', () => uploadForm.submit());
+
+                function handleDrop(e) {
+                    const dt = e.dataTransfer;
+                    const files = dt.files;
+                    fileInput.files = files;
+                    uploadForm.submit();
+                }
+            </script>
         </div>
 
         <!-- Document Information Card -->
