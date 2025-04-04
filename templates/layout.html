@@ -37,8 +37,10 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/custom.css') }}">
     
     <!-- Socket.IO client -->
+    <!-- SweetAlert2 for beautiful alerts and dialogs -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
     <script src="https://cdn.socket.io/4.6.0/socket.io.min.js"></script>
-    
     <script>
         // Configure Socket.IO connection with correct URI
         const socketIOConfig = {

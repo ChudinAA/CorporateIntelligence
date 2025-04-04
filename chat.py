@@ -47,11 +47,30 @@ def dashboard():
         user_id=current_user.id
     ).order_by(Document.upload_date.desc()).all()
     
+    # Generate statistics for dashboard
+    total_documents = len(all_documents)
+    total_conversations = ChatHistory.query.filter_by(user_id=current_user.id).count()
+    last_activity = None
+    
+    # Get last activity time (from either document upload or chat)
+    latest_doc = Document.query.filter_by(user_id=current_user.id).order_by(Document.upload_date.desc()).first()
+    latest_chat = ChatHistory.query.filter_by(user_id=current_user.id).order_by(ChatHistory.updated_at.desc()).first()
+    
+    if latest_doc and latest_chat:
+        last_activity = max(latest_doc.upload_date, latest_chat.updated_at)
+    elif latest_doc:
+        last_activity = latest_doc.upload_date
+    elif latest_chat:
+        last_activity = latest_chat.updated_at
+    
     return render_template(
         'dashboard.html',
         active_sessions=active_sessions,
         recent_documents=recent_documents,
-        all_documents=all_documents
+        all_documents=all_documents,
+        total_documents=total_documents,
+        total_conversations=total_conversations,
+        last_activity=last_activity
     )
 
 @chat_bp.route('/chat/<session_id>')
@@ -173,13 +192,15 @@ def preview_document(document_id):
         }
     })
 
-@chat_bp.route('/documents/delete/<int:document_id>', methods=['POST'])
+@chat_bp.route('/documents/delete/<int:document_id>', methods=['GET', 'POST'])
 @login_required
 def delete_document(document_id):
     """Delete a document."""
     document = Document.query.filter_by(id=document_id, user_id=current_user.id).first()
     
     if not document:
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return jsonify({'success': False, 'error': 'Document not found'})
         flash('Document not found', 'danger')
         return redirect(url_for('chat.documents_page'))
     
@@ -193,10 +214,17 @@ def delete_document(document_id):
         db.session.delete(document)
         db.session.commit()
         
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return jsonify({'success': True})
+        
         flash('Document deleted successfully', 'success')
     except Exception as e:
         db.session.rollback()
         logger.error(f"Error deleting document: {str(e)}", exc_info=True)
+        
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return jsonify({'success': False, 'error': str(e)})
+        
         flash(f'Error deleting document: {str(e)}', 'danger')
     
     return redirect(url_for('chat.documents_page'))
