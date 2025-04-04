@@ -4,9 +4,115 @@
   --text-color: #1a1a1a;
   --bg-light: #ffffff;
   --bg-secondary: rgba(248, 249, 254, 0.8);
-  --border-radius: 24px;
+  --border-radius: 18px;
   --footer-bg: #2d3748;
   --transition-speed: 0.3s;
+}
+
+/* Reduce overall sizes for more compact layout */
+body {
+  font-size: 0.92rem;
+}
+
+h1 {
+  font-size: 1.8rem;
+}
+
+h2 {
+  font-size: 1.5rem;
+}
+
+h3 {
+  font-size: 1.3rem;
+}
+
+h4, h5 {
+  font-size: 1.1rem;
+}
+
+.card {
+  margin-bottom: 0.8rem;
+}
+
+.card-body {
+  padding: 1rem;
+}
+
+.container {
+  padding: 0.75rem;
+}
+
+.btn {
+  padding: 0.4rem 0.8rem;
+}
+
+/* More compact spacing */
+.mb-4 {
+  margin-bottom: 1rem !important;
+}
+
+.my-4 {
+  margin-top: 1rem !important;
+  margin-bottom: 1rem !important;
+}
+
+.py-4 {
+  padding-top: 1rem !important;
+  padding-bottom: 1rem !important;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideIn {
+  from { transform: translateX(-20px); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+@keyframes plasmaFlow {
+  0% { background-position: 0% 50%; opacity: 0.6; }
+  50% { background-position: 100% 50%; opacity: 0.8; }
+  100% { background-position: 0% 50%; opacity: 0.6; }
+}
+
+.card {
+  margin-bottom: 0.8rem;
+}
+
+.card-body {
+  padding: 1rem;
+}
+
+.container {
+  padding: 0.75rem;
+}
+
+.btn {
+  padding: 0.4rem 0.8rem;
+}
+
+/* More compact spacing */
+.mb-4 {
+  margin-bottom: 1rem !important;
+}
+
+.my-4 {
+  margin-top: 1rem !important;
+  margin-bottom: 1rem !important;
+}
+
+.py-4 {
+  padding-top: 1rem !important;
+  padding-bottom: 1rem !important;
 }
 
 /* Animations */

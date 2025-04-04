@@ -12,7 +12,6 @@
     
     .document-card {
         transition: all 0.3s ease;
-        cursor: pointer;
         border-radius: var(--border-radius);
         overflow: hidden;
         background: var(--bg-light);
@@ -257,6 +256,10 @@
         border-radius: var(--border-radius);
         height: 200px;
     }
+    
+    .document-preview-area {
+        cursor: pointer;
+    }
 </style>
 {% endblock %}
 
@@ -304,45 +307,47 @@
                 {% if documents %}
                     {% for document in documents %}
                         <div class="col-lg-4 col-md-6 mb-4">
-                            <div class="card document-card h-100 document-preview" data-document-id="{{ document.id }}">
+                            <div class="card document-card h-100" data-document-id="{{ document.id }}">
                                 <div class="card-body text-center">
-                                    <div class="file-icon file-icon-{{ document.file_type.lower() }}">
-                                        {% if document.file_type.lower() == 'pdf' %}
-                                            <i class="fas fa-file-pdf"></i>
-                                        {% elif document.file_type.lower() == 'txt' %}
-                                            <i class="fas fa-file-alt"></i>
-                                        {% elif document.file_type.lower() == 'docx' %}
-                                            <i class="fas fa-file-word"></i>
-                                        {% elif document.file_type.lower() == 'xlsx' %}
-                                            <i class="fas fa-file-excel"></i>
-                                        {% elif document.file_type.lower() == 'csv' %}
-                                            <i class="fas fa-file-csv"></i>
-                                        {% else %}
-                                            <i class="fas fa-file"></i>
-                                        {% endif %}
-                                    </div>
-                                    
-                                    <h5 class="document-title">{{ document.original_filename }}</h5>
-                                    <div class="document-meta">
-                                        <div>{{ (document.file_size / 1024)|int }} KB</div>
-                                        <div>{{ document.upload_date.strftime('%Y-%m-%d %H:%M') }}</div>
-                                        <div class="mt-1">
-                                            {% if document.processed %}
-                                                <span class="badge bg-success">Processed</span>
-                                            {% elif document.processing_error %}
-                                                <span class="badge bg-danger">Error</span>
+                                    <div class="document-preview-area document-preview" data-document-id="{{ document.id }}">
+                                        <div class="file-icon file-icon-{{ document.file_type.lower() }}">
+                                            {% if document.file_type.lower() == 'pdf' %}
+                                                <i class="fas fa-file-pdf"></i>
+                                            {% elif document.file_type.lower() == 'txt' %}
+                                                <i class="fas fa-file-alt"></i>
+                                            {% elif document.file_type.lower() == 'docx' %}
+                                                <i class="fas fa-file-word"></i>
+                                            {% elif document.file_type.lower() == 'xlsx' %}
+                                                <i class="fas fa-file-excel"></i>
+                                            {% elif document.file_type.lower() == 'csv' %}
+                                                <i class="fas fa-file-csv"></i>
                                             {% else %}
-                                                <span class="badge bg-warning">Processing</span>
+                                                <i class="fas fa-file"></i>
                                             {% endif %}
+                                        </div>
+                                        
+                                        <h5 class="document-title">{{ document.original_filename }}</h5>
+                                        <div class="document-meta">
+                                            <div>{{ (document.file_size / 1024)|int }} KB</div>
+                                            <div>{{ document.upload_date.strftime('%Y-%m-%d %H:%M') }}</div>
+                                            <div class="mt-1">
+                                                {% if document.processed %}
+                                                    <span class="badge bg-success">Processed</span>
+                                                {% elif document.processing_error %}
+                                                    <span class="badge bg-danger">Error</span>
+                                                {% else %}
+                                                    <span class="badge bg-warning">Processing</span>
+                                                {% endif %}
+                                            </div>
                                         </div>
                                     </div>
                                     
                                     <div class="document-actions">
-                                        <button type="button" class="btn btn-sm btn-outline-info">
-                                            <i class="fas fa-info-circle"></i>
+                                        <button type="button" class="btn btn-sm btn-outline-info document-preview" data-document-id="{{ document.id }}">
+                                            <i class="fas fa-info-circle"></i> Preview
                                         </button>
                                         <button type="button" class="btn btn-sm btn-outline-danger delete-document" data-document-id="{{ document.id }}">
-                                            <i class="fas fa-trash-alt"></i>
+                                            <i class="fas fa-trash-alt"></i> Delete
                                         </button>
                                     </div>
                                 </div>

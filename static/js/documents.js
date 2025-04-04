@@ -192,7 +192,6 @@ document.addEventListener('DOMContentLoaded', function() {
     // Run animation on load and scroll
     window.addEventListener('load', animateOnScroll);
     window.addEventListener('scroll', animateOnScroll);
-});
 
     // Handle document deletion with SweetAlert2 confirmation
     const deleteButtons = document.querySelectorAll('.delete-document');
@@ -303,3 +302,4 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
     });
+});
