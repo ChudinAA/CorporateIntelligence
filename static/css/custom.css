@@ -1,90 +1,132 @@
-/* Global style adjustments */
+/* Global style adjustments - more compact */
 :root {
   --primary-color: rgba(108, 92, 231, 0.75);
   --text-color: #1a1a1a;
   --bg-light: #ffffff;
   --bg-secondary: rgba(248, 249, 254, 0.8);
-  --border-radius: 18px;
+  --border-radius: 16px; /* Reduced border radius for more compact look */
   --footer-bg: #2d3748;
-  --transition-speed: 0.3s;
+  --transition-speed: 0.25s; /* Faster transitions */
 }
 
 /* Reduce overall sizes for more compact layout */
 body {
-  font-size: 0.92rem;
+  font-size: 0.9rem; /* Smaller base font size */
 }
 
 h1 {
-  font-size: 1.8rem;
+  font-size: 1.7rem;
 }
 
 h2 {
-  font-size: 1.5rem;
+  font-size: 1.4rem;
 }
 
 h3 {
-  font-size: 1.3rem;
+  font-size: 1.2rem;
 }
 
 h4, h5 {
-  font-size: 1.1rem;
+  font-size: 1.05rem;
 }
 
+/* More compact cards */
 .card {
-  margin-bottom: 0.8rem;
+  margin-bottom: 0.75rem; /* Reduced margin */
+  border: none;
+  border-radius: var(--border-radius);
+  background: var(--bg-light);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.05); /* Lighter shadow */
+  transition: all var(--transition-speed) ease;
+  overflow: hidden;
+  animation: fadeIn 0.4s ease-out;
+}
+
+.card-header {
+  border-bottom: none;
+  padding: 0.9rem 1.1rem; /* Reduced padding */
+  border-radius: var(--border-radius) var(--border-radius) 0 0;
+  background: var(--bg-light);
 }
 
 .card-body {
-  padding: 1rem;
+  padding: 0.9rem 1.1rem; /* Reduced padding */
 }
 
-.container {
-  padding: 0.75rem;
+/* Reduce size of card header titles */
+.card-header h3.card-title, .card-header h3 {
+  font-size: 1.15rem;
+  margin-bottom: 0;
+  transition: all var(--transition-speed) ease;
 }
 
-.btn {
-  padding: 0.4rem 0.8rem;
+.card-header h4.card-title, .card-header h4 {
+  font-size: 1.05rem;
+  margin-bottom: 0;
+  transition: all var(--transition-speed) ease;
 }
 
 /* More compact spacing */
+.container {
+  padding: 0.6rem;
+}
+
+.row {
+  margin-left: -0.6rem;
+  margin-right: -0.6rem;
+}
+
+.row > div {
+  padding-left: 0.6rem;
+  padding-right: 0.6rem;
+}
+
+.btn {
+  padding: 0.35rem 0.85rem;
+  border-radius: var(--border-radius);
+  transition: all var(--transition-speed) ease;
+  font-weight: 500;
+}
+
 .mb-4 {
-  margin-bottom: 1rem !important;
+  margin-bottom: 0.85rem !important;
 }
 
 .my-4 {
-  margin-top: 1rem !important;
-  margin-bottom: 1rem !important;
+  margin-top: 0.85rem !important;
+  margin-bottom: 0.85rem !important;
 }
 
 .py-4 {
-  padding-top: 1rem !important;
-  padding-bottom: 1rem !important;
+  padding-top: 0.85rem !important;
+  padding-bottom: 0.85rem !important;
 }
 
-/* Animations */
+/* Enhanced animations */
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
+  from { opacity: 0; transform: translateY(8px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
 @keyframes slideIn {
-  from { transform: translateX(-20px); opacity: 0; }
+  from { transform: translateX(-15px); opacity: 0; }
   to { transform: translateX(0); opacity: 1; }
 }
 
 @keyframes pulse {
   0% { transform: scale(1); }
-  50% { transform: scale(1.05); }
+  50% { transform: scale(1.03); }
   100% { transform: scale(1); }
 }
 
+/* Enhanced plasma animation */
 @keyframes plasmaFlow {
-  0% { background-position: 0% 50%; opacity: 0.7; }
-  50% { background-position: 100% 50%; opacity: 0.9; }
-  100% { background-position: 0% 50%; opacity: 0.7; }
+  0% { background-position: 0% 50%; opacity: 0.9; }
+  50% { background-position: 100% 50%; opacity: 1; }
+  100% { background-position: 0% 50%; opacity: 0.9; }
 }
 
-/* Plasma background animation - completely rewritten and improved */
+/* Plasma background animation - brighter and more fluid */
 .plasma-background {
   position: absolute;
   top: 0;
@@ -92,15 +134,15 @@ h4, h5 {
   right: 0;
   bottom: 0;
   background: linear-gradient(145deg, 
-    rgba(100, 130, 255, 0.12) 0%, 
-    rgba(150, 110, 220, 0.15) 25%, 
-    rgba(130, 170, 255, 0.13) 50%, 
-    rgba(180, 140, 235, 0.14) 75%, 
-    rgba(110, 150, 240, 0.12) 100%);
-  background-size: 400% 400%;
-  animation: plasmaFlow 12s ease-in-out infinite;
+    rgba(100, 130, 255, 0.2) 0%, 
+    rgba(150, 110, 220, 0.25) 25%, 
+    rgba(130, 170, 255, 0.22) 50%, 
+    rgba(180, 140, 235, 0.23) 75%, 
+    rgba(110, 150, 240, 0.2) 100%);
+  background-size: 300% 300%;
+  animation: plasmaFlow 10s ease-in-out infinite;
   z-index: 0;
-  filter: blur(30px);
+  filter: blur(25px);
 }
 
 body {
@@ -115,129 +157,102 @@ body {
 
 main {
   flex: 1;
-  padding: 2rem 0;
+  padding: 1.5rem 0; /* Reduced padding */
 }
 
-/* Remove black line at bottom */
+/* Compact footer */
 footer.footer {
   background-color: transparent !important;
   border-top: 1px solid rgba(0,0,0,0.05);
-  padding: 1rem 0;
-  margin-top: 2rem;
+  padding: 0.75rem 0;
+  margin-top: 1.5rem;
 }
 
 footer.footer .text-muted {
   color: #6c757d !important;
+  font-size: 0.85rem;
 }
 
-/* Card styling - updated border radius */
-.card {
-  border: none;
-  border-radius: var(--border-radius);
-  background: var(--bg-light);
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.06);
-  margin-bottom: 1.5rem;
-  transition: all var(--transition-speed) ease;
-  overflow: hidden;
-  animation: fadeIn 0.5s ease-out;
-}
-
-.card-header {
-  border-bottom: none;
-  padding: 1.25rem;
-  border-radius: var(--border-radius) var(--border-radius) 0 0;
-  background: var(--bg-light);
-}
-
-/* Reduce size of card header titles */
-.card-header h3.card-title {
-  font-size: 1.25rem;
-  transition: all var(--transition-speed) ease;
-}
-
-.card-header h4.card-title {
-  font-size: 1.15rem;
-  transition: all var(--transition-speed) ease;
-}
-
-/* Improved Chat styling */
+/* More compact chat styling */
 #chat-container {
-  height: 68vh;
+  height: 65vh; /* Slightly smaller height */
   overflow-y: auto;
-  padding: 1.5rem;
+  padding: 1.25rem; /* Reduced padding */
   background: var(--bg-light);
   border-radius: var(--border-radius) var(--border-radius) 0 0;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.03);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
   scroll-behavior: smooth;
   display: flex;
   flex-direction: column;
+  gap: 0.85rem; /* Reduced gap between messages */
+  scrollbar-width: thin;
+  scrollbar-color: rgba(108, 92, 231, 0.2) transparent;
 }
 
-/* Media queries for chat container on different screen sizes */
-@media (max-width: 768px) {
-  #chat-container {
-    height: 60vh;
-    padding: 1rem;
-  }
+#chat-container::-webkit-scrollbar {
+  width: 5px;
 }
 
-@media (max-width: 576px) {
-  #chat-container {
-    height: 55vh;
-    padding: 0.75rem;
-  }
+#chat-container::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+#chat-container::-webkit-scrollbar-thumb {
+  background-color: rgba(108, 92, 231, 0.2);
+  border-radius: 10px;
 }
 
 .message {
-  max-width: 85%;
-  margin-bottom: 1.5rem;
-  padding: 1.25rem 1.5rem;
+  max-width: 80%; /* Smaller max-width */
+  margin-bottom: 1rem; /* Reduced margin */
+  padding: 1rem 1.25rem; /* Reduced padding */
   border-radius: var(--border-radius);
-  font-size: 0.95rem;
-  line-height: 1.6;
+  font-size: 0.92rem; /* Smaller font size */
+  line-height: 1.5;
   transition: all var(--transition-speed) ease;
   word-wrap: break-word;
   overflow-wrap: break-word;
-  animation: fadeIn 0.4s ease-out;
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.04);
+  animation: fadeIn 0.3s ease-out;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.03);
 }
 
 .message:hover {
   transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 5px 12px rgba(0, 0, 0, 0.07);
 }
 
 .user-message {
   background: linear-gradient(135deg, var(--primary-color) 0%, rgba(142, 68, 173, 0.85) 100%);
   color: white;
   margin-left: auto;
-  box-shadow: 0 4px 15px rgba(108, 92, 231, 0.15);
+  box-shadow: 0 3px 12px rgba(108, 92, 231, 0.12);
   animation: slideIn 0.3s ease-out;
 }
 
 .ai-message {
-  background-color: #f8f9fa; /* Light gray background */
+  background-color: #f8f9fa;
   color: var(--text-color);
   margin-right: auto;
   border: none;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.02);
 }
 
 .message-input-container {
   position: relative;
-  padding: 1.5rem;
+  padding: 1.25rem; /* Reduced padding */
   background: var(--bg-light);
   border-radius: 0 0 var(--border-radius) var(--border-radius);
   border-top: 1px solid rgba(0, 0, 0, 0.03);
-  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.02);
+  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.02);
 }
 
 #message-input {
   border-radius: var(--border-radius);
-  padding: 0.75rem 1rem;
+  padding: 0.6rem 0.9rem; /* Reduced padding */
   border: 1px solid rgba(0, 0, 0, 0.08);
   transition: all var(--transition-speed) ease;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
+  font-size: 0.9rem;
 }
 
 #message-input:focus {
@@ -246,10 +261,9 @@ footer.footer .text-muted {
   transform: translateY(-1px);
 }
 
-/* Button styles */
+/* Compact button with ripple effect */
 .btn {
   border-radius: var(--border-radius);
-  padding: 0.75rem 1.5rem;
   transition: all var(--transition-speed) ease;
   font-weight: 500;
   position: relative;
@@ -271,7 +285,7 @@ footer.footer .text-muted {
 }
 
 .btn:hover::after {
-  animation: ripple 1s ease-out;
+  animation: ripple 0.8s ease-out; /* Faster ripple */
 }
 
 @keyframes ripple {
@@ -293,14 +307,14 @@ footer.footer .text-muted {
 .btn-primary:hover {
   background: rgba(88, 73, 196, 0.9);
   transform: translateY(-2px);
-  box-shadow: 0 4px 15px rgba(108, 92, 231, 0.3);
+  box-shadow: 0 4px 12px rgba(108, 92, 231, 0.25);
 }
 
 /* Improved Upload zone */
 .upload-zone {
   border: 2px dashed rgba(108, 92, 231, 0.3);
   border-radius: var(--border-radius);
-  padding: 2rem;
+  padding: 1.75rem; /* Reduced padding */
   text-align: center;
   transition: all var(--transition-speed) ease;
   cursor: pointer;
@@ -331,7 +345,7 @@ footer.footer .text-muted {
   border-color: var(--primary-color);
   background: rgba(108, 92, 231, 0.05);
   transform: translateY(-2px);
-  box-shadow: 0 5px 20px rgba(108, 92, 231, 0.15);
+  box-shadow: 0 5px 15px rgba(108, 92, 231, 0.15);
 }
 
 .sources-list {
@@ -343,7 +357,7 @@ footer.footer .text-muted {
 
 .card:hover {
   transform: translateY(-3px);
-  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
 }
 
 /* Enhanced typing indicator */
@@ -351,28 +365,28 @@ footer.footer .text-muted {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  padding: 0.5rem 1rem;
+  padding: 0.5rem 0.8rem;
   background: rgba(108, 92, 231, 0.1);
   border-radius: 12px;
-  margin-bottom: 1rem;
+  margin-bottom: 0.8rem;
 }
 
 .typing-indicator span {
-  width: 8px;
-  height: 8px;
+  width: 7px;
+  height: 7px;
   background: var(--primary-color);
   border-radius: 50%;
-  animation: bounce 1s infinite;
+  animation: bounce 0.8s infinite; /* Faster animation */
   opacity: 0.6;
 }
 
 @keyframes bounce {
   0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-6px); }
+  50% { transform: translateY(-5px); }
 }
 
-.typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
-.typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
+.typing-indicator span:nth-child(2) { animation-delay: 0.15s; }
+.typing-indicator span:nth-child(3) { animation-delay: 0.3s; }
 
 /* Fix for Recent Documents section */
 .card-header.bg-secondary {
@@ -399,6 +413,7 @@ footer.footer .text-muted {
 .list-group-item {
   transition: all var(--transition-speed) ease;
   border-left: 0 solid var(--primary-color);
+  padding: 0.7rem 1rem; /* Reduced padding */
 }
 
 .list-group-item:hover {
@@ -410,34 +425,36 @@ footer.footer .text-muted {
 /* Add some animations to the info box */
 .info-box {
   background: rgba(255, 255, 255, 0.92);
-  padding: 1.5rem 2rem;
+  padding: 1.25rem 1.75rem; /* Reduced padding */
   border-radius: var(--border-radius);
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.05);
   width: 100%;
-  margin-top: 1rem;
+  margin-top: 0.8rem;
   position: relative;
   z-index: 1;
   transition: all var(--transition-speed) ease;
-  animation: fadeIn 0.5s ease-out;
+  animation: fadeIn 0.4s ease-out;
 }
 
 .info-box:hover {
   transform: translateY(-2px);
-  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
 }
 
 /* Improved document list */
 .document-file-icon {
-  font-size: 1.5rem;
+  font-size: 1.3rem; /* Smaller icon */
   transition: transform var(--transition-speed) ease;
 }
 
 .list-group-item:hover .document-file-icon {
-  transform: scale(1.2);
+  transform: scale(1.15);
 }
 
 .badge {
   transition: all var(--transition-speed) ease;
+  font-size: 0.75rem;
+  padding: 0.3em 0.6em;
 }
 
 .list-group-item:hover .badge {
@@ -446,38 +463,29 @@ footer.footer .text-muted {
 
 /* Fix navbar styling */
 .navbar {
-  box-shadow: 0 2px 15px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+  padding: 0.5rem 1rem; /* Reduced padding */
 }
 
-/* Make the chat container scroll properly */
-#chat-container {
-  scrollbar-width: thin;
-  scrollbar-color: rgba(108, 92, 231, 0.2) transparent;
+.navbar-brand {
+  font-size: 1.1rem;
 }
 
-#chat-container::-webkit-scrollbar {
-  width: 6px;
-}
-
-#chat-container::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-#chat-container::-webkit-scrollbar-thumb {
-  background-color: rgba(108, 92, 231, 0.2);
-  border-radius: 10px;
+.navbar .nav-link {
+  font-size: 0.9rem;
+  padding: 0.4rem 0.8rem;
 }
 
 /* Media queries for responsive design */
 @media (max-width: 768px) {
   #chat-container {
-    height: 60vh;
-    padding: 1rem;
+    height: 58vh;
+    padding: 0.9rem;
   }
   
   .message {
-    max-width: 90%;
-    padding: 1rem 1.25rem;
+    max-width: 85%;
+    padding: 0.85rem 1rem;
   }
   
   .welcome-stats {
@@ -485,40 +493,40 @@ footer.footer .text-muted {
   }
   
   .card {
-    margin-bottom: 1rem;
+    margin-bottom: 0.8rem;
   }
 }
 
 @media (max-width: 576px) {
   #chat-container {
-    height: 55vh;
+    height: 52vh;
     padding: 0.75rem;
   }
   
   .message {
-    max-width: 95%;
-    padding: 0.75rem 1rem;
-    margin-bottom: 1rem;
+    max-width: 90%;
+    padding: 0.75rem 0.9rem;
+    margin-bottom: 0.8rem;
   }
   
   .btn {
-    padding: 0.5rem 1rem;
+    padding: 0.35rem 0.8rem;
   }
   
   .welcome-section {
-    padding: 1.5rem;
+    padding: 1.25rem;
   }
   
   .card-body {
-    padding: 1rem;
+    padding: 0.9rem;
   }
   
   .upload-zone {
-    padding: 1.5rem;
+    padding: 1.25rem;
   }
 }
 
-/* Dashboard improvements */
+/* Dashboard improvements with more compact styling */
 .document-preview {
   cursor: pointer;
   transition: all 0.3s ease;
@@ -526,22 +534,22 @@ footer.footer .text-muted {
 
 .document-preview:hover {
   transform: translateY(-3px);
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
 }
 
 .dashboard-section {
-  margin-bottom: 2rem;
+  margin-bottom: 1.5rem; /* Reduced margin */
 }
 
 .recent-uploads-container {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 1.5rem;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); /* Slightly smaller width */
+  gap: 1.25rem; /* Reduced gap */
 }
 
 @media (max-width: 992px) {
   .recent-uploads-container {
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
   }
 }
 
@@ -549,4 +557,70 @@ footer.footer .text-muted {
   .recent-uploads-container {
     grid-template-columns: 1fr;
   }
+}
+
+/* Add SweetAlert2 custom animation classes */
+.swal2-show {
+  animation: swal2-show 0.3s !important; /* Faster animation */
+}
+
+.swal2-hide {
+  animation: swal2-hide 0.3s !important; /* Faster animation */
+}
+
+.swal2-backdrop-show {
+  animation: swal2-backdrop-show 0.25s !important; /* Faster animation */
+}
+
+.swal2-backdrop-hide {
+  animation: swal2-backdrop-hide 0.25s !important; /* Faster animation */
+}
+
+.swal2-icon-show {
+  animation: swal2-icon-show 0.4s !important; /* Faster animation */
+}
+
+.swal2-icon-hide {
+  animation: swal2-icon-hide 0.25s !important; /* Faster animation */
+}
+
+/* Make the welcome section more compact */
+.welcome-section {
+  background: var(--bg-secondary);
+  border-radius: var(--border-radius);
+  padding: 1.75rem; /* Reduced padding */
+  margin-bottom: 1.5rem;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+}
+
+.welcome-stats {
+  display: flex;
+  gap: 1.5rem; /* Reduced gap */
+  margin-top: 1rem;
+}
+
+.stat-item {
+  text-align: center;
+  padding: 0.7rem 1.2rem; /* Reduced padding */
+  background: rgba(255, 255, 255, 0.7);
+  border-radius: var(--border-radius);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.04);
+  transition: all var(--transition-speed) ease;
+}
+
+.stat-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+}
+
+.stat-value {
+  font-size: 1.5rem; /* Reduced size */
+  font-weight: 600;
+  color: var(--primary-color);
+}
+
+.stat-label {
+  font-size: 0.8rem;
+  color: #6c757d;
+  margin-top: 0.3rem;
 }

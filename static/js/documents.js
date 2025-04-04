@@ -1,228 +1,54 @@
 document.addEventListener('DOMContentLoaded', function() {
-    // Handle document preview functionality
-    const previewElements = document.querySelectorAll('.document-preview');
-    
-    previewElements.forEach(element => {
-        element.addEventListener('click', function(e) {
-            // Prevent default action if it's a link or inside a link
-            if (e.target.tagName === 'A' || e.target.closest('a')) {
-                return; // Don't interfere with link clicks
-            }
-            
-            // Get document ID from data attribute
-            const documentId = this.dataset.documentId;
-            
-            // Show loading state
-            Swal.fire({
-                title: 'Loading document...',
-                text: 'Please wait while we prepare the document preview',
-                allowOutsideClick: false,
-                showConfirmButton: false,
-                willOpen: () => {
-                    Swal.showLoading();
-                }
-            });
-            
-            // Fetch document preview from server
-            fetch(`/documents/preview/${documentId}`)
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Failed to load document preview');
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    if (data.success) {
-                        // Close loading dialog and show preview
-                        Swal.close();
-                        
-                        // Display document preview in a modal
-                        Swal.fire({
-                            title: data.document.name,
-                            html: `
-                                <div class="document-preview-info mb-3">
-                                    <div><strong>Type:</strong> ${data.document.type.toUpperCase()}</div>
-                                    <div><strong>Uploaded:</strong> ${data.document.upload_date}</div>
-                                </div>
-                                <div class="document-preview-content">
-                                    <pre class="preview-text">${data.document.preview}</pre>
-                                </div>
-                            `,
-                            width: '70%',
-                            showConfirmButton: true,
-                            confirmButtonText: 'Close',
-                            customClass: {
-                                content: 'preview-content',
-                                container: 'preview-container'
-                            }
-                        });
-                    } else {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Preview Failed',
-                            text: data.error || 'Could not load document preview'
-                        });
-                    }
-                })
-                .catch(error => {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Preview Failed',
-                        text: error.message
-                    });
-                });
-        });
-    });
-    
-    // Document upload functionality
-    const dropZone = document.getElementById('drop-zone');
-    const fileInput = document.getElementById('document');
+    // Drag and drop file upload
+    const uploadZone = document.getElementById('upload-zone');
+    const fileInput = document.getElementById('document-file');
     const uploadForm = document.getElementById('upload-form');
-    const emptyUploadBtn = document.getElementById('empty-upload-btn');
     
-    // Empty state upload button
-    if (emptyUploadBtn) {
-        emptyUploadBtn.addEventListener('click', function() {
-            dropZone.scrollIntoView({ behavior: 'smooth' });
-            setTimeout(() => {
-                // Add a pulse animation to highlight the drop zone
-                dropZone.classList.add('dragover');
-                setTimeout(() => {
-                    dropZone.classList.remove('dragover');
-                }, 1500);
-            }, 500);
-        });
-    }
-
-    // Drag and drop handling
-    if (dropZone) {
+    if (uploadZone && fileInput) {
         ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-            dropZone.addEventListener(eventName, preventDefaults, false);
+            uploadZone.addEventListener(eventName, preventDefaults, false);
         });
-
+        
+        ['dragenter', 'dragover'].forEach(eventName => {
+            uploadZone.addEventListener(eventName, highlight, false);
+        });
+        
+        ['dragleave', 'drop'].forEach(eventName => {
+            uploadZone.addEventListener(eventName, unhighlight, false);
+        });
+        
+        uploadZone.addEventListener('drop', handleDrop, false);
+        fileInput.addEventListener('change', handleFiles, false);
+        
         function preventDefaults(e) {
             e.preventDefault();
             e.stopPropagation();
         }
-
-        ['dragenter', 'dragover'].forEach(eventName => {
-            dropZone.addEventListener(eventName, highlight, false);
-        });
-
-        ['dragleave', 'drop'].forEach(eventName => {
-            dropZone.addEventListener(eventName, unhighlight, false);
-        });
-
+        
         function highlight(e) {
-            dropZone.classList.add('dragover');
+            uploadZone.classList.add('highlight');
         }
-
+        
         function unhighlight(e) {
-            dropZone.classList.remove('dragover');
+            uploadZone.classList.remove('highlight');
         }
-
-        // Handle click on drop zone
-        dropZone.addEventListener('click', () => {
-            fileInput.click();
-        });
-
-        // Handle file drop - Fixed to work across browsers
-        dropZone.addEventListener('drop', handleDrop, false);
         
         function handleDrop(e) {
             const dt = e.dataTransfer;
             const files = dt.files;
-            
-            if (files && files.length > 0) {
-                // Set the file directly - more compatible approach
-                fileInput.files = files;
-                
-                // Show loader
-                Swal.fire({
-                    title: 'Uploading document...',
-                    text: 'Please wait while we upload your document',
-                    allowOutsideClick: false,
-                    showConfirmButton: false,
-                    willOpen: () => {
-                        Swal.showLoading();
-                    }
-                });
-                
-                // Submit the form
-                uploadForm.submit();
-            }
+            fileInput.files = files;
+            handleFiles(e);
         }
-    }
-    
-    // Handle file selection
-    if (fileInput) {
-        fileInput.addEventListener('change', handleFiles, false);
         
         function handleFiles(e) {
-            if (e.target.files && e.target.files.length) {
-                // Show loader
-                Swal.fire({
-                    title: 'Uploading document...',
-                    text: 'Please wait while we upload your document',
-                    allowOutsideClick: false,
-                    showConfirmButton: false,
-                    willOpen: () => {
-                        Swal.showLoading();
-                    }
-                });
-                
-                // Submit the form
+            const files = fileInput.files;
+            if (files.length) {
+                uploadForm.querySelector('.btn-upload').textContent = 'Uploading...';
                 uploadForm.submit();
             }
         }
     }
     
-    // Document search functionality
-    const searchInput = document.getElementById('document-search');
-    if (searchInput) {
-        searchInput.addEventListener('input', function() {
-            const searchTerm = this.value.toLowerCase();
-            const documentCards = document.querySelectorAll('.document-card');
-            
-            documentCards.forEach(card => {
-                const title = card.querySelector('.document-title').textContent.toLowerCase();
-                const parent = card.closest('.col-lg-4, .col-md-6');
-                
-                if (title.includes(searchTerm)) {
-                    parent.style.display = '';
-                } else {
-                    parent.style.display = 'none';
-                }
-            });
-        });
-    }
-    
-    // Scroll animations for document cards
-    const animateOnScroll = function() {
-        const documentCards = document.querySelectorAll('.document-card');
-        
-        documentCards.forEach(card => {
-            const cardPosition = card.getBoundingClientRect();
-            
-            // If card is in viewport
-            if (cardPosition.top < window.innerHeight && cardPosition.bottom >= 0) {
-                card.style.opacity = '1';
-                card.style.transform = 'translateY(0)';
-            }
-        });
-    };
-    
-    // Initialize card animations
-    document.querySelectorAll('.document-card').forEach(card => {
-        card.style.opacity = '0';
-        card.style.transform = 'translateY(20px)';
-        card.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
-    });
-    
-    // Run animation on load and scroll
-    window.addEventListener('load', animateOnScroll);
-    window.addEventListener('scroll', animateOnScroll);
-
     // Handle document deletion with SweetAlert2 confirmation
     const deleteButtons = document.querySelectorAll('.delete-document');
     
@@ -241,7 +67,17 @@ document.addEventListener('DOMContentLoaded', function() {
                 confirmButtonColor: '#d33',
                 cancelButtonColor: '#3085d6',
                 confirmButtonText: 'Yes, delete it!',
-                cancelButtonText: 'Cancel'
+                cancelButtonText: 'Cancel',
+                showClass: {
+                    popup: 'swal2-show',
+                    backdrop: 'swal2-backdrop-show',
+                    icon: 'swal2-icon-show'
+                },
+                hideClass: {
+                    popup: 'swal2-hide',
+                    backdrop: 'swal2-backdrop-hide',
+                    icon: 'swal2-icon-hide'
+                }
             }).then((result) => {
                 if (result.isConfirmed) {
                     // Show loading state
@@ -250,6 +86,10 @@ document.addEventListener('DOMContentLoaded', function() {
                         text: 'Please wait while we delete the document',
                         allowOutsideClick: false,
                         showConfirmButton: false,
+                        showClass: {
+                            popup: 'swal2-show',
+                            backdrop: 'swal2-backdrop-show'
+                        },
                         willOpen: () => {
                             Swal.showLoading();
                         }
@@ -265,71 +105,123 @@ document.addEventListener('DOMContentLoaded', function() {
                     .then(response => response.json())
                     .then(data => {
                         if (data.success) {
+                            // Success - show message and remove element
                             Swal.fire({
-                                icon: 'success',
                                 title: 'Deleted!',
-                                text: 'Document successfully deleted',
+                                text: data.message || 'Document deleted successfully.',
+                                icon: 'success',
+                                timer: 1500,
                                 showConfirmButton: false,
-                                timer: 1500
+                                showClass: {
+                                    popup: 'swal2-show',
+                                    backdrop: 'swal2-backdrop-show',
+                                    icon: 'swal2-icon-show'
+                                },
+                                hideClass: {
+                                    popup: 'swal2-hide',
+                                    backdrop: 'swal2-backdrop-hide',
+                                    icon: 'swal2-icon-hide'
+                                }
                             }).then(() => {
-                                // Remove the document card from the UI
-                                const documentCard = document.querySelector(`.document-card[data-document-id="${documentId}"]`);
-                                if (documentCard) {
-                                    const parentCol = documentCard.closest('.col-lg-4, .col-md-6');
-                                    if (parentCol) {
-                                        parentCol.remove();
+                                // Find the document card and animate its removal
+                                const docCard = button.closest('.document-card');
+                                if (docCard) {
+                                    docCard.style.transition = 'all 0.5s ease';
+                                    docCard.style.opacity = '0';
+                                    docCard.style.transform = 'translateY(-20px)';
+                                    
+                                    setTimeout(() => {
+                                        docCard.remove();
                                         
-                                        // If no documents left, show empty state
-                                        if (document.querySelectorAll('.document-card').length === 0) {
-                                            const emptyState = `
-                                                <div class="col-12">
-                                                    <div class="empty-state">
-                                                        <i class="fas fa-file-upload empty-state-icon pulse-animation"></i>
-                                                        <h3 class="empty-state-title">No documents yet</h3>
-                                                        <p class="text-muted">Upload your first document to get started with AI-powered search</p>
-                                                        <button class="btn btn-primary mt-3" id="empty-upload-btn">
-                                                            <i class="fas fa-upload me-1"></i> Upload Document
-                                                        </button>
+                                        // Check if there are no documents left and display empty state if needed
+                                        const remainingDocs = document.querySelectorAll('.document-card:not([style*="opacity: 0"])');
+                                        if (remainingDocs.length === 0) {
+                                            const documentsContainer = document.querySelector('.documents-container');
+                                            if (documentsContainer) {
+                                                const emptyState = document.createElement('div');
+                                                emptyState.className = 'empty-state';
+                                                emptyState.style.opacity = '0';
+                                                emptyState.style.transform = 'translateY(20px)';
+                                                emptyState.style.transition = 'all 0.5s ease';
+                                                emptyState.innerHTML = `
+                                                    <div class="empty-state-icon">
+                                                        <i class="fas fa-file-upload"></i>
                                                     </div>
-                                                </div>
-                                            `;
-                                            document.getElementById('documents-container').innerHTML = emptyState;
-                                            
-                                            // Reattach event listener to the new button
-                                            const newEmptyBtn = document.getElementById('empty-upload-btn');
-                                            if (newEmptyBtn) {
-                                                newEmptyBtn.addEventListener('click', function() {
-                                                    const dropZone = document.getElementById('drop-zone');
-                                                    dropZone.scrollIntoView({ behavior: 'smooth' });
-                                                    setTimeout(() => {
-                                                        dropZone.classList.add('dragover');
-                                                        setTimeout(() => {
-                                                            dropZone.classList.remove('dragover');
-                                                        }, 1500);
-                                                    }, 500);
-                                                });
+                                                    <h3 class="empty-state-title">No Documents Yet</h3>
+                                                    <p class="empty-state-text">Upload your first document to get started</p>
+                                                `;
+                                                documentsContainer.appendChild(emptyState);
+                                                
+                                                // Trigger animation
+                                                setTimeout(() => {
+                                                    emptyState.style.opacity = '1';
+                                                    emptyState.style.transform = 'translateY(0)';
+                                                }, 50);
                                             }
                                         }
-                                    }
+                                        
+                                        // Update document counter if it exists
+                                        const docCounter = document.querySelector('.document-counter');
+                                        if (docCounter) {
+                                            const currentCount = parseInt(docCounter.textContent);
+                                            if (!isNaN(currentCount) && currentCount > 0) {
+                                                docCounter.textContent = (currentCount - 1).toString();
+                                            }
+                                        }
+                                    }, 500);
                                 }
                             });
                         } else {
+                            // Error
                             Swal.fire({
+                                title: 'Error!',
+                                text: data.message || 'Failed to delete document.',
                                 icon: 'error',
-                                title: 'Error',
-                                text: data.error || 'Failed to delete document'
+                                showClass: {
+                                    popup: 'swal2-show',
+                                    backdrop: 'swal2-backdrop-show'
+                                }
                             });
                         }
                     })
                     .catch(error => {
+                        console.error('Error:', error);
                         Swal.fire({
+                            title: 'Error!',
+                            text: 'An unexpected error occurred.',
                             icon: 'error',
-                            title: 'Error',
-                            text: 'An error occurred while deleting the document'
+                            showClass: {
+                                popup: 'swal2-show',
+                                backdrop: 'swal2-backdrop-show'
+                            }
                         });
                     });
                 }
             });
         });
     });
+    
+    // Animation for document cards on scroll
+    function animateOnScroll() {
+        document.querySelectorAll('.document-card').forEach(card => {
+            const cardTop = card.getBoundingClientRect().top;
+            const windowHeight = window.innerHeight;
+            
+            if (cardTop < windowHeight - 100) {
+                card.style.opacity = '1';
+                card.style.transform = 'translateY(0)';
+            }
+        });
+    }
+    
+    // Set initial state for document cards
+    document.querySelectorAll('.document-card').forEach(card => {
+        card.style.opacity = '0';
+        card.style.transform = 'translateY(20px)';
+        card.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+    });
+    
+    // Run animation on load and scroll
+    window.addEventListener('load', animateOnScroll);
+    window.addEventListener('scroll', animateOnScroll);
 });

@@ -4,7 +4,7 @@
 
 {% block head %}
 <style>
-    /* New plasma animation for register page (same as login) */
+    /* Enhanced plasma animation for register page */
     .register-container {
         min-height: 100vh;
         position: relative;
@@ -12,10 +12,10 @@
         display: flex;
         justify-content: center;
         align-items: center;
-        padding: 2rem 0;
+        padding: 1.5rem 0;
     }
     
-    /* Plasma background same as login */
+    /* Improved plasma background with brighter colors and smoother animations */
     .register-plasma-bg {
         position: fixed;
         top: 0;
@@ -26,8 +26,8 @@
         z-index: -1;
         background: radial-gradient(
             circle at center,
-            rgba(255, 255, 255, 0.8) 0%,
-            rgba(248, 249, 254, 0.9) 100%
+            rgba(255, 255, 255, 0.7) 0%,
+            rgba(248, 249, 254, 0.85) 100%
         );
     }
     
@@ -37,47 +37,47 @@
         left: 0;
         right: 0;
         bottom: 0;
-        opacity: 0.35; /* Increased opacity to make plasma more visible */
-        mix-blend-mode: soft-light;
+        opacity: 0.45; /* Increased opacity for more vibrant effect */
+        mix-blend-mode: plus-lighter; /* Brighter blending mode */
     }
     
     .plasma-1 {
-        background: linear-gradient(125deg, rgba(100, 160, 255, 1) 0%, rgba(150, 100, 255, 0.5) 100%);
-        filter: blur(80px);
+        background: linear-gradient(125deg, rgba(100, 160, 255, 1) 0%, rgba(150, 100, 255, 0.65) 100%);
+        filter: blur(70px); /* Slightly reduced blur for sharper effect */
         transform-origin: top left;
-        animation: plasmaMove1 30s ease infinite alternate;
+        animation: plasmaMove1 20s ease-in-out infinite alternate; /* Faster animation */
     }
     
     .plasma-2 {
-        background: linear-gradient(235deg, rgba(120, 190, 255, 0.6) 0%, rgba(180, 130, 255, 0.7) 100%);
-        filter: blur(90px);
+        background: linear-gradient(235deg, rgba(120, 190, 255, 0.7) 0%, rgba(180, 130, 255, 0.8) 100%);
+        filter: blur(75px);
         transform-origin: bottom right;
-        animation: plasmaMove2 25s ease infinite alternate;
+        animation: plasmaMove2 18s ease-in-out infinite alternate; /* Faster animation */
     }
     
     .plasma-3 {
-        background: linear-gradient(55deg, rgba(130, 175, 255, 0.7) 0%, rgba(160, 120, 240, 0.5) 100%);
-        filter: blur(70px);
+        background: linear-gradient(55deg, rgba(130, 175, 255, 0.8) 0%, rgba(160, 120, 240, 0.65) 100%);
+        filter: blur(65px);
         transform-origin: center;
-        animation: plasmaMove3 35s ease infinite alternate;
+        animation: plasmaMove3 24s ease-in-out infinite alternate; /* Faster animation */
     }
     
     @keyframes plasmaMove1 {
-        0% { transform: translate(-5%, -5%) scale(1.1); opacity: 0.2; }
-        50% { opacity: 0.3; }
-        100% { transform: translate(5%, 5%) scale(0.9); opacity: 0.2; }
+        0% { transform: translate(-5%, -5%) scale(1.1); opacity: 0.3; }
+        50% { opacity: 0.5; }
+        100% { transform: translate(5%, 5%) scale(0.9); opacity: 0.3; }
     }
     
     @keyframes plasmaMove2 {
-        0% { transform: translate(5%, 5%) scale(0.9); opacity: 0.25; }
-        50% { opacity: 0.35; }
-        100% { transform: translate(-5%, -5%) scale(1.1); opacity: 0.25; }
+        0% { transform: translate(5%, 5%) scale(0.9); opacity: 0.35; }
+        50% { opacity: 0.55; }
+        100% { transform: translate(-5%, -5%) scale(1.1); opacity: 0.35; }
     }
     
     @keyframes plasmaMove3 {
-        0% { transform: rotate(0deg) scale(1); opacity: 0.2; }
-        50% { opacity: 0.3; }
-        100% { transform: rotate(10deg) scale(1.05); opacity: 0.2; }
+        0% { transform: rotate(0deg) scale(1); opacity: 0.3; }
+        50% { opacity: 0.5; }
+        100% { transform: rotate(8deg) scale(1.05); opacity: 0.3; }
     }
     
     .register-card {
@@ -85,10 +85,10 @@
         border-radius: var(--border-radius);
         box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1), 0 5px 15px rgba(0, 0, 0, 0.05);
         backdrop-filter: blur(10px);
-        max-width: 500px;
+        max-width: 460px; /* Slightly reduced width */
         width: 100%;
-        padding: 2.5rem;
-        animation: fadeIn 0.8s ease-out;
+        padding: 2.25rem; /* Slightly reduced padding */
+        animation: fadeIn 0.7s ease-out;
         position: relative;
         z-index: 2;
         margin: 0 1rem;
@@ -96,11 +96,11 @@
     
     .register-logo {
         text-align: center;
-        margin-bottom: 2rem;
+        margin-bottom: 1.8rem; /* Slightly reduced margin */
     }
     
     .register-logo i {
-        font-size: 3rem;
+        font-size: 2.8rem; /* Slightly reduced size */
         color: var(--primary-color);
         margin-bottom: 0.5rem;
         animation: pulse 2s infinite;
@@ -108,40 +108,48 @@
     
     .register-title {
         text-align: center;
-        margin-bottom: 2rem;
+        margin-bottom: 1.8rem; /* Slightly reduced margin */
         font-weight: 600;
+        font-size: 1.6rem; /* Slightly reduced font size */
     }
     
-    .form-label {
-        font-weight: 500;
-        margin-bottom: 0.5rem;
-    }
-    
-    .form-control {
+    .register-form .form-control {
+        height: auto;
+        padding: 0.65rem 1rem; /* Reduced padding */
         border-radius: var(--border-radius);
-        padding: 0.75rem 1rem;
+        background: rgba(255, 255, 255, 0.7);
         border: 1px solid rgba(0, 0, 0, 0.08);
         transition: all 0.3s ease;
+        font-size: 0.95rem;
     }
     
-    .form-control:focus {
+    .register-form .form-control:focus {
+        background: rgba(255, 255, 255, 0.9);
         border-color: var(--primary-color);
-        box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.08);
+        box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.1);
+        transform: translateY(-2px);
     }
     
     .btn-register {
-        background: var(--primary-color);
-        border: none;
+        padding: 0.7rem 0;
         border-radius: var(--border-radius);
-        padding: 0.75rem 1.5rem;
-        font-weight: 500;
-        width: 100%;
+        background: var(--primary-color);
+        color: white;
+        font-weight: 600;
         transition: all 0.3s ease;
         position: relative;
         overflow: hidden;
+        width: 100%;
+        border: none;
     }
     
-    .btn-register::after {
+    .btn-register:hover {
+        background: rgba(88, 73, 196, 0.9);
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(108, 92, 231, 0.3);
+    }
+    
+    .btn-register:after {
         content: '';
         position: absolute;
         top: 50%;
@@ -155,13 +163,7 @@
         transform-origin: 50% 50%;
     }
     
-    .btn-register:hover {
-        background: rgba(88, 73, 196, 0.9);
-        transform: translateY(-2px);
-        box-shadow: 0 4px 15px rgba(108, 92, 231, 0.3);
-    }
-    
-    .btn-register:hover::after {
+    .btn-register:hover:after {
         animation: ripple 1s ease-out;
     }
     
@@ -198,6 +200,12 @@
         border-radius: 50%;
         opacity: 0.6;
     }
+    
+    /* Submit button animation */
+    @keyframes buttonSuccess {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+    }
 </style>
 {% endblock %}
 
@@ -209,6 +217,8 @@
     <div class="plasma-layer plasma-3"></div>
 </div>
 
+<div id="particles-container" class="particles-container"></div>
+
 <div class="register-container">
     <div class="register-card">
         <div class="register-logo">
@@ -218,7 +228,7 @@
         
         <h2 class="register-title">Create an Account</h2>
         
-        <form method="POST" action="{{ url_for('auth.register') }}">
+        <form class="register-form" method="POST" action="{{ url_for('auth.register') }}">
             {{ form.hidden_tag() }}
             
             <div class="mb-3">
@@ -239,13 +249,13 @@
             
             <div class="mb-3">
                 {{ form.password.label(class="form-label") }}
-                {{ form.password(class="form-control", placeholder="Choose a password (at least 8 characters)") }}
+                {{ form.password(class="form-control", placeholder="Create a password") }}
                 {% for error in form.password.errors %}
                     <div class="text-danger mt-1">{{ error }}</div>
                 {% endfor %}
             </div>
             
-            <div class="mb-4">
+            <div class="mb-3">
                 {{ form.confirm_password.label(class="form-label") }}
                 {{ form.confirm_password(class="form-control", placeholder="Confirm your password") }}
                 {% for error in form.confirm_password.errors %}
@@ -253,22 +263,28 @@
                 {% endfor %}
             </div>
             
-            <div class="mb-4">
-                {{ form.submit(class="btn btn-primary btn-register") }}
+            <div class="mb-3">
+                {{ form.submit(class="btn btn-register") }}
             </div>
+            
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }} alert-dismissible fade show">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
         </form>
         
         <div class="login-link">
-            Already have an account? <a href="{{ url_for('auth.login') }}">Login here</a>
+            <p>Already have an account? <a href="{{ url_for('auth.login') }}">Login</a></p>
         </div>
     </div>
 </div>
 
-<!-- Particles animation -->
-<div class="particles-container" id="particles-container"></div>
-{% endblock %}
-
-{% block scripts %}
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         // Create floating particles
