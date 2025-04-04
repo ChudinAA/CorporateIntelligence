@@ -14,6 +14,7 @@ class User(UserMixin, db.Model):
 
     # Relationships
     documents = db.relationship('Document', backref='owner', lazy='dynamic')
+    chat_histories = db.relationship('ChatHistory', backref='user', lazy='dynamic')
 
     def set_password(self, password):
         """Set user password hash."""
@@ -35,6 +36,7 @@ class Document(db.Model):
     file_size = db.Column(db.Integer, nullable=False)  # Size in bytes
     upload_date = db.Column(db.DateTime, default=datetime.utcnow)
     processed = db.Column(db.Boolean, default=False)
+    processing_error = db.Column(db.String(255), nullable=True)
 
     # Foreign keys
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
@@ -57,3 +59,31 @@ class DocumentChunk(db.Model):
 
     def __repr__(self):
         return f'<DocumentChunk {self.id} from Document {self.document_id}>'
+
+class ChatHistory(db.Model):
+    """Model for storing chat sessions."""
+    id = db.Column(db.Integer, primary_key=True)
+    session_id = db.Column(db.String(36), unique=True, nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    is_active = db.Column(db.Boolean, default=True)
+    summary = db.Column(db.Text, nullable=True)
+
+    # Relationships
+    messages = db.relationship('ChatMessage', backref='chat_history', lazy='dynamic', cascade='all, delete-orphan')
+
+    def __repr__(self):
+        return f'<ChatHistory {self.session_id}>'
+
+class ChatMessage(db.Model):
+    """Model for storing chat messages."""
+    id = db.Column(db.Integer, primary_key=True)
+    chat_history_id = db.Column(db.Integer, db.ForeignKey('chat_history.id'), nullable=False)
+    content = db.Column(db.Text, nullable=False)
+    is_user = db.Column(db.Boolean, default=True)
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+    related_documents = db.Column(db.Text, nullable=True)  # JSON string of related document IDs
+
+    def __repr__(self):
+        return f'<ChatMessage {self.id}>'
