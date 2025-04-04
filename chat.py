@@ -6,7 +6,7 @@ from flask import Blueprint, render_template, request, redirect, url_for, jsonif
 from flask_login import login_required, current_user
 from flask_socketio import emit
 from app import db, socketio
-from models import ChatHistory, ChatMessage, Document
+from models import ChatHistory, ChatMessage, Document, DocumentChunk, User
 from rag_engine import RAGEngine
 from document_processor import DocumentProcessor
 
@@ -23,21 +23,35 @@ logger = logging.getLogger(__name__)
 @login_required
 def dashboard():
     """Display user dashboard with chat sessions."""
-    # Get active chat sessions
+    # Get active chat sessions - limit to recent sessions for dashboard
     active_sessions = ChatHistory.query.filter_by(
         user_id=current_user.id,
         is_active=True
-    ).order_by(ChatHistory.updated_at.desc()).all()
+    ).order_by(ChatHistory.updated_at.desc()).limit(5).all()
     
-    # Get user documents
-    documents = Document.query.filter_by(
+    # Get recent messages for each session
+    for session in active_sessions:
+        session.recent_messages = ChatMessage.query.filter_by(
+            chat_history_id=session.id
+        ).order_by(ChatMessage.timestamp.desc()).limit(3).all()
+        # Reverse to show in chronological order
+        session.recent_messages.reverse()
+    
+    # Get most recent user documents for dashboard
+    recent_documents = Document.query.filter_by(
+        user_id=current_user.id
+    ).order_by(Document.upload_date.desc()).limit(3).all()
+    
+    # Get all documents for reference
+    all_documents = Document.query.filter_by(
         user_id=current_user.id
     ).order_by(Document.upload_date.desc()).all()
     
     return render_template(
         'dashboard.html',
         active_sessions=active_sessions,
-        documents=documents
+        recent_documents=recent_documents,
+        all_documents=all_documents
     )
 
 @chat_bp.route('/chat/<session_id>')
@@ -127,6 +141,37 @@ def upload_document():
     
     # Return to referring page or documents page
     return redirect(request.referrer or url_for('chat.documents_page'))
+
+@chat_bp.route('/documents/preview/<int:document_id>')
+@login_required
+def preview_document(document_id):
+    """Preview document content."""
+    document = Document.query.filter_by(id=document_id, user_id=current_user.id).first()
+    
+    if not document:
+        return jsonify({'success': False, 'error': 'Document not found'}), 404
+    
+    # Get the first few chunks to preview
+    chunks = DocumentChunk.query.filter_by(document_id=document.id).order_by(DocumentChunk.chunk_index).limit(3).all()
+    
+    preview_text = ""
+    for chunk in chunks:
+        preview_text += chunk.chunk_text + "\n\n"
+    
+    # Truncate if too long
+    if len(preview_text) > 1000:
+        preview_text = preview_text[:1000] + "...\n\n(Preview truncated. Document contains more content.)"
+    
+    return jsonify({
+        'success': True,
+        'document': {
+            'id': document.id,
+            'name': document.original_filename,
+            'type': document.file_type,
+            'upload_date': document.upload_date.strftime('%Y-%m-%d %H:%M'),
+            'preview': preview_text
+        }
+    })
 
 @chat_bp.route('/documents/delete/<int:document_id>', methods=['POST'])
 @login_required

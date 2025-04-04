@@ -120,6 +120,21 @@ footer.footer .text-muted {
   flex-direction: column;
 }
 
+/* Media queries for chat container on different screen sizes */
+@media (max-width: 768px) {
+  #chat-container {
+    height: 60vh;
+    padding: 1rem;
+  }
+}
+
+@media (max-width: 576px) {
+  #chat-container {
+    height: 55vh;
+    padding: 0.75rem;
+  }
+}
+
 .message {
   max-width: 85%;
   margin-bottom: 1.5rem;
@@ -398,4 +413,87 @@ footer.footer .text-muted {
 #chat-container::-webkit-scrollbar-thumb {
   background-color: rgba(108, 92, 231, 0.2);
   border-radius: 10px;
+}
+
+/* Media queries for responsive design */
+@media (max-width: 768px) {
+  #chat-container {
+    height: 60vh;
+    padding: 1rem;
+  }
+  
+  .message {
+    max-width: 90%;
+    padding: 1rem 1.25rem;
+  }
+  
+  .welcome-stats {
+    flex-direction: column;
+  }
+  
+  .card {
+    margin-bottom: 1rem;
+  }
+}
+
+@media (max-width: 576px) {
+  #chat-container {
+    height: 55vh;
+    padding: 0.75rem;
+  }
+  
+  .message {
+    max-width: 95%;
+    padding: 0.75rem 1rem;
+    margin-bottom: 1rem;
+  }
+  
+  .btn {
+    padding: 0.5rem 1rem;
+  }
+  
+  .welcome-section {
+    padding: 1.5rem;
+  }
+  
+  .card-body {
+    padding: 1rem;
+  }
+  
+  .upload-zone {
+    padding: 1.5rem;
+  }
+}
+
+/* Dashboard improvements */
+.document-preview {
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.document-preview:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+.dashboard-section {
+  margin-bottom: 2rem;
+}
+
+.recent-uploads-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem;
+}
+
+@media (max-width: 992px) {
+  .recent-uploads-container {
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  }
+}
+
+@media (max-width: 768px) {
+  .recent-uploads-container {
+    grid-template-columns: 1fr;
+  }
 }

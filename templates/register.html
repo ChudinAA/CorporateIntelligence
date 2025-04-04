@@ -2,58 +2,318 @@
 
 {% block title %}Register - AI Knowledge Platform{% endblock %}
 
+{% block head %}
+<style>
+    /* New plasma animation for register page (same as login) */
+    .register-container {
+        min-height: 100vh;
+        position: relative;
+        z-index: 1;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 2rem 0;
+    }
+    
+    /* Plasma background same as login */
+    .register-plasma-bg {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        overflow: hidden;
+        z-index: -1;
+        background: radial-gradient(
+            circle at center,
+            rgba(255, 255, 255, 0.8) 0%,
+            rgba(248, 249, 254, 0.9) 100%
+        );
+    }
+    
+    .plasma-layer {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        opacity: 0.35; /* Increased opacity to make plasma more visible */
+        mix-blend-mode: soft-light;
+    }
+    
+    .plasma-1 {
+        background: linear-gradient(125deg, rgba(100, 160, 255, 1) 0%, rgba(150, 100, 255, 0.5) 100%);
+        filter: blur(80px);
+        transform-origin: top left;
+        animation: plasmaMove1 30s ease infinite alternate;
+    }
+    
+    .plasma-2 {
+        background: linear-gradient(235deg, rgba(120, 190, 255, 0.6) 0%, rgba(180, 130, 255, 0.7) 100%);
+        filter: blur(90px);
+        transform-origin: bottom right;
+        animation: plasmaMove2 25s ease infinite alternate;
+    }
+    
+    .plasma-3 {
+        background: linear-gradient(55deg, rgba(130, 175, 255, 0.7) 0%, rgba(160, 120, 240, 0.5) 100%);
+        filter: blur(70px);
+        transform-origin: center;
+        animation: plasmaMove3 35s ease infinite alternate;
+    }
+    
+    @keyframes plasmaMove1 {
+        0% { transform: translate(-5%, -5%) scale(1.1); opacity: 0.2; }
+        50% { opacity: 0.3; }
+        100% { transform: translate(5%, 5%) scale(0.9); opacity: 0.2; }
+    }
+    
+    @keyframes plasmaMove2 {
+        0% { transform: translate(5%, 5%) scale(0.9); opacity: 0.25; }
+        50% { opacity: 0.35; }
+        100% { transform: translate(-5%, -5%) scale(1.1); opacity: 0.25; }
+    }
+    
+    @keyframes plasmaMove3 {
+        0% { transform: rotate(0deg) scale(1); opacity: 0.2; }
+        50% { opacity: 0.3; }
+        100% { transform: rotate(10deg) scale(1.05); opacity: 0.2; }
+    }
+    
+    .register-card {
+        background: rgba(255, 255, 255, 0.85);
+        border-radius: var(--border-radius);
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1), 0 5px 15px rgba(0, 0, 0, 0.05);
+        backdrop-filter: blur(10px);
+        max-width: 500px;
+        width: 100%;
+        padding: 2.5rem;
+        animation: fadeIn 0.8s ease-out;
+        position: relative;
+        z-index: 2;
+        margin: 0 1rem;
+    }
+    
+    .register-logo {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+    
+    .register-logo i {
+        font-size: 3rem;
+        color: var(--primary-color);
+        margin-bottom: 0.5rem;
+        animation: pulse 2s infinite;
+    }
+    
+    .register-title {
+        text-align: center;
+        margin-bottom: 2rem;
+        font-weight: 600;
+    }
+    
+    .form-label {
+        font-weight: 500;
+        margin-bottom: 0.5rem;
+    }
+    
+    .form-control {
+        border-radius: var(--border-radius);
+        padding: 0.75rem 1rem;
+        border: 1px solid rgba(0, 0, 0, 0.08);
+        transition: all 0.3s ease;
+    }
+    
+    .form-control:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.08);
+    }
+    
+    .btn-register {
+        background: var(--primary-color);
+        border: none;
+        border-radius: var(--border-radius);
+        padding: 0.75rem 1.5rem;
+        font-weight: 500;
+        width: 100%;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .btn-register::after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 5px;
+        height: 5px;
+        background: rgba(255, 255, 255, 0.5);
+        opacity: 0;
+        border-radius: 100%;
+        transform: scale(1, 1) translate(-50%, -50%);
+        transform-origin: 50% 50%;
+    }
+    
+    .btn-register:hover {
+        background: rgba(88, 73, 196, 0.9);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(108, 92, 231, 0.3);
+    }
+    
+    .btn-register:hover::after {
+        animation: ripple 1s ease-out;
+    }
+    
+    .login-link {
+        text-align: center;
+        margin-top: 1.5rem;
+    }
+    
+    .login-link a {
+        color: var(--primary-color);
+        text-decoration: none;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+    
+    .login-link a:hover {
+        text-decoration: underline;
+    }
+    
+    /* Floating particles */
+    .particles-container {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 0;
+        pointer-events: none;
+    }
+    
+    .particle {
+        position: absolute;
+        background: rgba(108, 92, 231, 0.1);
+        border-radius: 50%;
+        opacity: 0.6;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-md-6">
-        <div class="card shadow">
-            <div class="card-header bg-primary text-white">
-                <h3 class="card-title mb-0"><i class="fas fa-user-plus me-2"></i>Create an Account</h3>
+<!-- Plasma Background -->
+<div class="register-plasma-bg">
+    <div class="plasma-layer plasma-1"></div>
+    <div class="plasma-layer plasma-2"></div>
+    <div class="plasma-layer plasma-3"></div>
+</div>
+
+<div class="register-container">
+    <div class="register-card">
+        <div class="register-logo">
+            <i class="fas fa-user-plus"></i>
+            <h3>AI Knowledge Platform</h3>
+        </div>
+        
+        <h2 class="register-title">Create an Account</h2>
+        
+        <form method="POST" action="{{ url_for('auth.register') }}">
+            {{ form.hidden_tag() }}
+            
+            <div class="mb-3">
+                {{ form.username.label(class="form-label") }}
+                {{ form.username(class="form-control", placeholder="Choose a username") }}
+                {% for error in form.username.errors %}
+                    <div class="text-danger mt-1">{{ error }}</div>
+                {% endfor %}
             </div>
-            <div class="card-body">
-                <form method="POST" action="{{ url_for('auth.register') }}">
-                    {{ form.hidden_tag() }}
-                    
-                    <div class="mb-3">
-                        <label for="{{ form.username.id }}" class="form-label">Username</label>
-                        {{ form.username(class="form-control", placeholder="Choose a username") }}
-                        {% for error in form.username.errors %}
-                            <div class="text-danger">{{ error }}</div>
-                        {% endfor %}
-                    </div>
-                    
-                    <div class="mb-3">
-                        <label for="{{ form.email.id }}" class="form-label">Email</label>
-                        {{ form.email(class="form-control", placeholder="Enter your email") }}
-                        {% for error in form.email.errors %}
-                            <div class="text-danger">{{ error }}</div>
-                        {% endfor %}
-                    </div>
-                    
-                    <div class="mb-3">
-                        <label for="{{ form.password.id }}" class="form-label">Password</label>
-                        {{ form.password(class="form-control", placeholder="Choose a password (at least 8 characters)") }}
-                        {% for error in form.password.errors %}
-                            <div class="text-danger">{{ error }}</div>
-                        {% endfor %}
-                    </div>
-                    
-                    <div class="mb-3">
-                        <label for="{{ form.confirm_password.id }}" class="form-label">Confirm Password</label>
-                        {{ form.confirm_password(class="form-control", placeholder="Confirm your password") }}
-                        {% for error in form.confirm_password.errors %}
-                            <div class="text-danger">{{ error }}</div>
-                        {% endfor %}
-                    </div>
-                    
-                    <div class="d-grid gap-2">
-                        {{ form.submit(class="btn btn-primary") }}
-                    </div>
-                </form>
+            
+            <div class="mb-3">
+                {{ form.email.label(class="form-label") }}
+                {{ form.email(class="form-control", placeholder="Enter your email") }}
+                {% for error in form.email.errors %}
+                    <div class="text-danger mt-1">{{ error }}</div>
+                {% endfor %}
             </div>
-            <div class="card-footer text-center">
-                <p class="mb-0">Already have an account? <a href="{{ url_for('auth.login') }}">Login here</a></p>
+            
+            <div class="mb-3">
+                {{ form.password.label(class="form-label") }}
+                {{ form.password(class="form-control", placeholder="Choose a password (at least 8 characters)") }}
+                {% for error in form.password.errors %}
+                    <div class="text-danger mt-1">{{ error }}</div>
+                {% endfor %}
             </div>
+            
+            <div class="mb-4">
+                {{ form.confirm_password.label(class="form-label") }}
+                {{ form.confirm_password(class="form-control", placeholder="Confirm your password") }}
+                {% for error in form.confirm_password.errors %}
+                    <div class="text-danger mt-1">{{ error }}</div>
+                {% endfor %}
+            </div>
+            
+            <div class="mb-4">
+                {{ form.submit(class="btn btn-primary btn-register") }}
+            </div>
+        </form>
+        
+        <div class="login-link">
+            Already have an account? <a href="{{ url_for('auth.login') }}">Login here</a>
         </div>
     </div>
 </div>
+
+<!-- Particles animation -->
+<div class="particles-container" id="particles-container"></div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Create floating particles
+        const container = document.getElementById('particles-container');
+        const particleCount = 25;
+        
+        for (let i = 0; i < particleCount; i++) {
+            createParticle(container);
+        }
+        
+        // Add animation to submit button
+        const submitBtn = document.querySelector('.btn-register');
+        submitBtn.addEventListener('click', function() {
+            this.classList.add('submitting');
+            this.style.animation = 'buttonSuccess 0.5s ease';
+            setTimeout(() => {
+                this.style.animation = '';
+            }, 500);
+        });
+    });
+    
+    // Create a single floating particle
+    function createParticle(container) {
+        const particle = document.createElement('div');
+        particle.classList.add('particle');
+        
+        // Random size between 5 and 15 pixels
+        const size = Math.random() * 10 + 5;
+        particle.style.width = `${size}px`;
+        particle.style.height = `${size}px`;
+        
+        // Random position
+        const posX = Math.random() * 100;
+        const posY = Math.random() * 100;
+        particle.style.left = `${posX}%`;
+        particle.style.top = `${posY}%`;
+        
+        // Random animation duration and delay
+        const animDuration = Math.random() * 20 + 10;
+        const animDelay = Math.random() * 5;
+        
+        // Create keyframe animation for this particle
+        particle.style.animation = `floatParticle ${animDuration}s linear ${animDelay}s infinite`;
+        
+        container.appendChild(particle);
+    }
+</script>
 {% endblock %}

@@ -37,26 +37,26 @@
         left: 0;
         right: 0;
         bottom: 0;
-        opacity: 0.15;
+        opacity: 0.35; /* Increased opacity to make plasma more visible */
         mix-blend-mode: soft-light;
     }
     
     .plasma-1 {
-        background: linear-gradient(125deg, rgba(100, 160, 255, 0.8) 0%, rgba(150, 100, 255, 0.2) 100%);
+        background: linear-gradient(125deg, rgba(100, 160, 255, 1) 0%, rgba(150, 100, 255, 0.5) 100%);
         filter: blur(80px);
         transform-origin: top left;
         animation: plasmaMove1 30s ease infinite alternate;
     }
     
     .plasma-2 {
-        background: linear-gradient(235deg, rgba(120, 190, 255, 0.4) 0%, rgba(180, 130, 255, 0.6) 100%);
+        background: linear-gradient(235deg, rgba(120, 190, 255, 0.6) 0%, rgba(180, 130, 255, 0.7) 100%);
         filter: blur(90px);
         transform-origin: bottom right;
         animation: plasmaMove2 25s ease infinite alternate;
     }
     
     .plasma-3 {
-        background: linear-gradient(55deg, rgba(130, 175, 255, 0.5) 0%, rgba(160, 120, 240, 0.3) 100%);
+        background: linear-gradient(55deg, rgba(130, 175, 255, 0.7) 0%, rgba(160, 120, 240, 0.5) 100%);
         filter: blur(70px);
         transform-origin: center;
         animation: plasmaMove3 35s ease infinite alternate;
