@@ -10,26 +10,110 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     newChatBtn.addEventListener('click', function() {
-        // Save current chat if exists
-        const currentMessages = document.querySelectorAll('#chat-container .message');
-        if (currentMessages.length > 0) {
-            // Clear chat container
-            const chatContainer = document.getElementById('chat-container');
-            chatContainer.innerHTML = '';
-            
-            // Reset session ID
-            document.getElementById('session-id-input').value = '';
-            
-            // Refresh recent conversations
-            fetch('/chat/recent_conversations')
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        updateRecentConversations(data.conversations);
-                    }
-                });
+        // Clear chat container
+        const chatContainer = document.getElementById('chat-container');
+        chatContainer.innerHTML = '';
+        
+        // Reset session ID
+        document.getElementById('session-id-input').value = '';
+        
+        // Enable message form
+        const messageForm = document.getElementById('message-form');
+        if (messageForm) {
+            messageForm.classList.remove('disabled');
+            const messageInput = messageForm.querySelector('#message-input');
+            if (messageInput) {
+                messageInput.removeAttribute('disabled');
+            }
         }
+        
+        // Refresh recent conversations
+        fetch('/chat/recent_conversations')
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    updateRecentConversations(data.conversations);
+                }
+            });
     });
+
+    // Initialize chat functionality
+    const messageForm = document.getElementById('message-form');
+    const messageInput = document.getElementById('message-input');
+    const chatContainer = document.getElementById('chat-container');
+    const sessionIdInput = document.getElementById('session-id-input');
+    const socket = io();
+
+    if (messageForm) {
+        messageForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const message = messageInput.value.trim();
+            if (!message) return;
+
+            // Show typing indicator
+            const typingIndicator = document.getElementById('typing-indicator');
+            if (typingIndicator) {
+                typingIndicator.style.display = 'flex';
+            }
+
+            // Add user message to chat
+            addMessage(message, 'user');
+            messageInput.value = '';
+
+            try {
+                const response = await fetch('/chat/send', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        message: message,
+                        session_id: sessionIdInput.value
+                    })
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    // Add AI response to chat
+                    addMessage(data.response, 'assistant');
+                    
+                    // Update session ID if new
+                    if (data.session_id) {
+                        sessionIdInput.value = data.session_id;
+                    }
+                    
+                    // Refresh conversations list
+                    fetchRecentConversations();
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                addMessage('An error occurred. Please try again.', 'error');
+            } finally {
+                if (typingIndicator) {
+                    typingIndicator.style.display = 'none';
+                }
+            }
+        });
+    }
+
+    function addMessage(content, type) {
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `message ${type}-message animate__animated animate__fadeInUp`;
+        
+        const now = new Date();
+        const timeString = now.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit' });
+        
+        messageDiv.innerHTML = `
+            <div class="message-content">${content}</div>
+            <div class="message-time">
+                ${timeString}
+                <i class="fas fa-${type === 'user' ? 'user' : 'robot'} ms-1"></i>
+            </div>
+        `;
+        
+        chatContainer.appendChild(messageDiv);
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+    }
     // Setup all delete buttons
     setupChatDeletionHandlers();
     
