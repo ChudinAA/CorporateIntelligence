@@ -49,11 +49,12 @@ document.addEventListener('DOMContentLoaded', function() {
                             }).then(() => {
                                 // Remove the chat card from the UI
                                 const chatCard = button.closest('.card');
+                                chatCard.style.transition = 'opacity 0.3s ease';
                                 chatCard.style.opacity = '0';
                                 setTimeout(() => {
-                                    chatCard.style.display = 'none';
+                                    chatCard.remove(); // Use remove() instead of changing display
                                     // If no cards left, show empty state
-                                    const remainingCards = document.querySelectorAll('.chat-list .card');
+                                    const remainingCards = document.querySelectorAll('.chat-list .card:not([style*="opacity: 0"])');
                                     if (remainingCards.length === 0) {
                                         const emptyState = document.createElement('div');
                                         emptyState.className = 'alert alert-info mt-4';

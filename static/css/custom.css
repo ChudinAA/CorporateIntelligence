@@ -79,66 +79,12 @@ h4, h5 {
 }
 
 @keyframes plasmaFlow {
-  0% { background-position: 0% 50%; opacity: 0.6; }
-  50% { background-position: 100% 50%; opacity: 0.8; }
-  100% { background-position: 0% 50%; opacity: 0.6; }
+  0% { background-position: 0% 50%; opacity: 0.7; }
+  50% { background-position: 100% 50%; opacity: 0.9; }
+  100% { background-position: 0% 50%; opacity: 0.7; }
 }
 
-.card {
-  margin-bottom: 0.8rem;
-}
-
-.card-body {
-  padding: 1rem;
-}
-
-.container {
-  padding: 0.75rem;
-}
-
-.btn {
-  padding: 0.4rem 0.8rem;
-}
-
-/* More compact spacing */
-.mb-4 {
-  margin-bottom: 1rem !important;
-}
-
-.my-4 {
-  margin-top: 1rem !important;
-  margin-bottom: 1rem !important;
-}
-
-.py-4 {
-  padding-top: 1rem !important;
-  padding-bottom: 1rem !important;
-}
-
-/* Animations */
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-@keyframes slideIn {
-  from { transform: translateX(-20px); opacity: 0; }
-  to { transform: translateX(0); opacity: 1; }
-}
-
-@keyframes pulse {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.05); }
-  100% { transform: scale(1); }
-}
-
-@keyframes plasmaFlow {
-  0% { background-position: 0% 50%; opacity: 0.4; }
-  50% { background-position: 100% 50%; opacity: 0.6; }
-  100% { background-position: 0% 50%; opacity: 0.4; }
-}
-
-/* Plasma background animation - completely rewritten */
+/* Plasma background animation - completely rewritten and improved */
 .plasma-background {
   position: absolute;
   top: 0;
@@ -146,14 +92,15 @@ h4, h5 {
   right: 0;
   bottom: 0;
   background: linear-gradient(145deg, 
-    rgba(100, 130, 255, 0.05) 0%, 
-    rgba(150, 110, 220, 0.08) 25%, 
-    rgba(130, 170, 255, 0.06) 50%, 
-    rgba(180, 140, 235, 0.07) 75%, 
-    rgba(110, 150, 240, 0.05) 100%);
+    rgba(100, 130, 255, 0.12) 0%, 
+    rgba(150, 110, 220, 0.15) 25%, 
+    rgba(130, 170, 255, 0.13) 50%, 
+    rgba(180, 140, 235, 0.14) 75%, 
+    rgba(110, 150, 240, 0.12) 100%);
   background-size: 400% 400%;
-  animation: plasmaFlow 15s ease infinite;
+  animation: plasmaFlow 12s ease-in-out infinite;
   z-index: 0;
+  filter: blur(30px);
 }
 
 body {

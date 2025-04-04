@@ -110,22 +110,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const timeString = now.getHours().toString().padStart(2, '0') + ':' + 
                           now.getMinutes().toString().padStart(2, '0');
         
-        let sourcesHtml = '';
-        if (sources && sources.length > 0) {
-            sourcesHtml = `
-                <div class="sources-list">
-                    <small class="text-muted">Sources:</small>
-                    <div class="d-flex flex-wrap gap-2 mt-2">
-                        ${sources.map(source => `
-                            <span class="badge bg-primary bg-opacity-25 sources-badge">
-                                <i class="fas fa-file-alt me-1"></i>
-                                ${source.document_name || 'Unknown Source'}
-                            </span>
-                        `).join('')}
-                    </div>
-                </div>
-            `;
-        }
+        // Remove sources section as requested
 
         messageElement.innerHTML = `
             <div class="message-content">${message}</div>
@@ -133,7 +118,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 ${timeString}
                 <i class="fas fa-robot ms-1"></i>
             </div>
-            ${sourcesHtml}
         `;
 
         chatContainer.appendChild(messageElement);

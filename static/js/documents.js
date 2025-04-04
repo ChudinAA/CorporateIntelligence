@@ -14,8 +14,8 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Show loading state
             Swal.fire({
-                title: 'Загрузка документа...',
-                text: 'Пожалуйста, подождите, идет подготовка документа',
+                title: 'Loading document...',
+                text: 'Please wait while we prepare the document preview',
                 allowOutsideClick: false,
                 showConfirmButton: false,
                 willOpen: () => {
@@ -126,22 +126,21 @@ document.addEventListener('DOMContentLoaded', function() {
             fileInput.click();
         });
 
-        // Handle file drop
+        // Handle file drop - Fixed to work across browsers
         dropZone.addEventListener('drop', handleDrop, false);
         
         function handleDrop(e) {
             const dt = e.dataTransfer;
             const files = dt.files;
+            
             if (files && files.length > 0) {
-                // Manually set the file in the input
-                const dataTransfer = new DataTransfer();
-                dataTransfer.items.add(files[0]);
-                fileInput.files = dataTransfer.files;
+                // Set the file directly - more compatible approach
+                fileInput.files = files;
                 
                 // Show loader
                 Swal.fire({
-                    title: 'Загрузка документа...',
-                    text: 'Пожалуйста, подождите, идет загрузка',
+                    title: 'Uploading document...',
+                    text: 'Please wait while we upload your document',
                     allowOutsideClick: false,
                     showConfirmButton: false,
                     willOpen: () => {
@@ -163,8 +162,8 @@ document.addEventListener('DOMContentLoaded', function() {
             if (e.target.files && e.target.files.length) {
                 // Show loader
                 Swal.fire({
-                    title: 'Загрузка документа...',
-                    text: 'Пожалуйста, подождите, идет загрузка',
+                    title: 'Uploading document...',
+                    text: 'Please wait while we upload your document',
                     allowOutsideClick: false,
                     showConfirmButton: false,
                     willOpen: () => {
@@ -235,20 +234,20 @@ document.addEventListener('DOMContentLoaded', function() {
             const documentId = this.dataset.documentId;
             
             Swal.fire({
-                title: 'Удаление документа',
-                text: 'Вы уверены, что хотите удалить этот документ? Это действие нельзя отменить.',
+                title: 'Delete Document',
+                text: 'Are you sure you want to delete this document? This action cannot be undone.',
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#d33',
                 cancelButtonColor: '#3085d6',
-                confirmButtonText: 'Да, удалить!',
-                cancelButtonText: 'Отмена'
+                confirmButtonText: 'Yes, delete it!',
+                cancelButtonText: 'Cancel'
             }).then((result) => {
                 if (result.isConfirmed) {
                     // Show loading state
                     Swal.fire({
-                        title: 'Удаление...',
-                        text: 'Пожалуйста, подождите, идет удаление документа',
+                        title: 'Deleting...',
+                        text: 'Please wait while we delete the document',
                         allowOutsideClick: false,
                         showConfirmButton: false,
                         willOpen: () => {
@@ -268,8 +267,8 @@ document.addEventListener('DOMContentLoaded', function() {
                         if (data.success) {
                             Swal.fire({
                                 icon: 'success',
-                                title: 'Удалено!',
-                                text: 'Документ успешно удален',
+                                title: 'Deleted!',
+                                text: 'Document successfully deleted',
                                 showConfirmButton: false,
                                 timer: 1500
                             }).then(() => {
@@ -317,7 +316,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         } else {
                             Swal.fire({
                                 icon: 'error',
-                                title: 'Ошибка',
+                                title: 'Error',
                                 text: data.error || 'Failed to delete document'
                             });
                         }
@@ -325,7 +324,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     .catch(error => {
                         Swal.fire({
                             icon: 'error',
-                            title: 'Ошибка',
+                            title: 'Error',
                             text: 'An error occurred while deleting the document'
                         });
                     });
