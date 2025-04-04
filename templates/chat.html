@@ -10,46 +10,46 @@
         padding: 1rem;
         border-radius: 0.25rem;
     }
-
+    
     .message {
         max-width: 80%;
         margin-bottom: 1rem;
         padding: 0.75rem 1rem;
         border-radius: 1rem;
     }
-
+    
     .user-message {
         background-color: var(--bs-primary);
         color: white;
         margin-left: auto;
         border-bottom-right-radius: 0.25rem;
     }
-
+    
     .ai-message {
         background-color: var(--bs-dark);
         border: 1px solid var(--bs-secondary);
         margin-right: auto;
         border-bottom-left-radius: 0.25rem;
     }
-
+    
     .message-time {
         font-size: 0.75rem;
         opacity: 0.7;
     }
-
+    
     .sources-list {
         font-size: 0.8rem;
         margin-top: 0.5rem;
         padding-top: 0.5rem;
         border-top: 1px dashed var(--bs-secondary);
     }
-
+    
     .typing-indicator {
         display: inline-block;
         position: relative;
         min-width: 30px;
     }
-
+    
     .typing-indicator span {
         height: 10px;
         width: 10px;
@@ -60,19 +60,19 @@
         border-radius: 50%;
         opacity: 0.4;
     }
-
+    
     .typing-indicator span:nth-of-type(1) {
         animation: typing 1s infinite;
     }
-
+    
     .typing-indicator span:nth-of-type(2) {
         animation: typing 1s 0.33s infinite;
     }
-
+    
     .typing-indicator span:nth-of-type(3) {
         animation: typing 1s 0.66s infinite;
     }
-
+    
     @keyframes typing {
         0% {
             opacity: 0.4;
@@ -86,15 +86,6 @@
             opacity: 0.4;
             transform: translateY(0px);
         }
-    }
-    #drop-zone {
-        border: 2px dashed #ccc;
-        padding: 20px;
-        text-align: center;
-        cursor: pointer;
-    }
-    #drop-zone.dragover {
-        border-color: #007bff;
     }
 </style>
 {% endblock %}
@@ -118,7 +109,7 @@
                     </a>
                 </div>
             </div>
-
+            
             <!-- Chat Messages Container -->
             <div id="chat-container" class="bg-dark">
                 {% if chat_history.summary %}
@@ -126,7 +117,7 @@
                         <strong>Previous Chat Summary:</strong> {{ chat_history.summary }}
                     </div>
                 {% endif %}
-
+                
                 {% if messages %}
                     {% for message in messages %}
                         <div class="message {% if message.is_user %}user-message{% else %}ai-message{% endif %}">
@@ -139,7 +130,7 @@
                                     <i class="fas fa-robot ms-1"></i>
                                 {% endif %}
                             </div>
-
+                            
                             {% if not message.is_user and message.related_documents %}
                                 <div class="sources-list">
                                     <strong>Sources:</strong>
@@ -160,7 +151,7 @@
                         <p>Ask any question about your company's knowledge base.</p>
                     </div>
                 {% endif %}
-
+                
                 <!-- Typing indicator, hidden by default -->
                 <div id="typing-indicator" class="message ai-message" style="display: none;">
                     <div class="typing-indicator">
@@ -170,7 +161,7 @@
                     </div>
                 </div>
             </div>
-
+            
             <!-- Message Input Form -->
             <div class="card-footer">
                 <form id="message-form" class="d-flex">
@@ -182,7 +173,7 @@
             </div>
         </div>
     </div>
-
+    
     <div class="col-md-3">
         <!-- Document Upload -->
         <div class="card shadow mb-4">
@@ -190,17 +181,21 @@
                 <h4 class="mb-0"><i class="fas fa-file-upload me-2"></i>Upload Document</h4>
             </div>
             <div class="card-body">
-                <form action="{{ url_for('chat.upload_document') }}" method="POST" enctype="multipart/form-data" id="upload-form">
-                    <div class="upload-area" id="drop-zone">
-                        <i class="fas fa-cloud-upload-alt fa-3x mb-3"></i>
-                        <p class="mb-1">Drag & drop files here or click to browse</p>
-                        <p class="text-muted small">Supported formats: PDF, TXT, DOCX, XLSX, CSV</p>
-                        <input type="file" class="d-none" id="document" name="document" required>
+                <form action="{{ url_for('chat.upload_document') }}" method="POST" enctype="multipart/form-data">
+                    <div class="mb-3">
+                        <label for="document" class="form-label">Select Document</label>
+                        <input type="file" class="form-control" id="document" name="document" required>
+                        <div class="form-text">Supported formats: PDF, TXT, DOCX, XLSX, CSV</div>
+                    </div>
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-upload me-1"></i> Upload
+                        </button>
                     </div>
                 </form>
             </div>
         </div>
-
+        
         <!-- Recent Documents -->
         <div class="card shadow">
             <div class="card-header bg-info text-white">
@@ -258,15 +253,15 @@
         const chatContainer = document.getElementById('chat-container');
         const typingIndicator = document.getElementById('typing-indicator');
         const sessionId = '{{ session_id }}';
-
+        
         // Scroll to bottom of chat container
         function scrollToBottom() {
             chatContainer.scrollTop = chatContainer.scrollHeight;
         }
-
+        
         // Initially scroll to bottom
         scrollToBottom();
-
+        
         // Connect to Socket.IO
         socket.on('connect', function() {
             console.log('Connected to Socket.IO server');
@@ -278,66 +273,66 @@
                 }
             });
         });
-
+        
         // Handle connection error
         socket.on('connect_error', function(error) {
             console.error('Connection error:', error);
             addErrorMessage('Unable to connect to the server. Please refresh the page.');
         });
-
+        
         // Handle incoming messages
         socket.on('receive_message', function(data) {
             // Hide typing indicator
             typingIndicator.style.display = 'none';
-
+            
             // Add AI message to chat
             const message = data.message;
             const sources = data.sources || [];
-
+            
             addAIMessage(message, sources);
             scrollToBottom();
         });
-
+        
         // Handle errors
         socket.on('error', function(data) {
             typingIndicator.style.display = 'none';
             addErrorMessage(data.message || 'An error occurred.');
             scrollToBottom();
         });
-
+        
         // Send message on form submit
         messageForm.addEventListener('submit', function(e) {
             e.preventDefault();
-
+            
             const message = messageInput.value.trim();
             if (!message) return;
-
+            
             // Add user message to chat
             addUserMessage(message);
-
+            
             // Clear input
             messageInput.value = '';
-
+            
             // Show typing indicator
             typingIndicator.style.display = 'block';
             scrollToBottom();
-
+            
             // Send message to server
             socket.emit('send_message', {
                 message: message,
                 session_id: sessionId
             });
         });
-
+        
         // Add user message to chat
         function addUserMessage(message) {
             const messageElement = document.createElement('div');
             messageElement.className = 'message user-message';
-
+            
             const now = new Date();
             const timeString = now.getHours().toString().padStart(2, '0') + ':' + 
                               now.getMinutes().toString().padStart(2, '0');
-
+            
             messageElement.innerHTML = `
                 <div class="message-content">${message}</div>
                 <div class="message-time">
@@ -345,20 +340,20 @@
                     <i class="fas fa-user ms-1"></i>
                 </div>
             `;
-
+            
             chatContainer.appendChild(messageElement);
             scrollToBottom();
         }
-
+        
         // Add AI message to chat
         function addAIMessage(message, sources = []) {
             const messageElement = document.createElement('div');
             messageElement.className = 'message ai-message';
-
+            
             const now = new Date();
             const timeString = now.getHours().toString().padStart(2, '0') + ':' + 
                               now.getMinutes().toString().padStart(2, '0');
-
+            
             let sourcesHtml = '';
             if (sources && sources.length > 0) {
                 sourcesHtml = `
@@ -370,7 +365,7 @@
                     </div>
                 `;
             }
-
+            
             messageElement.innerHTML = `
                 <div class="message-content">${message}</div>
                 <div class="message-time">
@@ -379,20 +374,20 @@
                 </div>
                 ${sourcesHtml}
             `;
-
+            
             chatContainer.appendChild(messageElement);
             scrollToBottom();
         }
-
+        
         // Add error message to chat
         function addErrorMessage(message) {
             const messageElement = document.createElement('div');
             messageElement.className = 'message ai-message';
-
+            
             const now = new Date();
             const timeString = now.getHours().toString().padStart(2, '0') + ':' + 
                               now.getMinutes().toString().padStart(2, '0');
-
+            
             messageElement.innerHTML = `
                 <div class="message-content text-danger">
                     <i class="fas fa-exclamation-triangle me-1"></i> ${message}
@@ -402,38 +397,9 @@
                     <i class="fas fa-robot ms-1"></i>
                 </div>
             `;
-
+            
             chatContainer.appendChild(messageElement);
         }
-        // Drag and drop functionality
-        const dropZone = document.getElementById('drop-zone');
-        const fileInput = document.getElementById('document');
-
-        dropZone.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            dropZone.classList.add('dragover');
-        });
-
-        dropZone.addEventListener('dragleave', () => {
-            dropZone.classList.remove('dragover');
-        });
-
-        dropZone.addEventListener('drop', (e) => {
-            e.preventDefault();
-            dropZone.classList.remove('dragover');
-            const files = e.dataTransfer.files;
-            fileInput.files = files;
-            // Optionally, you can trigger form submission here or handle the file upload differently
-            // Example: document.getElementById('upload-form').submit();
-        });
-
-        dropZone.addEventListener('click', () => {
-            fileInput.click();
-        });
-
-        fileInput.addEventListener('change', () => {
-            // Handle file selection if not using automatic form submission
-        });
     });
 </script>
 {% endblock %}

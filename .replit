@@ -8,7 +8,7 @@ deploymentTarget = "autoscale"
 run = ["gunicorn", "--bind", "0.0.0.0:5000", "main:app"]
 
 [workflows]
-runButton = "Run Application"
+runButton = "Project"
 
 [[workflows.workflow]]
 name = "Project"
@@ -42,19 +42,6 @@ mode = "sequential"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "python -u main.py"
-
-[[workflows.workflow]]
-name = "Run Application"
-author = 41078776
-mode = "sequential"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "python migrations.py"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "gunicorn --worker-class eventlet -w 1 --bind 0.0.0.0:5000 --reload main:app"
 
 [[ports]]
 localPort = 5000
