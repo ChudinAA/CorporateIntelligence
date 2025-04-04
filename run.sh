@@ -1,4 +1,3 @@
-
 #!/bin/bash
 
 echo "Starting the application..."
@@ -7,6 +6,9 @@ echo "Starting the application..."
 mkdir -p uploads
 mkdir -p vector_db
 
-# Run the application
-echo "Starting Flask application with gunicorn..."
-gunicorn --worker-class eventlet --workers 1 --bind 0.0.0.0:5000 --reuse-port --reload main:app
+# Kill any gunicorn processes if running
+pkill -f gunicorn || true
+
+# Run the application with Python directly to use eventlet properly
+echo "Starting Flask application with SocketIO..."
+python -u main.py

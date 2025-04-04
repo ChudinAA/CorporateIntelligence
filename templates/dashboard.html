@@ -2,123 +2,606 @@
 
 {% block title %}Dashboard - AI Knowledge Platform{% endblock %}
 
+{% block head %}
+<style>
+    /* Dashboard specific styles */
+    .welcome-section {
+        margin-bottom: 2rem;
+        background: linear-gradient(135deg, rgba(108, 92, 231, 0.9) 0%, rgba(142, 68, 173, 0.9) 100%);
+        color: white;
+        border-radius: var(--border-radius);
+        padding: 2rem;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 5px 20px rgba(108, 92, 231, 0.2);
+        animation: fadeIn 0.8s ease-out;
+    }
+    
+    .welcome-section::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%23ffffff' fill-opacity='0.1'/%3E%3C/svg%3E") center/cover;
+        opacity: 0.5;
+        z-index: 0;
+    }
+    
+    .welcome-content {
+        position: relative;
+        z-index: 1;
+    }
+    
+    .welcome-stats {
+        display: flex;
+        margin-top: 1.5rem;
+        gap: 1.5rem;
+        flex-wrap: wrap;
+    }
+    
+    .stat-item {
+        background: rgba(255, 255, 255, 0.15);
+        padding: 1rem;
+        border-radius: var(--border-radius);
+        flex: 1;
+        min-width: 150px;
+        backdrop-filter: blur(5px);
+        transition: all 0.3s ease;
+    }
+    
+    .stat-item:hover {
+        background: rgba(255, 255, 255, 0.25);
+        transform: translateY(-5px);
+    }
+    
+    .stat-value {
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 0.25rem;
+    }
+    
+    .stat-label {
+        font-size: 0.9rem;
+        opacity: 0.9;
+    }
+    
+    .chat-section, .documents-section {
+        margin-bottom: 2rem;
+    }
+    
+    .section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.25rem;
+    }
+    
+    .section-header h2 {
+        font-weight: 600;
+        font-size: 1.5rem;
+        margin: 0;
+    }
+    
+    .section-icon {
+        margin-right: 0.75rem;
+        transition: all 0.3s ease;
+    }
+    
+    h2:hover .section-icon {
+        transform: rotate(15deg);
+    }
+    
+    /* Chat card with hover effects */
+    .chat-card {
+        display: flex;
+        flex-direction: column;
+        background: var(--bg-light);
+        border-radius: var(--border-radius);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        overflow: hidden;
+        transition: all 0.3s ease;
+        height: 100%;
+        border: none;
+    }
+    
+    .chat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+    }
+    
+    .chat-header {
+        background: var(--primary-color);
+        color: white;
+        padding: 1rem 1.5rem;
+        display: flex;
+        align-items: center;
+    }
+    
+    .chat-icon {
+        font-size: 1.25rem;
+        margin-right: 1rem;
+        transition: all 0.3s ease;
+    }
+    
+    .chat-card:hover .chat-icon {
+        transform: scale(1.2);
+    }
+    
+    .chat-title {
+        font-weight: 600;
+        margin: 0;
+        flex: 1;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+    
+    .chat-body {
+        padding: 1.5rem;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .chat-summary {
+        color: #6c757d;
+        font-size: 0.9rem;
+        margin-bottom: 1rem;
+        flex: 1;
+    }
+    
+    .chat-meta {
+        color: #6c757d;
+        font-size: 0.85rem;
+        margin-top: auto;
+    }
+    
+    .chat-time {
+        margin-top: 0.5rem;
+    }
+    
+    .new-chat-card {
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        background: rgba(108, 92, 231, 0.05);
+        border: 2px dashed rgba(108, 92, 231, 0.2);
+        border-radius: var(--border-radius);
+        padding: 2rem;
+        text-align: center;
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+    
+    .new-chat-card:hover {
+        background: rgba(108, 92, 231, 0.1);
+        border-color: rgba(108, 92, 231, 0.4);
+        transform: translateY(-5px);
+    }
+    
+    .new-chat-icon {
+        font-size: 2.5rem;
+        color: var(--primary-color);
+        margin-bottom: 1rem;
+        transition: all 0.3s ease;
+    }
+    
+    .new-chat-card:hover .new-chat-icon {
+        transform: scale(1.2);
+    }
+    
+    .recent-documents {
+        max-height: 400px;
+        overflow-y: auto;
+        scrollbar-width: thin;
+        scrollbar-color: rgba(108, 92, 231, 0.2) transparent;
+    }
+    
+    .recent-documents::-webkit-scrollbar {
+        width: 6px;
+    }
+    
+    .recent-documents::-webkit-scrollbar-track {
+        background: transparent;
+    }
+    
+    .recent-documents::-webkit-scrollbar-thumb {
+        background-color: rgba(108, 92, 231, 0.2);
+        border-radius: 10px;
+    }
+    
+    .document-item {
+        display: flex;
+        align-items: center;
+        padding: 1rem 1.25rem;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        transition: all 0.3s ease;
+        text-decoration: none;
+        color: var(--text-color);
+    }
+    
+    .document-item:last-child {
+        border-bottom: none;
+    }
+    
+    .document-item:hover {
+        background: rgba(108, 92, 231, 0.05);
+        transform: translateX(5px);
+    }
+    
+    .document-icon {
+        font-size: 1.25rem;
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 8px;
+        margin-right: 1rem;
+        transition: all 0.3s ease;
+    }
+    
+    .document-item:hover .document-icon {
+        transform: scale(1.15);
+    }
+    
+    .document-icon-pdf {
+        background: rgba(255, 100, 80, 0.1);
+        color: #ff6450;
+    }
+    
+    .document-icon-txt {
+        background: rgba(79, 195, 247, 0.1);
+        color: #4fc3f7;
+    }
+    
+    .document-icon-docx {
+        background: rgba(65, 105, 225, 0.1);
+        color: #4169e1;
+    }
+    
+    .document-icon-xlsx {
+        background: rgba(67, 160, 71, 0.1);
+        color: #43a047;
+    }
+    
+    .document-icon-csv {
+        background: rgba(156, 39, 176, 0.1);
+        color: #9c27b0;
+    }
+    
+    .document-info {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .document-title {
+        font-weight: 500;
+        margin-bottom: 0.25rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 90%;
+    }
+    
+    .document-meta {
+        font-size: 0.8rem;
+        color: #6c757d;
+        display: flex;
+        gap: 1rem;
+    }
+    
+    .action-btns {
+        display: flex;
+        gap: 0.5rem;
+    }
+    
+    .btn-action {
+        width: 40px;
+        height: 40px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s ease;
+        background: rgba(108, 92, 231, 0.05);
+        color: var(--primary-color);
+        border: none;
+    }
+    
+    .btn-action:hover {
+        background: var(--primary-color);
+        color: white;
+        transform: translateY(-2px);
+    }
+    
+    .upload-btn {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.5rem 1rem;
+        background: rgba(108, 92, 231, 0.1);
+        color: var(--primary-color);
+        border-radius: var(--border-radius);
+        text-decoration: none;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+    
+    .upload-btn:hover {
+        background: var(--primary-color);
+        color: white;
+        transform: translateY(-2px);
+    }
+    
+    .upload-icon {
+        margin-right: 0.5rem;
+        transition: all 0.3s ease;
+    }
+    
+    .upload-btn:hover .upload-icon {
+        transform: translateY(-2px);
+    }
+    
+    /* Empty states */
+    .empty-state {
+        text-align: center;
+        padding: 3rem 2rem;
+    }
+    
+    .empty-icon {
+        font-size: 3rem;
+        color: rgba(108, 92, 231, 0.2);
+        margin-bottom: 1rem;
+    }
+    
+    .empty-title {
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+    }
+    
+    .empty-description {
+        color: #6c757d;
+        max-width: 300px;
+        margin: 0 auto 1.5rem;
+    }
+    
+    /* Animation for new elements */
+    .fade-in-up {
+        animation: fadeInUp 0.6s ease-out forwards;
+    }
+    
+    @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .staggered-item:nth-child(1) { animation-delay: 0.1s; }
+    .staggered-item:nth-child(2) { animation-delay: 0.2s; }
+    .staggered-item:nth-child(3) { animation-delay: 0.3s; }
+    .staggered-item:nth-child(4) { animation-delay: 0.4s; }
+    .staggered-item:nth-child(5) { animation-delay: 0.5s; }
+    .staggered-item:nth-child(6) { animation-delay: 0.6s; }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="row">
-    <div class="col-md-8">
-        <div class="card shadow">
-            <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-                <h3 class="card-title mb-0"><i class="fas fa-comments me-2"></i>Your Conversations</h3>
-                <a href="{{ url_for('chat.new_chat') }}" class="btn btn-light btn-sm">
-                    <i class="fas fa-plus me-1"></i> New Chat
-                </a>
-            </div>
-            <div class="card-body">
-                {% if active_sessions %}
-                    <div class="list-group">
-                        {% for session in active_sessions %}
-                            <a href="{{ url_for('chat.chat_page', session_id=session.session_id) }}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
-                                <div>
-                                    <div class="text-truncate" style="max-width: 90%;">
-                                    <h5 class="mb-1">Chat Session #{{ session.id }}</h5>
-                                    </div>
-                                    <p class="mb-1 text-muted">
-                                        <small>Last updated: {{ session.updated_at.strftime('%Y-%m-%d %H:%M') }}</small>
-                                    </p>
-                                    {% if session.summary %}
-                                        <p class="mb-0">{{ session.summary }}</p>
-                                    {% endif %}
-                                </div>
-                                <span class="badge bg-primary rounded-pill">
-                                    {{ session.messages.count() }} messages
-                                </span>
-                            </a>
-                        {% endfor %}
-                    </div>
-                {% else %}
-                    <div class="text-center py-5">
-                        <i class="fas fa-comment-slash fa-4x mb-3 text-muted"></i>
-                        <h4>No active chat sessions</h4>
-                        <p class="lead">Start a new conversation with the AI assistant.</p>
-                        <a href="{{ url_for('chat.new_chat') }}" class="btn btn-primary">
-                            <i class="fas fa-plus me-1"></i> Start New Chat
-                        </a>
-                    </div>
-                {% endif %}
+<div class="container">
+    <!-- Welcome Section -->
+    <section class="welcome-section">
+        <div class="welcome-content">
+            <h1 class="mb-2">Welcome, {{ current_user.username }}!</h1>
+            <p>Your AI-powered knowledge platform is ready to assist you.</p>
+            
+            <div class="welcome-stats">
+                <div class="stat-item">
+                    <div class="stat-value">{{ documents_count if documents_count else 0 }}</div>
+                    <div class="stat-label">Documents</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">{{ chat_count if chat_count else 0 }}</div>
+                    <div class="stat-label">Conversations</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">{{ last_active|datetimeformat if last_active else 'New' }}</div>
+                    <div class="stat-label">Last Activity</div>
+                </div>
             </div>
         </div>
-    </div>
-
-    <div class="col-md-4">
-        <!-- Recent Documents -->
-        <div class="card shadow mb-4">
-            
-                <div class="card-header bg-secondary text-white d-flex justify-content-between align-items-center flex-wrap">
-                <h4 class="card-title mb-0"><i class="fas fa-file-alt me-2"></i>Recent Documents</h4>
-                <a href="{{ url_for('chat.documents_page') }}" class="btn btn-light btn-sm">
-                    <i class="fas fa-folder-open me-1"></i> All Documents
-                </a>
-            </div>
-            <div class="card-body">
-                {% if documents %}
-                    <div class="list-group">
-                        {% for doc in documents[:5] %}
-                            <div class="list-group-item">
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <div class="text-truncate" style="max-width: 90%;">
-                                    <h5 class="mb-1">
-                                        {% if doc.file_type == 'pdf' %}
-                                            <i class="fas fa-file-pdf text-danger me-2"></i>
-                                        {% elif doc.file_type in ['docx', 'doc'] %}
-                                            <i class="fas fa-file-word text-primary me-2"></i>
-                                        {% elif doc.file_type in ['xlsx', 'xls', 'csv'] %}
-                                            <i class="fas fa-file-excel text-success me-2"></i>
-                                        {% else %}
-                                            <i class="fas fa-file-alt me-2"></i>
-                                        {% endif %}
-                                        {{ doc.original_filename }}
-                                    </h5>
+    </section>
+    
+    <div class="row">
+        <!-- Chat History Section -->
+        <div class="col-lg-8">
+            <section class="chat-section">
+                <div class="section-header">
+                    <h2><i class="fas fa-comment-dots section-icon"></i> Recent Conversations</h2>
+                    <a href="{{ url_for('chat.new_chat') }}" class="btn btn-primary">
+                        <i class="fas fa-plus me-1"></i> New Chat
+                    </a>
+                </div>
+                
+                <div class="row">
+                    {% if chat_sessions %}
+                        {% for session in chat_sessions %}
+                            <div class="col-md-6 mb-4 fade-in-up staggered-item">
+                                <div class="chat-card">
+                                    <div class="chat-header">
+                                        <i class="fas fa-comments chat-icon"></i>
+                                        <h5 class="chat-title">
+                                            {% if session.summary %}
+                                                {{ session.summary|truncate(40) }}
+                                            {% else %}
+                                                Chat #{{ session.id }}
+                                            {% endif %}
+                                        </h5>
                                     </div>
-                                </div>
-                                <p class="mb-1 text-muted">
-                                    <small>Uploaded: {{ doc.upload_date.strftime('%Y-%m-%d') }}</small>
-                                </p>
-                                <div class="d-flex justify-content-between">
-                                    <small>{{ (doc.file_size / 1024)|round(1) }} KB</small>
-                                    <small>
-                                        {% if doc.processed %}
-                                            <span class="text-success">
-                                                <i class="fas fa-check-circle me-1"></i>Processed
-                                            </span>
-                                        {% else %}
-                                            <span class="text-warning">
-                                                <i class="fas fa-clock me-1"></i>Processing
-                                            </span>
-                                        {% endif %}
-                                    </small>
+                                    
+                                    <div class="chat-body">
+                                        <div class="chat-summary">
+                                            {% if session.messages.count() > 0 %}
+                                                {% set last_message = session.messages.order_by(ChatMessage.timestamp.desc()).first() %}
+                                                {{ last_message.content|truncate(100)|safe }}
+                                            {% else %}
+                                                <em>No messages yet</em>
+                                            {% endif %}
+                                        </div>
+                                        
+                                        <div class="chat-meta">
+                                            <div>{{ session.messages.count() }} messages</div>
+                                            <div class="chat-time">
+                                                <i class="far fa-clock me-1"></i>
+                                                {{ session.updated_at.strftime('%Y-%m-%d %H:%M') }}
+                                            </div>
+                                        </div>
+                                        
+                                        <a href="{{ url_for('chat.chat_page', session_id=session.session_id) }}" class="btn btn-outline-primary mt-3">
+                                            <i class="fas fa-arrow-right me-1"></i> Continue
+                                        </a>
+                                    </div>
                                 </div>
                             </div>
                         {% endfor %}
-                    </div>
-                    {% if documents|length > 5 %}
-                        <div class="text-center mt-3">
-                            <a href="{{ url_for('chat.documents_page') }}" class="btn btn-outline-primary btn-sm">
-                                View All Documents
+                        
+                        <!-- "New Chat" card at the end -->
+                        <div class="col-md-6 mb-4 fade-in-up staggered-item">
+                            <a href="{{ url_for('chat.new_chat') }}" class="new-chat-card">
+                                <i class="fas fa-plus-circle new-chat-icon"></i>
+                                <h5>Start New Conversation</h5>
+                                <p class="text-muted">Create a new chat with AI assistant</p>
                             </a>
                         </div>
+                    {% else %}
+                        <div class="col-12">
+                            <div class="empty-state">
+                                <i class="fas fa-comments empty-icon"></i>
+                                <h3 class="empty-title">No conversations yet</h3>
+                                <p class="empty-description">Start your first chat with AI assistant to get answers from your knowledge base</p>
+                                <a href="{{ url_for('chat.new_chat') }}" class="btn btn-primary">
+                                    <i class="fas fa-plus me-1"></i> Start New Chat
+                                </a>
+                            </div>
+                        </div>
                     {% endif %}
-                {% else %}
-                    <div class="text-center py-4">
-                        <i class="fas fa-folder-open fa-3x mb-3 text-muted"></i>
-                        <p>No documents uploaded yet.</p>
-                        <a href="{{ url_for('chat.documents_page') }}" class="btn btn-outline-primary btn-sm">
-                            Upload Documents
-                        </a>
-                    </div>
-                {% endif %}
-            </div>
+                </div>
+            </section>
         </div>
-
         
+        <!-- Recent Documents Section -->
+        <div class="col-lg-4">
+            <section class="documents-section">
+                <div class="card shadow">
+                    <div class="card-header bg-secondary text-white d-flex justify-content-between align-items-center">
+                        <div class="text-truncate">
+                            <h4 class="card-title mb-0"><i class="fas fa-file-alt section-icon"></i> Recent Documents</h4>
+                        </div>
+                        <div class="d-flex gap-2">
+                            <a href="{{ url_for('chat.documents_page') }}" class="upload-btn">
+                                <i class="fas fa-upload upload-icon"></i> Upload
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <div class="recent-documents">
+                        {% if recent_documents %}
+                            {% for document in recent_documents %}
+                                <a href="{{ url_for('chat.documents_page') }}" class="document-item fade-in-up staggered-item">
+                                    <div class="document-icon document-icon-{{ document.file_type.lower() }}">
+                                        {% if document.file_type.lower() == 'pdf' %}
+                                            <i class="fas fa-file-pdf"></i>
+                                        {% elif document.file_type.lower() == 'txt' %}
+                                            <i class="fas fa-file-alt"></i>
+                                        {% elif document.file_type.lower() == 'docx' %}
+                                            <i class="fas fa-file-word"></i>
+                                        {% elif document.file_type.lower() == 'xlsx' %}
+                                            <i class="fas fa-file-excel"></i>
+                                        {% elif document.file_type.lower() == 'csv' %}
+                                            <i class="fas fa-file-csv"></i>
+                                        {% else %}
+                                            <i class="fas fa-file"></i>
+                                        {% endif %}
+                                    </div>
+                                    
+                                    <div class="document-info">
+                                        <div class="text-truncate" style="max-width: 90%;">
+                                        <h5 class="document-title">{{ document.original_filename }}</h5>
+                                        </div>
+                                        <div class="document-meta">
+                                            <span>{{ (document.file_size / 1024)|int }} KB</span>
+                                            <span>{{ document.upload_date.strftime('%Y-%m-%d') }}</span>
+                                        </div>
+                                    </div>
+                                </a>
+                            {% endfor %}
+                            
+                            <div class="p-3 text-center">
+                                <a href="{{ url_for('chat.documents_page') }}" class="btn btn-sm btn-outline-primary">
+                                    View All Documents
+                                </a>
+                            </div>
+                        {% else %}
+                            <div class="empty-state">
+                                <i class="fas fa-file-upload empty-icon"></i>
+                                <h4 class="empty-title">No documents yet</h4>
+                                <p class="empty-description">Upload documents to use with AI</p>
+                                <a href="{{ url_for('chat.documents_page') }}" class="btn btn-outline-primary">
+                                    <i class="fas fa-upload me-1"></i> Upload Document
+                                </a>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </section>
+        </div>
     </div>
 </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Animate elements when they enter viewport
+        const animateOnScroll = function() {
+            const elements = document.querySelectorAll('.fade-in-up');
+            
+            elements.forEach(element => {
+                const position = element.getBoundingClientRect();
+                
+                // If element is in viewport
+                if (position.top < window.innerHeight && position.bottom >= 0) {
+                    element.style.opacity = '1';
+                    element.style.transform = 'translateY(0)';
+                }
+            });
+        };
+        
+        // Initialize animations
+        document.querySelectorAll('.fade-in-up').forEach(element => {
+            element.style.opacity = '0';
+            element.style.transform = 'translateY(20px)';
+            element.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+        });
+        
+        // Run animation on load and scroll
+        window.addEventListener('load', animateOnScroll);
+        window.addEventListener('scroll', animateOnScroll);
+        
+        // Add pulse animation to stats
+        const stats = document.querySelectorAll('.stat-value');
+        stats.forEach(stat => {
+            stat.style.transition = 'transform 0.3s ease';
+            
+            stat.addEventListener('mouseenter', function() {
+                this.style.transform = 'scale(1.1)';
+            });
+            
+            stat.addEventListener('mouseleave', function() {
+                this.style.transform = 'scale(1)';
+            });
+        });
+    });
+</script>
 {% endblock %}
