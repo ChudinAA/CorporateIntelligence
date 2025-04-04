@@ -272,11 +272,11 @@
             <!-- Upload Area -->
             <div class="upload-container">
                 <form action="{{ url_for('chat.upload_document') }}" method="POST" enctype="multipart/form-data" id="upload-form">
-                    <div class="upload-zone" id="drop-zone">
+                    <div class="upload-zone" id="upload-zone">
                         <i class="fas fa-cloud-upload-alt upload-icon pulse-animation"></i>
                         <h3 class="upload-title">Upload your documents</h3>
                         <p class="upload-subtitle">Drag and drop files here or click to browse</p>
-                        <input type="file" class="d-none" id="document" name="document" required>
+                        <input type="file" class="d-none" id="document-file" name="document" required>
                         
                         <div class="upload-formats">
                             <span class="format-badge"><i class="fas fa-file-pdf me-1"></i> PDF</span>

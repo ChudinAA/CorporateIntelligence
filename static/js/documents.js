@@ -5,6 +5,11 @@ document.addEventListener('DOMContentLoaded', function() {
     const uploadForm = document.getElementById('upload-form');
     
     if (uploadZone && fileInput) {
+        // Make the upload zone clickable to select files
+        uploadZone.addEventListener('click', function() {
+            fileInput.click();
+        });
+        
         ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
             uploadZone.addEventListener(eventName, preventDefaults, false);
         });
@@ -43,7 +48,10 @@ document.addEventListener('DOMContentLoaded', function() {
         function handleFiles(e) {
             const files = fileInput.files;
             if (files.length) {
-                uploadForm.querySelector('.btn-upload').textContent = 'Uploading...';
+                const uploadBtn = uploadForm.querySelector('.btn-upload');
+                if (uploadBtn) {
+                    uploadBtn.textContent = 'Uploading...';
+                }
                 uploadForm.submit();
             }
         }
@@ -224,4 +232,6 @@ document.addEventListener('DOMContentLoaded', function() {
     // Run animation on load and scroll
     window.addEventListener('load', animateOnScroll);
     window.addEventListener('scroll', animateOnScroll);
+    
+    // Document preview functionality has been moved to common.js
 });

@@ -2,6 +2,9 @@ document.addEventListener('DOMContentLoaded', function() {
     // Setup all delete buttons
     setupChatDeletionHandlers();
     
+    // Document preview handlers
+    setupDocumentPreviewHandlers();
+    
     // Function to setup chat deletion handlers
     function setupChatDeletionHandlers() {
         document.querySelectorAll('.chat-delete-btn').forEach(button => {
@@ -149,6 +152,100 @@ document.addEventListener('DOMContentLoaded', function() {
                         });
                     }
                 });
+            });
+        });
+    }
+    
+    // Function to setup document preview handlers
+    function setupDocumentPreviewHandlers() {
+        document.querySelectorAll('.document-item.document-preview').forEach(item => {
+            item.addEventListener('click', function(e) {
+                // Don't handle click if it was on the delete button
+                if (e.target.closest('.doc-delete-btn')) {
+                    return;
+                }
+                
+                const documentId = this.dataset.documentId;
+                const previewArea = document.querySelector(`.document-preview-area[data-document-id="${documentId}"]`);
+                
+                if (previewArea) {
+                    // Toggle display
+                    if (previewArea.style.display === 'none' || !previewArea.style.display) {
+                        // Close any other open previews
+                        document.querySelectorAll('.document-preview-area').forEach(area => {
+                            if (area !== previewArea) {
+                                area.style.display = 'none';
+                            }
+                        });
+                        
+                        // Show loading in preview area
+                        previewArea.style.display = 'block';
+                        previewArea.innerHTML = '<div class="text-center p-3"><div class="spinner-border spinner-border-sm text-primary"></div> Loading preview...</div>';
+                        
+                        // Scroll to make preview visible if needed
+                        setTimeout(() => {
+                            previewArea.scrollIntoView({behavior: 'smooth', block: 'nearest'});
+                        }, 100);
+                        
+                        // Fetch document content
+                        fetch(`/documents/preview/${documentId}`)
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.success) {
+                                    // Format content based on file type
+                                    let formattedContent = data.content;
+                                    
+                                    // Add line breaks for text content
+                                    if (data.file_type === 'txt') {
+                                        formattedContent = data.content.replace(/\n/g, '<br>');
+                                    }
+                                    
+                                    // Update preview area
+                                    previewArea.innerHTML = `
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                            <h6 class="mb-0"><i class="fas fa-file me-2"></i>${data.filename}</h6>
+                                            <button class="btn btn-sm btn-outline-secondary close-preview">
+                                                <i class="fas fa-times"></i>
+                                            </button>
+                                        </div>
+                                        <div class="small text-muted mb-2">
+                                            ${data.file_type.toUpperCase()} · ${Math.round(data.file_size / 1024)} KB
+                                        </div>
+                                        <div class="preview-content bg-white p-2 rounded border">
+                                            ${formattedContent}
+                                        </div>
+                                    `;
+                                    
+                                    // Add close button functionality
+                                    const closeBtn = previewArea.querySelector('.close-preview');
+                                    if (closeBtn) {
+                                        closeBtn.addEventListener('click', function() {
+                                            previewArea.style.display = 'none';
+                                        });
+                                    }
+                                } else {
+                                    previewArea.innerHTML = `
+                                        <div class="alert alert-danger">
+                                            <i class="fas fa-exclamation-triangle me-2"></i>
+                                            ${data.message || 'Failed to load document preview.'}
+                                        </div>
+                                    `;
+                                }
+                            })
+                            .catch(error => {
+                                console.error('Error:', error);
+                                previewArea.innerHTML = `
+                                    <div class="alert alert-danger">
+                                        <i class="fas fa-exclamation-triangle me-2"></i>
+                                        An unexpected error occurred while loading the preview.
+                                    </div>
+                                `;
+                            });
+                    } else {
+                        // Hide preview
+                        previewArea.style.display = 'none';
+                    }
+                }
             });
         });
     }

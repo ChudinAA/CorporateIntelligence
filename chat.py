@@ -40,7 +40,7 @@ def dashboard():
     # Get most recent user documents for dashboard
     recent_documents = Document.query.filter_by(
         user_id=current_user.id
-    ).order_by(Document.upload_date.desc()).limit(3).all()
+    ).order_by(Document.upload_date.desc()).limit(5).all()
     
     # Get all documents for reference
     all_documents = Document.query.filter_by(
@@ -177,13 +177,11 @@ def preview_document(document_id):
     
     return jsonify({
         'success': True,
-        'document': {
-            'id': document.id,
-            'name': document.original_filename,
-            'type': document.file_type,
-            'upload_date': document.upload_date.strftime('%Y-%m-%d %H:%M'),
-            'preview': preview_text
-        }
+        'content': preview_text,
+        'filename': document.original_filename,
+        'file_type': document.file_type,
+        'file_size': document.file_size,
+        'upload_date': document.upload_date.strftime('%Y-%m-%d %H:%M')
     })
 
 @chat_bp.route('/documents/delete/<int:document_id>', methods=['GET', 'POST'])
