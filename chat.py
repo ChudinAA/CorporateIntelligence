@@ -230,6 +230,26 @@ def delete_document(document_id):
     return redirect(url_for('chat.documents_page'))
 
 
+@chat_bp.route('/delete-chat/<int:chat_id>', methods=['POST'])
+@login_required
+def delete_chat(chat_id):
+    """Delete a chat session."""
+    chat = ChatHistory.query.filter_by(id=chat_id, user_id=current_user.id).first_or_404()
+    
+    try:
+        # Delete all messages in the chat
+        ChatMessage.query.filter_by(chat_history_id=chat.id).delete()
+        
+        # Delete the chat history record
+        db.session.delete(chat)
+        db.session.commit()
+        
+        return jsonify({"success": True, "message": "Chat deleted successfully"})
+    except Exception as e:
+        db.session.rollback()
+        logger.error(f"Error deleting chat: {str(e)}")
+        return jsonify({"success": False, "message": str(e)}), 500
+
 
 # Socket.IO event handlers
 @socketio.on('send_message')
