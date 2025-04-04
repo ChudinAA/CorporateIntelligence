@@ -1,3 +1,4 @@
+
 import os
 
 class Config:
@@ -20,10 +21,7 @@ class Config:
     
     # Vector database configuration
     VECTOR_DB_PATH = "vector_db"
-    EMBEDDINGS_DIMENSION = 3072  # text-embedding-3-large dimension  # Default for most models
-    
-    # LLM configuration
-    LLM_MODEL_PATH = os.environ.get("LLM_MODEL_PATH", "models/llama3.1-8b")
+    EMBEDDINGS_DIMENSION = 3072  # text-embedding-3-large dimension
     
     # Security configuration
     WTF_CSRF_ENABLED = True

@@ -1,15 +1,11 @@
+
 #!/bin/bash
 
-echo "Starting the application with TinyLlama model..."
+echo "Starting the application..."
 
 # Create required directories
-mkdir -p models
 mkdir -p uploads
 mkdir -p vector_db
-
-# Download the TinyLlama model if it doesn't exist
-echo "Checking for TinyLlama model..."
-python download_model.py
 
 # Run the application
 echo "Starting Flask application with gunicorn..."
