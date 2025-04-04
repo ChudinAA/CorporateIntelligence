@@ -435,7 +435,7 @@
                     <h2><i class="fas fa-comment-dots section-icon"></i> Recent Conversations</h2>
                     <a href="{{ url_for('chat.new_chat') }}" class="btn btn-primary">
                         <i class="fas fa-plus me-1"></i> New Chat
-                    </div>
+                    </a>
                 </div>
                 
                 <div class="row">
@@ -474,7 +474,7 @@
                                         
                                         <a href="{{ url_for('chat.chat_page', session_id=session.session_id) }}" class="btn btn-outline-primary mt-3">
                                             <i class="fas fa-arrow-right me-1"></i> Continue
-                                        </div>
+                                        </a>
                                     </div>
                                 </div>
                             </div>
@@ -486,7 +486,7 @@
                                 <i class="fas fa-plus-circle new-chat-icon"></i>
                                 <h5>Start New Conversation</h5>
                                 <p class="text-muted">Create a new chat with AI assistant</p>
-                            </div>
+                            </a>
                         </div>
                     {% else %}
                         <div class="col-12">
@@ -496,7 +496,7 @@
                                 <p class="empty-description">Start your first chat with AI assistant to get answers from your knowledge base</p>
                                 <a href="{{ url_for('chat.new_chat') }}" class="btn btn-primary">
                                     <i class="fas fa-plus me-1"></i> Start New Chat
-                                </div>
+                                </a>
                             </div>
                         </div>
                     {% endif %}
@@ -507,54 +507,47 @@
         <!-- Recent Documents Section -->
         <div class="col-lg-4">
             <section class="documents-section">
-                <div class="card shadow">
-                    <div class="card-header bg-secondary text-white d-flex justify-content-between align-items-center">
-                        <div class="text-truncate">
-                            <h4 class="card-title mb-0"><i class="fas fa-file-alt section-icon"></i> Recent Documents</h4>
-                        </div>
-                        <div class="d-flex gap-2">
-                            <a href="{{ url_for('chat.documents_page') }}" class="upload-btn">
-                                <i class="fas fa-upload upload-icon"></i> Upload
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="recent-documents">
+                <div class="section-header">
+                    <h2><i class="fas fa-file-alt section-icon"></i> Recent Documents</h2>
+                    <a href="{{ url_for('chat.documents_page') }}" class="upload-btn">
+                        <i class="fas fa-upload upload-icon"></i> Upload
+                    </a>
+                </div>
+                
+                <div class="card">
+                    <div class="card-body p-0">
                         {% if recent_documents %}
-                            {% for document in recent_documents %}
-                                <div class="document-item fade-in-up staggered-item document-preview" data-document-id="{{ document.id }}">
-                                    <div class="document-icon document-icon-{{ document.file_type.lower() }}">
-                                        {% if document.file_type.lower() == 'pdf' %}
-                                            <i class="fas fa-file-pdf"></i>
-                                        {% elif document.file_type.lower() == 'txt' %}
-                                            <i class="fas fa-file-alt"></i>
-                                        {% elif document.file_type.lower() == 'docx' %}
-                                            <i class="fas fa-file-word"></i>
-                                        {% elif document.file_type.lower() == 'xlsx' %}
-                                            <i class="fas fa-file-excel"></i>
-                                        {% elif document.file_type.lower() == 'csv' %}
-                                            <i class="fas fa-file-csv"></i>
-                                        {% else %}
-                                            <i class="fas fa-file"></i>
-                                        {% endif %}
-                                    </div>
-                                    
-                                    <div class="document-info">
-                                        <div class="text-truncate" style="max-width: 90%;">
-                                        <h5 class="document-title">{{ document.original_filename }}</h5>
+                            <div class="recent-documents">
+                                {% for doc in recent_documents %}
+                                    <div class="document-item document-preview" data-document-id="{{ doc.id }}">
+                                        <div class="document-icon document-icon-{{ doc.file_type }}">
+                                            {% if doc.file_type == 'pdf' %}
+                                                <i class="far fa-file-pdf"></i>
+                                            {% elif doc.file_type == 'txt' %}
+                                                <i class="far fa-file-alt"></i>
+                                            {% elif doc.file_type == 'docx' %}
+                                                <i class="far fa-file-word"></i>
+                                            {% elif doc.file_type in ['xlsx', 'csv'] %}
+                                                <i class="far fa-file-excel"></i>
+                                            {% else %}
+                                                <i class="far fa-file"></i>
+                                            {% endif %}
                                         </div>
-                                        <div class="document-meta">
-                                            <span>{{ (document.file_size / 1024)|int }} KB</span>
-                                            <span>{{ document.upload_date.strftime('%Y-%m-%d') }}</span>
+                                        <div class="document-info">
+                                            <div class="document-title">{{ doc.original_filename }}</div>
+                                            <div class="document-meta">
+                                                <div>{{ doc.file_size|filesizeformat }}</div>
+                                                <div>{{ doc.upload_date.strftime('%Y-%m-%d') }}</div>
+                                            </div>
+                                        </div>
+                                        <div class="action-btns">
+                                            <button class="btn-action doc-delete-btn" data-document-id="{{ doc.id }}" 
+                                                title="Delete document">
+                                                <i class="fas fa-trash-alt"></i>
+                                            </button>
                                         </div>
                                     </div>
-                                </div>
-                            {% endfor %}
-                            
-                            <div class="p-3 text-center">
-                                <a href="{{ url_for('chat.documents_page') }}" class="btn btn-sm btn-outline-primary">
-                                    View All Documents
-                                </div>
+                                {% endfor %}
                             </div>
                         {% else %}
                             <div class="empty-state">
@@ -563,7 +556,7 @@
                                 <p class="empty-description">Upload documents to use with AI</p>
                                 <a href="{{ url_for('chat.documents_page') }}" class="btn btn-outline-primary">
                                     <i class="fas fa-upload me-1"></i> Upload Document
-                                </div>
+                                </a>
                             </div>
                         {% endif %}
                     </div>
@@ -575,5 +568,8 @@
 {% endblock %}
 
 {% block scripts %}
-<script src="{{ url_for("static", filename="js/documents.js") }}"></script>
+<script src="{{ url_for('static', filename='js/documents.js') }}"></script>
 <script>
+// Dashboard JavaScript can be added here
+</script>
+{% endblock %}
