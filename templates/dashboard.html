@@ -60,7 +60,7 @@
         text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
     }
     
-    .chat-section, .documents-section {
+    .chat-section, .documents-section, .conversations-section {
         margin-bottom: 2rem;
     }
     
@@ -225,12 +225,6 @@
         box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
     }
     
-    .document-item:hover {
-        background-color: rgba(108, 92, 231, 0.05);
-        transform: translateY(-2px);
-        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
-    }
-
     .document-item:last-child {
         border-bottom: none;
     }
@@ -285,7 +279,7 @@
         flex: 1;
         min-width: 0;
     }
-
+    
     .document-preview-area {
         background-color: #f8f9fa;
         border-radius: var(--border-radius);
@@ -295,7 +289,7 @@
         overflow-y: auto;
         border: 1px solid rgba(0,0,0,0.1);
     }
-
+    
     .document-title {
         font-weight: 500;
         margin-bottom: 0.25rem;
@@ -412,7 +406,7 @@
         <div class="welcome-content">
             <h1 class="mb-2">Welcome, {{ current_user.username }}!</h1>
             <p>Your AI-powered knowledge platform is ready to assist you.</p>
-            
+
             <div class="welcome-stats">
                 <div class="stat-item">
                     <div class="stat-value">{{ total_documents if total_documents is defined else 0 }}</div>
@@ -429,11 +423,12 @@
             </div>
         </div>
     </section>
-    
+
     <div class="row">
-        <!-- Main Chat Section -->
-        <div class="col-lg-8">
-            <section class="chat-section">
+        <!-- Left Column -->
+        <div class="col-lg-6">
+            <!-- Chat Section -->
+            <section class="chat-section mb-4">
                 <div class="section-header">
                     <h2><i class="fas fa-comment-dots section-icon"></i> Chat</h2>
                 </div>
@@ -452,7 +447,7 @@
                                 {% endfor %}
                             {% endif %}
                         </div>
-                        
+
                         <div id="typing-indicator" class="typing-indicator" style="display: none;">
                             <div class="typing-animation">
                                 <div class="dot"></div>
@@ -460,7 +455,7 @@
                                 <div class="dot"></div>
                             </div>
                         </div>
-                        
+
                         <form id="message-form" class="chat-input-container">
                             <div class="input-group">
                                 <input type="text" id="message-input" class="form-control chat-input" placeholder="Type your message..." autocomplete="off">
@@ -474,80 +469,9 @@
                 </div>
             </section>
         </div>
-                
-                <div class="row">
-                    {% if active_sessions %}
-                        {% for session in active_sessions %}
-                            <div class="col-md-6 mb-3 fade-in-up staggered-item">
-                                <div class="chat-card">
-                                    <div class="chat-header">
-                                        <i class="fas fa-comments chat-icon"></i>
-                                        <h5 class="chat-title">
-                                            {% if session.summary %}
-                                                {{ session.summary|truncate(40) }}
-                                            {% else %}
-                                                Chat #{{ session.id }}
-                                            {% endif %}
-                                        </h5>
-                                    </div>
-                                    
-                                    <div class="chat-body">
-                                        <div class="chat-summary">
-                                            {% if session.recent_messages %}
-                                                {% set last_message = session.recent_messages|last %}
-                                                {{ last_message.content|truncate(100, True, '...') }}
-                                            {% else %}
-                                                <em>No messages yet</em>
-                                            {% endif %}
-                                        </div>
-                                        
-                                        <div class="chat-meta">
-                                            <div>{{ session.messages.count() }} messages</div>
-                                            <div class="chat-time">
-                                                <i class="far fa-clock me-1"></i>
-                                                {{ session.updated_at.strftime('%Y-%m-%d %H:%M') }}
-                                            </div>
-                                        </div>
-                                        
-                                        <div class="d-flex justify-content-between mt-2">
-                                            <a href="{{ url_for('chat.chat_page', session_id=session.session_id) }}" class="btn btn-sm btn-outline-primary">
-                                                <i class="fas fa-arrow-right me-1"></i> Continue
-                                            </a>
-                                            <button class="btn btn-sm btn-outline-danger chat-delete-btn" data-chat-id="{{ session.id }}">
-                                                <i class="fas fa-trash-alt"></i>
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        {% endfor %}
-                        
-                        <!-- "New Chat" card at the end -->
-                        <div class="col-md-6 mb-3 fade-in-up staggered-item">
-                            <a href="{{ url_for('chat.new_chat') }}" class="new-chat-card">
-                                <i class="fas fa-plus-circle new-chat-icon"></i>
-                                <h5>Start New Conversation</h5>
-                                <p class="text-muted">Create a new chat with AI assistant</p>
-                            </a>
-                        </div>
-                    {% else %}
-                        <div class="col-12">
-                            <div class="empty-state">
-                                <i class="fas fa-comments empty-icon"></i>
-                                <h3 class="empty-title">No conversations yet</h3>
-                                <p class="empty-description">Start your first chat with AI assistant to get answers from your knowledge base</p>
-                                <a href="{{ url_for('chat.new_chat') }}" class="btn btn-primary">
-                                    <i class="fas fa-plus me-1"></i> Start New Chat
-                                </a>
-                            </div>
-                        </div>
-                    {% endif %}
-                </div>
-            </section>
-        </div>
-        
-        <!-- Sidebar -->
-        <div class="col-lg-4">
+
+        <!-- Right Column -->
+        <div class="col-lg-6">
             <!-- Recent Documents Section -->
             <section class="documents-section mb-4">
                 <div class="section-header">
@@ -556,7 +480,7 @@
                         <i class="fas fa-upload upload-icon"></i> Upload
                     </a>
                 </div>
-                
+
                 <div class="card">
                     <div class="card-body p-0">
                         {% if recent_documents %}
@@ -588,7 +512,7 @@
                                                 title="Delete document">
                                                 <i class="fas fa-trash-alt"></i>
                                             </button>
-                                    </div>
+                                        </div>
                                     </div>
                                 {% endfor %}
                             </div>
@@ -599,6 +523,55 @@
                                 <p class="empty-description">Upload documents to use with AI</p>
                                 <a href="{{ url_for('chat.documents_page') }}" class="btn btn-sm btn-outline-primary">
                                     <i class="fas fa-upload me-1"></i> Upload Document
+                                </a>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </section>
+
+            <!-- Recent Conversations Section -->
+            <section class="conversations-section">
+                <div class="section-header">
+                    <h2><i class="fas fa-history section-icon"></i> Recent Conversations</h2>
+                </div>
+                <div class="card">
+                    <div class="card-body p-0">
+                        {% if active_sessions %}
+                            <div class="recent-conversations">
+                                {% for session in active_sessions %}
+                                    <div class="document-item conversation-preview" data-session-id="{{ session.session_id }}">
+                                        <div class="document-icon document-icon-chat">
+                                            <i class="far fa-comments"></i>
+                                        </div>
+                                        <div class="document-info">
+                                            <div class="document-title">
+                                                {% if session.summary %}
+                                                    {{ session.summary|truncate(40) }}
+                                                {% else %}
+                                                    Chat #{{ session.id }}
+                                                {% endif %}
+                                            </div>
+                                            <div class="document-meta">
+                                                <div>{{ session.messages.count() }} messages</div>
+                                                <div>{{ session.updated_at.strftime('%Y-%m-%d %H:%M') }}</div>
+                                            </div>
+                                        </div>
+                                        <div class="action-btns">
+                                            <button class="btn-action chat-delete-btn" data-chat-id="{{ session.id }}">
+                                                <i class="fas fa-trash-alt"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <div class="empty-state">
+                                <i class="fas fa-comments empty-icon"></i>
+                                <h4 class="empty-title">No conversations yet</h4>
+                                <p class="empty-description">Start chatting with AI assistant</p>
+                                <a href="{{ url_for('chat.new_chat') }}" class="btn btn-primary">
+                                    <i class="fas fa-plus me-1"></i> Start New Chat
                                 </a>
                             </div>
                         {% endif %}

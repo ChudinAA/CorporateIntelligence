@@ -2,6 +2,9 @@ document.addEventListener('DOMContentLoaded', function() {
     // Setup all delete buttons
     setupChatDeletionHandlers();
     
+    // Setup conversation preview handlers
+    setupConversationHandlers();
+    
     // Document preview handlers
     setupDocumentPreviewHandlers();
     
@@ -277,3 +280,68 @@ document.addEventListener('DOMContentLoaded', function() {
         return `${day} ${month}`;
     }
 });
+
+
+    // Function to setup conversation handlers
+    function setupConversationHandlers() {
+        document.querySelectorAll('.conversation-preview').forEach(item => {
+            item.addEventListener('click', function(e) {
+                // Don't handle click if it was on the delete button
+                if (e.target.closest('.chat-delete-btn')) {
+                    return;
+                }
+                
+                const sessionId = this.dataset.sessionId;
+                
+                // Show loading in chat container
+                const chatContainer = document.getElementById('chat-container');
+                chatContainer.innerHTML = '<div class="text-center p-3"><div class="spinner-border spinner-border-sm text-primary"></div> Loading messages...</div>';
+                
+                // Update hidden session ID input
+                document.getElementById('session-id-input').value = sessionId;
+                
+                // Fetch conversation messages
+                fetch(`/chat/messages/${sessionId}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            // Clear and update chat container
+                            chatContainer.innerHTML = '';
+                            
+                            // Add messages to chat container
+                            data.messages.forEach(message => {
+                                const messageDiv = document.createElement('div');
+                                messageDiv.className = `message ${message.is_user ? 'user-message' : 'ai-message'} animate__animated animate__fadeInUp`;
+                                messageDiv.innerHTML = `
+                                    <div class="message-content">${message.content}</div>
+                                    <div class="message-time">
+                                        ${message.timestamp}
+                                        <i class="fas ${message.is_user ? 'fa-user' : 'fa-robot'} ms-1"></i>
+                                    </div>
+                                `;
+                                chatContainer.appendChild(messageDiv);
+                            });
+                            
+                            // Scroll to bottom
+                            chatContainer.scrollTop = chatContainer.scrollHeight;
+                        } else {
+                            chatContainer.innerHTML = `
+                                <div class="alert alert-danger m-3">
+                                    <i class="fas fa-exclamation-triangle me-2"></i>
+                                    ${data.message || 'Failed to load conversation messages.'}
+                                </div>
+                            `;
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        chatContainer.innerHTML = `
+                            <div class="alert alert-danger m-3">
+                                <i class="fas fa-exclamation-triangle me-2"></i>
+                                An unexpected error occurred while loading the messages.
+                            </div>
+                        `;
+                    });
+            });
+        });
+    }

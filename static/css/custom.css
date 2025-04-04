@@ -792,6 +792,46 @@ main {
   padding: 0.6rem 1rem;
 }
 
+/* Recent conversations styling */
+.recent-conversations {
+    max-height: 400px;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(108, 92, 231, 0.2) transparent;
+}
+
+.recent-conversations::-webkit-scrollbar {
+    width: 6px;
+}
+
+.recent-conversations::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.recent-conversations::-webkit-scrollbar-thumb {
+    background-color: rgba(108, 92, 231, 0.2);
+    border-radius: 10px;
+}
+
+.conversation-preview {
+    cursor: pointer;
+}
+
+.conversation-preview:hover {
+    background: rgba(108, 92, 231, 0.05);
+}
+
+.document-icon-chat {
+    background: rgba(108, 92, 231, 0.1);
+    color: var(--primary-color);
+}
+
+/* Adjust chat container height */
+#chat-container {
+    height: 400px;
+    min-height: 400px;
+}
+
 /* Document cards with smooth transition */
 .document-card {
   transition: transform 0.3s ease, box-shadow 0.3s ease !important;
