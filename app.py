@@ -65,7 +65,7 @@ def create_app():
     
     with app.app_context():
         # Import models to ensure they are registered with SQLAlchemy
-        from models import User, Role, Document, ChatHistory, DocumentChunk
+        from models import User, Document, DocumentChunk
         
         # Create database tables if they don't exist
         db.create_all()
