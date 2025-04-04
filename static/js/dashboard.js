@@ -1,4 +1,35 @@
 document.addEventListener('DOMContentLoaded', function() {
+    // Setup new chat button handler
+    const newChatBtn = document.createElement('button');
+    newChatBtn.className = 'new-chat-btn';
+    newChatBtn.innerHTML = '<i class="fas fa-plus"></i> New Chat';
+    
+    const chatSection = document.querySelector('.chat-section .card-body');
+    if (chatSection) {
+        chatSection.insertBefore(newChatBtn, chatSection.firstChild);
+    }
+    
+    newChatBtn.addEventListener('click', function() {
+        // Save current chat if exists
+        const currentMessages = document.querySelectorAll('#chat-container .message');
+        if (currentMessages.length > 0) {
+            // Clear chat container
+            const chatContainer = document.getElementById('chat-container');
+            chatContainer.innerHTML = '';
+            
+            // Reset session ID
+            document.getElementById('session-id-input').value = '';
+            
+            // Refresh recent conversations
+            fetch('/chat/recent_conversations')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        updateRecentConversations(data.conversations);
+                    }
+                });
+        }
+    });
     // Setup all delete buttons
     setupChatDeletionHandlers();
     
