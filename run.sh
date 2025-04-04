@@ -7,6 +7,6 @@ echo "Starting the application..."
 mkdir -p uploads
 mkdir -p vector_db
 
-# Run the application
+# Run the application with eventlet worker
 echo "Starting Flask application with gunicorn..."
-gunicorn --worker-class eventlet --workers 1 --bind 0.0.0.0:5000 --reuse-port --reload main:app
+gunicorn --worker-class eventlet -w 1 --bind 0.0.0.0:5000 --reload main:app

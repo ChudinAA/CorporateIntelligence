@@ -70,16 +70,6 @@ def create_app():
         # Create database tables if they don't exist
         db.create_all()
         
-        # Check if roles exist, if not create default roles
-        from models import Role
-        if not Role.query.first():
-            admin_role = Role(name='admin', description='Administrator')
-            user_role = Role(name='user', description='Regular User')
-            db.session.add(admin_role)
-            db.session.add(user_role)
-            db.session.commit()
-            logging.info("Default roles created")
-        
         # Register blueprints
         from auth import auth_bp
         from chat import chat_bp

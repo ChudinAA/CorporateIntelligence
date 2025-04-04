@@ -4,7 +4,7 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField, EmailField
 from wtforms.validators import DataRequired, Email, Length, EqualTo, ValidationError
 from werkzeug.security import generate_password_hash
-from models import User, Role
+from models import User
 from app import db
 import logging
 
@@ -77,11 +77,6 @@ def register():
                 email=form.email.data
             )
             new_user.set_password(form.password.data)
-            
-            # Add default user role
-            user_role = Role.query.filter_by(name='user').first()
-            if user_role:
-                new_user.roles.append(user_role)
             
             # Add to database
             db.session.add(new_user)
