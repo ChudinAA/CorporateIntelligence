@@ -436,7 +436,9 @@
             <section class="chat-section mb-4">
                 <div class="section-header d-flex justify-content-between align-items-center">
                     <h2><i class="fas fa-comment-dots section-icon"></i> Chat</h2>
-                    
+                    <button class="btn btn-sm btn-primary new-chat-btn upload-btn">
+                        <i class="fas fa-plus upload-icon"></i> New Chat
+                    </button>
                 </div>
                 <div class="card">
                     <div class="card-body p-0">
@@ -551,9 +553,6 @@
             <section class="conversations-section">
                 <div class="section-header">
                     <h2><i class="fas fa-history section-icon"></i> Recent Conversations</h2>
-                    <a href="{{ url_for('chat.new_chat') }}" class="btn btn-primary">
-                        <i class="fas fa-plus me-1"></i> New Chat
-                    </a>
                 </div>
                 <div class="card">
                     <div class="card-body p-0">
@@ -597,7 +596,9 @@
                                 <i class="fas fa-comments empty-icon"></i>
                                 <h4 class="empty-title">No conversations yet</h4>
                                 <p class="empty-description">Start chatting with AI assistant</p>
-                                
+                                <a href="{{ url_for('chat.new_chat') }}" class="btn btn-primary">
+                                    <i class="fas fa-plus me-1"></i> Start New Chat
+                                </a>
                             </div>
                         {% endif %}
                     </div>
