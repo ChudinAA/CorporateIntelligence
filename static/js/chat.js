@@ -86,6 +86,26 @@ document.addEventListener('DOMContentLoaded', function() {
         const message = messageInput.value.trim();
         if (!message) return;
 
+        // Create a new session if one doesn't exist
+        if (!sessionId) {
+            // Generate a temporary ID until server responds
+            const tempId = 'temp_' + Date.now();
+            document.getElementById('session-id-input').value = tempId;
+            
+            fetch('/chat/new_session', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    document.getElementById('session-id-input').value = data.session_id;
+                }
+            });
+        }
+
         addUserMessage(message);
         messageInput.value = '';
         typingIndicator.style.display = 'block';
@@ -93,7 +113,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         socket.emit('send_message', {
             message: message,
-            session_id: sessionId
+            session_id: document.getElementById('session-id-input').value
         });
     });
 

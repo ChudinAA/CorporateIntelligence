@@ -73,6 +73,25 @@ def dashboard():
         last_activity=last_activity
     )
 
+@chat_bp.route('/chat/new_session', methods=['POST'])
+@login_required
+def new_chat_session():
+    try:
+        # Create a new session
+        session_id = str(uuid.uuid4())
+        new_chat = ChatHistory(
+            session_id=session_id,
+            user_id=current_user.id,
+            created_at=datetime.utcnow(),
+            updated_at=datetime.utcnow()
+        )
+        db.session.add(new_chat)
+        db.session.commit()
+        return jsonify({'success': True, 'session_id': session_id})
+    except Exception as e:
+        app.logger.error(f"Error creating new chat session: {str(e)}")
+        return jsonify({'success': False, 'error': str(e)})
+
 @chat_bp.route('/chat/<session_id>')
 @login_required
 def chat_page(session_id):
