@@ -14,6 +14,31 @@ document.addEventListener('DOMContentLoaded', function() {
     const messageInput = document.getElementById('message-input');
     const chatContainer = document.getElementById('chat-container');
     const sessionIdInput = document.getElementById('session-id-input');
+    const typingIndicator = document.getElementById('typing-indicator');
+
+    // Check if we need to create a new session when the page loads (if no session ID is present)
+    document.addEventListener('DOMContentLoaded', function() {
+        if (sessionIdInput && !sessionIdInput.value.trim()) {
+            fetch('/chat/new_session', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    sessionIdInput.value = data.session_id;
+                    console.log('Created new chat session:', data.session_id);
+                } else {
+                    console.error('Failed to create initial session');
+                }
+            })
+            .catch(err => {
+                console.error('Error creating initial session:', err);
+            });
+        }
+    });
 
     if (messageForm) {
         messageForm.addEventListener('submit', function(e) {
@@ -21,22 +46,77 @@ document.addEventListener('DOMContentLoaded', function() {
             const message = messageInput.value.trim();
             if (!message) return;
 
-            const sessionId = sessionIdInput.value;
+            let sessionId = sessionIdInput.value;
 
-            // Add user message to chat
-            addChatMessage(message, true);
-            messageInput.value = '';
-
-            // Emit message via Socket.IO
-            socket.emit('send_message', {
-                message: message,
-                session_id: sessionId
-            });
+            // If no session ID, create one first
+            if (!sessionId) {
+                // Create a new session
+                fetch('/chat/new_session', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        sessionIdInput.value = data.session_id;
+                        sendMessage(message, data.session_id);
+                    } else {
+                        console.error('Failed to create new session');
+                        addErrorMessage('Failed to create new chat session. Please try again.');
+                    }
+                })
+                .catch(err => {
+                    console.error('Error creating session:', err);
+                    addErrorMessage('Error creating chat session. Please try again.');
+                });
+            } else {
+                sendMessage(message, sessionId);
+            }
         });
     }
 
+    function sendMessage(message, sessionId) {
+        // Add user message to chat
+        addChatMessage(message, true);
+        messageInput.value = '';
+
+        // Show typing indicator
+        if (typingIndicator) {
+            typingIndicator.style.display = 'flex';
+        }
+
+        // Emit message via Socket.IO
+        socket.emit('send_message', {
+            message: message,
+            session_id: sessionId
+        });
+    }
+
+    socket.on('connect', function() {
+        console.log('Connected to Socket.IO server');
+    });
+
+    socket.on('connect_error', function(error) {
+        console.error('Connection error:', error);
+        addErrorMessage('Unable to connect to the server. Please refresh the page.');
+    });
+
     socket.on('receive_message', function(data) {
+        // Hide typing indicator
+        if (typingIndicator) {
+            typingIndicator.style.display = 'none';
+        }
         addChatMessage(data.message, false);
+    });
+
+    socket.on('error', function(data) {
+        // Hide typing indicator
+        if (typingIndicator) {
+            typingIndicator.style.display = 'none';
+        }
+        addErrorMessage(data.message || 'An error occurred during processing.');
     });
 
     function addChatMessage(message, isUser) {
@@ -51,6 +131,27 @@ document.addEventListener('DOMContentLoaded', function() {
             <div class="message-time">
                 ${timeString}
                 <i class="fas fa-${isUser ? 'user' : 'robot'} ms-1"></i>
+            </div>
+        `;
+
+        chatContainer.appendChild(messageDiv);
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+    }
+    
+    function addErrorMessage(message) {
+        const messageDiv = document.createElement('div');
+        messageDiv.className = 'message ai-message animate__animated animate__fadeInUp';
+
+        const now = new Date();
+        const timeString = now.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit' });
+
+        messageDiv.innerHTML = `
+            <div class="message-content text-danger">
+                <i class="fas fa-exclamation-triangle me-1"></i> ${message}
+            </div>
+            <div class="message-time">
+                ${timeString}
+                <i class="fas fa-robot ms-1"></i>
             </div>
         `;
 
@@ -341,23 +442,50 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     newChatBtn.addEventListener('click', function() {
-        // Clear chat container
-        const chatContainer = document.getElementById('chat-container');
-        chatContainer.innerHTML = '<div class="text-center py-5"><i class="fas fa-comments fa-4x mb-3 text-muted"></i><h4>Start a conversation</h4><p>Ask any question about your documents.</p></div>';
+        // Create a new session first
+        fetch('/chat/new_session', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Clear chat container
+                const chatContainer = document.getElementById('chat-container');
+                chatContainer.innerHTML = '<div class="text-center py-5"><i class="fas fa-comments fa-4x mb-3 text-muted"></i><h4>Start a conversation</h4><p>Ask any question about your documents.</p></div>';
 
-        // Reset session ID
-        document.getElementById('session-id-input').value = '';
+                // Set the new session ID
+                document.getElementById('session-id-input').value = data.session_id;
 
-        // Clear any active selection in Recent Conversations
-        document.querySelectorAll('.conversation-preview.active').forEach(item => {
-            item.classList.remove('active');
+                // Clear any active selection in Recent Conversations
+                document.querySelectorAll('.conversation-preview.active').forEach(item => {
+                    item.classList.remove('active');
+                });
+
+                // Setup message input focus
+                const messageInput = document.getElementById('message-input');
+                if (messageInput) {
+                    messageInput.focus();
+                }
+            } else {
+                console.error('Failed to create new session');
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Failed to create new chat session. Please try again.'
+                });
+            }
+        })
+        .catch(err => {
+            console.error('Error creating session:', err);
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'Error creating chat session. Please try again.'
+            });
         });
-
-        // Setup message input focus
-        const messageInput = document.getElementById('message-input');
-        if (messageInput) {
-            messageInput.focus();
-        }
     });
 
 

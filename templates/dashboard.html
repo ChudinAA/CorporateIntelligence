@@ -406,21 +406,20 @@
         <div class="welcome-content">
             <div class="d-flex align-items-center justify-content-between">
                 <div>
-                    <h1 class="mb-1" style="font-size: 1.3rem;">Welcome, {{ current_user.username }}!</h1>
-                    <p class="mb-0" style="font-size: 0.9rem;">Your AI-powered knowledge platform is ready.</p>
+                    <h1 class="mb-0" style="font-size: 1.2rem; font-weight: 600; text-shadow: 0 1px 2px rgba(0,0,0,0.2);">Welcome, {{ current_user.username }}!</h1>
                 </div>
-                <div class="d-flex welcome-stats" style="gap: 15px;">
+                <div class="d-flex welcome-stats" style="gap: 12px;">
                     <div class="stat-item">
-                        <div class="stat-value">{{ total_documents if total_documents is defined else 0 }}</div>
-                        <div class="stat-label">Documents</div>
+                        <div class="stat-value" style="font-weight: 600; font-size: 1.1rem;">{{ total_documents if total_documents is defined else 0 }}</div>
+                        <div class="stat-label" style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.5px;">Documents</div>
                     </div>
                     <div class="stat-item">
-                        <div class="stat-value">{{ total_conversations if total_conversations is defined else 0 }}</div>
-                        <div class="stat-label">Conversations</div>
+                        <div class="stat-value" style="font-weight: 600; font-size: 1.1rem;">{{ total_conversations if total_conversations is defined else 0 }}</div>
+                        <div class="stat-label" style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.5px;">Conversations</div>
                     </div>
                     <div class="stat-item">
-                        <div class="stat-value">{{ last_activity.strftime('%d %b') if last_activity else 'New' }}</div>
-                        <div class="stat-label">Last Activity</div>
+                        <div class="stat-value" style="font-weight: 600; font-size: 1.1rem;">{{ last_activity.strftime('%d %b') if last_activity else 'New' }}</div>
+                        <div class="stat-label" style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.5px;">Last Activity</div>
                     </div>
                 </div>
             </div>
@@ -452,10 +451,14 @@
                         </div>
 
                         <div id="typing-indicator" class="typing-indicator" style="display: none;">
-                            <div class="typing-animation">
-                                <div class="dot"></div>
-                                <div class="dot"></div>
-                                <div class="dot"></div>
+                            <div class="message ai-message">
+                                <div class="message-content">
+                                    <div class="typing-animation">
+                                        <div class="plasma-bubble bubble-1"></div>
+                                        <div class="plasma-bubble bubble-2"></div>
+                                        <div class="plasma-bubble bubble-3"></div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
 

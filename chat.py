@@ -272,12 +272,17 @@ def handle_message(data):
     session_id = data.get('session_id')
     message = data.get('message', '').strip()
 
-    if not session_id or not message:
-        emit('error', {'message': 'Missing session ID or message'})
+    if not message:
+        emit('error', {'message': 'Message cannot be empty'})
         return
+        
+    if not session_id:
+        # Create a new session ID if not provided
+        session_id = str(uuid.uuid4())
+        logger.info(f"Created new session ID in message handler: {session_id}")
 
     try:
-        # Get chat history
+        # Get chat history or create a new one
         chat_history = ChatHistory.query.filter_by(
             session_id=session_id,
             user_id=user_id
@@ -285,12 +290,17 @@ def handle_message(data):
 
         if not chat_history:
             # Create new chat history if not found
+            from datetime import datetime
             chat_history = ChatHistory(
                 session_id=session_id,
-                user_id=user_id
+                user_id=user_id,
+                is_active=True,
+                created_at=datetime.utcnow(),
+                updated_at=datetime.utcnow()
             )
             db.session.add(chat_history)
-            db.session.flush()
+            db.session.flush()  # Get the ID without committing yet
+            logger.info(f"Created new chat history for session {session_id}, user {user_id}")
 
         # Save user message
         user_msg = ChatMessage(
@@ -331,7 +341,8 @@ def handle_message(data):
         )
         db.session.add(ai_msg)
 
-        # Update chat history timestamp
+        # Update chat history timestamp and ensure it's active
+        chat_history.is_active = True
         chat_history.updated_at = db.func.now()
         db.session.commit()
 
@@ -340,7 +351,8 @@ def handle_message(data):
             'message': response['answer'],
             'sources': response.get('metadata', {}).get('sources', []),
             'user_message_id': user_msg.id,
-            'ai_message_id': ai_msg.id
+            'ai_message_id': ai_msg.id,
+            'session_id': session_id  # Send back the session ID
         })
 
     except Exception as e:
