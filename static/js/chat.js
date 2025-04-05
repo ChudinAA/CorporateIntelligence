@@ -86,12 +86,11 @@ document.addEventListener('DOMContentLoaded', function() {
         const message = messageInput.value.trim();
         if (!message) return;
 
+        const currentSessionId = document.getElementById('session-id-input').value;
+
         // Create a new session if one doesn't exist
-        if (!sessionId) {
-            // Generate a temporary ID until server responds
-            const tempId = 'temp_' + Date.now();
-            document.getElementById('session-id-input').value = tempId;
-            
+        if (!currentSessionId) {
+            // Create a new session first, then send the message
             fetch('/chat/new_session', {
                 method: 'POST',
                 headers: {
@@ -102,10 +101,25 @@ document.addEventListener('DOMContentLoaded', function() {
             .then(data => {
                 if (data.success) {
                     document.getElementById('session-id-input').value = data.session_id;
+                    
+                    // Now send the message with the new session ID
+                    sendMessageToServer(message, data.session_id);
+                } else {
+                    console.error('Failed to create new session');
+                    addErrorMessage('Failed to create new chat session. Please refresh the page and try again.');
                 }
+            })
+            .catch(err => {
+                console.error('Error creating session:', err);
+                addErrorMessage('Error creating chat session. Please try again.');
             });
+        } else {
+            // Send message with existing session ID
+            sendMessageToServer(message, currentSessionId);
         }
-
+    });
+    
+    function sendMessageToServer(message, sessionId) {
         addUserMessage(message);
         messageInput.value = '';
         typingIndicator.style.display = 'block';
@@ -113,9 +127,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
         socket.emit('send_message', {
             message: message,
-            session_id: document.getElementById('session-id-input').value
+            session_id: sessionId
         });
-    });
+    }
 
     function addUserMessage(message) {
         const messageElement = document.createElement('div');

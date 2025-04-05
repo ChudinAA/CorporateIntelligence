@@ -78,18 +78,21 @@ def dashboard():
 def new_chat_session():
     try:
         # Create a new session
+        from datetime import datetime
         session_id = str(uuid.uuid4())
         new_chat = ChatHistory(
             session_id=session_id,
             user_id=current_user.id,
+            is_active=True,
             created_at=datetime.utcnow(),
             updated_at=datetime.utcnow()
         )
         db.session.add(new_chat)
         db.session.commit()
+        logger.info(f"Created new chat session: {session_id} for user {current_user.id}")
         return jsonify({'success': True, 'session_id': session_id})
     except Exception as e:
-        app.logger.error(f"Error creating new chat session: {str(e)}")
+        logger.error(f"Error creating new chat session: {str(e)}", exc_info=True)
         return jsonify({'success': False, 'error': str(e)})
 
 @chat_bp.route('/chat/<session_id>')

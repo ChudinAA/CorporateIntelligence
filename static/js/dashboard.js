@@ -1,32 +1,32 @@
 document.addEventListener('DOMContentLoaded', function() {
     // Setup all delete buttons
     setupChatDeletionHandlers();
-    
+
     // Setup conversation preview handlers
     setupConversationHandlers();
-    
+
     // Document preview handlers
     setupDocumentPreviewHandlers();
-    
+
     // Setup chat message handling
     const socket = io();
     const messageForm = document.getElementById('message-form');
     const messageInput = document.getElementById('message-input');
     const chatContainer = document.getElementById('chat-container');
     const sessionIdInput = document.getElementById('session-id-input');
-    
+
     if (messageForm) {
         messageForm.addEventListener('submit', function(e) {
             e.preventDefault();
             const message = messageInput.value.trim();
             if (!message) return;
-            
+
             const sessionId = sessionIdInput.value;
-            
+
             // Add user message to chat
             addChatMessage(message, true);
             messageInput.value = '';
-            
+
             // Emit message via Socket.IO
             socket.emit('send_message', {
                 message: message,
@@ -34,18 +34,18 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
     }
-    
+
     socket.on('receive_message', function(data) {
         addChatMessage(data.message, false);
     });
-    
+
     function addChatMessage(message, isUser) {
         const messageDiv = document.createElement('div');
         messageDiv.className = `message ${isUser ? 'user-message' : 'ai-message'} animate__animated animate__fadeInUp`;
-        
+
         const now = new Date();
         const timeString = now.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit' });
-        
+
         messageDiv.innerHTML = `
             <div class="message-content">${message}</div>
             <div class="message-time">
@@ -53,23 +53,23 @@ document.addEventListener('DOMContentLoaded', function() {
                 <i class="fas fa-${isUser ? 'user' : 'robot'} ms-1"></i>
             </div>
         `;
-        
+
         chatContainer.appendChild(messageDiv);
         chatContainer.scrollTop = chatContainer.scrollHeight;
     }
-    
+
     // Function to setup chat deletion handlers
     function setupChatDeletionHandlers() {
         document.querySelectorAll('.chat-delete-btn').forEach(button => {
             // Remove existing event listeners to prevent duplicates
             const newButton = button.cloneNode(true);
             button.parentNode.replaceChild(newButton, button);
-            
+
             newButton.addEventListener('click', function(e) {
                 e.preventDefault();
                 e.stopPropagation();
                 const chatId = this.getAttribute('data-chat-id');
-                
+
                 // Show confirmation dialog with smoother animation
                 Swal.fire({
                     title: 'Delete Chat',
@@ -107,7 +107,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                 Swal.showLoading();
                             }
                         });
-                        
+
                         // Send delete request
                         fetch(`/delete-chat/${chatId}`, {
                             method: 'POST',
@@ -142,11 +142,11 @@ document.addEventListener('DOMContentLoaded', function() {
                                         chatCard.style.transition = 'all 0.4s ease';
                                         chatCard.style.opacity = '0';
                                         chatCard.style.transform = 'translateY(-15px)';
-                                        
+
                                         setTimeout(() => {
                                             chatCard.remove();
                                             updateChatCounter();
-                                            
+
                                             // Check if there are no chat cards left
                                             const remainingCards = document.querySelectorAll('.chat-section .col-md-6:not([style*="opacity: 0"])');
                                             // If only the "new chat" card is left (which is always there)
@@ -154,11 +154,11 @@ document.addEventListener('DOMContentLoaded', function() {
                                                 // Add empty state
                                                 const chatSection = document.querySelector('.chat-section .row');
                                                 const existingEmptyState = document.querySelector('.chat-section .empty-state');
-                                                
+
                                                 if (chatSection && !existingEmptyState) {
                                                     // Clear the section
                                                     chatSection.innerHTML = '';
-                                                    
+
                                                     // Add empty state
                                                     const emptyStateHtml = `
                                                         <div class="col-12">
@@ -208,7 +208,7 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
     }
-    
+
     // Function to setup document preview handlers
     function setupDocumentPreviewHandlers() {
         document.querySelectorAll('.document-item.document-preview').forEach(item => {
@@ -217,10 +217,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (e.target.closest('.doc-delete-btn')) {
                     return;
                 }
-                
+
                 const documentId = this.dataset.documentId;
                 const previewArea = document.querySelector(`.document-preview-area[data-document-id="${documentId}"]`);
-                
+
                 if (previewArea) {
                     // Toggle display
                     if (previewArea.style.display === 'none' || !previewArea.style.display) {
@@ -230,16 +230,16 @@ document.addEventListener('DOMContentLoaded', function() {
                                 area.style.display = 'none';
                             }
                         });
-                        
+
                         // Show loading in preview area
                         previewArea.style.display = 'block';
                         previewArea.innerHTML = '<div class="text-center p-3"><div class="spinner-border spinner-border-sm text-primary"></div> Loading preview...</div>';
-                        
+
                         // Scroll to make preview visible if needed
                         setTimeout(() => {
                             previewArea.scrollIntoView({behavior: 'smooth', block: 'nearest'});
                         }, 100);
-                        
+
                         // Fetch document content
                         fetch(`/documents/preview/${documentId}`)
                             .then(response => response.json())
@@ -247,12 +247,12 @@ document.addEventListener('DOMContentLoaded', function() {
                                 if (data.success) {
                                     // Format content based on file type
                                     let formattedContent = data.content;
-                                    
+
                                     // Add line breaks for text content
                                     if (data.file_type === 'txt') {
                                         formattedContent = data.content.replace(/\n/g, '<br>');
                                     }
-                                    
+
                                     // Update preview area
                                     previewArea.innerHTML = `
                                         <div class="d-flex justify-content-between align-items-center mb-2">
@@ -268,7 +268,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                             ${formattedContent}
                                         </div>
                                     `;
-                                    
+
                                     // Add close button functionality
                                     const closeBtn = previewArea.querySelector('.close-preview');
                                     if (closeBtn) {
@@ -302,7 +302,7 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
     }
-    
+
     // Function to update the chat counter in the stats
     function updateChatCounter() {
         const statValue = document.querySelector('.welcome-stats .stat-item:nth-child(2) .stat-value');
@@ -310,7 +310,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const currentCount = parseInt(statValue.textContent, 10);
             if (!isNaN(currentCount) && currentCount > 0) {
                 statValue.textContent = (currentCount - 1).toString();
-                
+
                 // Update the last activity date if needed
                 const lastActivityStat = document.querySelector('.welcome-stats .stat-item:nth-child(3) .stat-value');
                 if (lastActivityStat) {
@@ -321,7 +321,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
     }
-    
+
     // Helper function to format date
     function formatDate(date) {
         const day = date.getDate().toString().padStart(2, '0');
@@ -329,7 +329,36 @@ document.addEventListener('DOMContentLoaded', function() {
         const month = monthNames[date.getMonth()];
         return `${day} ${month}`;
     }
-});
+
+    // Setup new chat button handler
+    const newChatBtn = document.createElement('button');
+    newChatBtn.className = 'new-chat-btn';
+    newChatBtn.innerHTML = '<i class="fas fa-plus"></i> New Chat';
+
+    const chatSection = document.querySelector('.chat-section .card-body');
+    if (chatSection) {
+        chatSection.insertBefore(newChatBtn, chatSection.firstChild);
+    }
+
+    newChatBtn.addEventListener('click', function() {
+        // Clear chat container
+        const chatContainer = document.getElementById('chat-container');
+        chatContainer.innerHTML = '<div class="text-center py-5"><i class="fas fa-comments fa-4x mb-3 text-muted"></i><h4>Start a conversation</h4><p>Ask any question about your documents.</p></div>';
+
+        // Reset session ID
+        document.getElementById('session-id-input').value = '';
+
+        // Clear any active selection in Recent Conversations
+        document.querySelectorAll('.conversation-preview.active').forEach(item => {
+            item.classList.remove('active');
+        });
+
+        // Setup message input focus
+        const messageInput = document.getElementById('message-input');
+        if (messageInput) {
+            messageInput.focus();
+        }
+    });
 
 
     // Function to setup conversation handlers
@@ -340,16 +369,16 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (e.target.closest('.chat-delete-btn')) {
                     return;
                 }
-                
+
                 const sessionId = this.dataset.sessionId;
-                
+
                 // Show loading in chat container
                 const chatContainer = document.getElementById('chat-container');
                 chatContainer.innerHTML = '<div class="text-center p-3"><div class="spinner-border spinner-border-sm text-primary"></div> Loading messages...</div>';
-                
+
                 // Update hidden session ID input
                 document.getElementById('session-id-input').value = sessionId;
-                
+
                 // Fetch conversation messages
                 fetch(`/chat/messages/${sessionId}`)
                     .then(response => response.json())
@@ -357,7 +386,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         if (data.success) {
                             // Clear and update chat container
                             chatContainer.innerHTML = '';
-                            
+
                             // Add messages to chat container
                             data.messages.forEach(message => {
                                 const messageDiv = document.createElement('div');
@@ -371,7 +400,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                 `;
                                 chatContainer.appendChild(messageDiv);
                             });
-                            
+
                             // Scroll to bottom
                             chatContainer.scrollTop = chatContainer.scrollHeight;
                         } else {
@@ -395,3 +424,5 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
     }
+
+});
