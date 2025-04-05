@@ -16,29 +16,20 @@ document.addEventListener('DOMContentLoaded', function() {
     const sessionIdInput = document.getElementById('session-id-input');
     const typingIndicator = document.getElementById('typing-indicator');
 
-    // Check if we need to create a new session when the page loads (if no session ID is present)
-    document.addEventListener('DOMContentLoaded', function() {
-        if (sessionIdInput && !sessionIdInput.value.trim()) {
-            fetch('/chat/new_session', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    sessionIdInput.value = data.session_id;
-                    console.log('Created new chat session:', data.session_id);
-                } else {
-                    console.error('Failed to create initial session');
-                }
-            })
-            .catch(err => {
-                console.error('Error creating initial session:', err);
-            });
-        }
-    });
+    // Check for URL parameters for a session ID
+    const urlParams = new URLSearchParams(window.location.search);
+    const sessionIdParam = urlParams.get('session_id');
+
+    // Set current session ID from URL parameter if available
+    if (sessionIdParam) {
+        document.getElementById('session-id-input').value = sessionIdParam;
+        loadChatMessages(sessionIdParam);
+    } else {
+        // Clear existing session ID to ensure new chats start properly
+        document.getElementById('session-id-input').value = '';
+        document.getElementById('chat-container').innerHTML = '';
+    }
+
 
     if (messageForm) {
         messageForm.addEventListener('submit', function(e) {
@@ -137,7 +128,7 @@ document.addEventListener('DOMContentLoaded', function() {
         chatContainer.appendChild(messageDiv);
         chatContainer.scrollTop = chatContainer.scrollHeight;
     }
-    
+
     function addErrorMessage(message) {
         const messageDiv = document.createElement('div');
         messageDiv.className = 'message ai-message animate__animated animate__fadeInUp';
@@ -551,6 +542,105 @@ document.addEventListener('DOMContentLoaded', function() {
                     });
             });
         });
+    }
+
+// Handle conversation click to load messages
+    const conversationItems = document.querySelectorAll('.conversation-preview');
+    conversationItems.forEach(item => {
+        item.addEventListener('click', function() {
+            const sessionId = this.getAttribute('data-session-id');
+            if (!sessionId) return;
+
+            // Clear previous messages and set new session ID
+            document.getElementById('session-id-input').value = sessionId;
+            document.getElementById('chat-container').innerHTML = '';
+
+            // Add loading indicator
+            const loadingIndicator = document.createElement('div');
+            loadingIndicator.className = 'typing-animation';
+            loadingIndicator.innerHTML = `
+                <div class="typing-indicator">
+                    <div class="plasma-bubble bubble-1"></div>
+                    <div class="plasma-bubble bubble-2"></div>
+                    <div class="plasma-bubble bubble-3"></div>
+                </div>`;
+            document.getElementById('chat-container').appendChild(loadingIndicator);
+
+            // Load messages with error handling
+            loadChatMessages(sessionId);
+        });
+    });
+
+// Function to load chat messages
+    function loadChatMessages(sessionId) {
+        // Remove any loading indicators
+        const loadingIndicators = document.querySelectorAll('.typing-animation');
+        loadingIndicators.forEach(indicator => indicator.remove());
+
+        fetch(`/chat/messages/${sessionId}`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok: ' + response.status);
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    const chatContainer = document.getElementById('chat-container');
+                    chatContainer.innerHTML = '';
+
+                    if (data.messages && data.messages.length > 0) {
+                        data.messages.forEach(message => {
+                            const messageDiv = document.createElement('div');
+                            messageDiv.className = `message ${message.is_user ? 'user-message' : 'ai-message'} animate__animated animate__fadeInUp`;
+
+                            messageDiv.innerHTML = `
+                                <div class="message-content">${message.content}</div>
+                                <div class="message-time">
+                                    ${message.timestamp}
+                                    <i class="${message.is_user ? 'fas fa-user' : 'fas fa-robot'} ms-1"></i>
+                                </div>
+                            `;
+
+                            chatContainer.appendChild(messageDiv);
+                        });
+                    } else {
+                        // If no messages, show welcome message
+                        const welcomeDiv = document.createElement('div');
+                        welcomeDiv.className = 'message ai-message animate__animated animate__fadeInUp';
+                        welcomeDiv.innerHTML = `
+                            <div class="message-content">Привет! Я готов помочь с вашими вопросами.</div>
+                            <div class="message-time">
+                                Сейчас
+                                <i class="fas fa-robot ms-1"></i>
+                            </div>
+                        `;
+                        chatContainer.appendChild(welcomeDiv);
+                    }
+
+                    // Scroll to the bottom
+                    chatContainer.scrollTop = chatContainer.scrollHeight;
+                } else {
+                    console.error('Error loading messages:', data.message);
+                    const chatContainer = document.getElementById('chat-container');
+                    chatContainer.innerHTML = `
+                        <div class="alert alert-danger">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            Произошла ошибка при загрузке сообщений. Попробуйте обновить страницу.
+                        </div>
+                    `;
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                const chatContainer = document.getElementById('chat-container');
+                chatContainer.innerHTML = `
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        Произошла ошибка при загрузке сообщений. Попробуйте обновить страницу.
+                    </div>
+                `;
+            });
     }
 
 });

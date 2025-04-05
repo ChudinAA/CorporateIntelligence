@@ -276,7 +276,7 @@ def handle_message(data):
         emit('error', {'message': 'Message cannot be empty'})
         return
         
-    if not session_id:
+    if not session_id or session_id.strip() == '':
         # Create a new session ID if not provided
         session_id = str(uuid.uuid4())
         logger.info(f"Created new session ID in message handler: {session_id}")

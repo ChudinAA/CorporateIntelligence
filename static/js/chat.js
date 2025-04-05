@@ -1,11 +1,20 @@
 
 document.addEventListener('DOMContentLoaded', function() {
+    // Настройка Socket.IO с таймаутами и повторными попытками
+    const socketIOConfig = {
+        reconnection: true,
+        reconnectionAttempts: 5,
+        reconnectionDelay: 1000,
+        timeout: 20000
+    };
+    
     const socket = io(window.location.origin, socketIOConfig);
     const messageForm = document.getElementById('message-form');
     const messageInput = document.getElementById('message-input');
     const chatContainer = document.getElementById('chat-container');
     const typingIndicator = document.getElementById('typing-indicator');
-    const sessionId = document.getElementById('session-id-input')?.value || window.sessionId;
+    const sessionIdInput = document.getElementById('session-id-input');
+    const sessionId = sessionIdInput?.value || window.sessionId;
     const dropZone = document.getElementById('drop-zone');
     const fileInput = document.getElementById('document');
     const uploadForm = document.getElementById('upload-form');
