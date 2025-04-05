@@ -9,12 +9,22 @@ document.addEventListener('DOMContentLoaded', function() {
     setupDocumentPreviewHandlers();
 
     // Setup chat message handling
-    const socket = io();
+    const socket = io({
+        reconnection: true,
+        reconnectionAttempts: 5,
+        reconnectionDelay: 1000,
+        timeout: 20000
+    });
     const messageForm = document.getElementById('message-form');
     const messageInput = document.getElementById('message-input');
     const chatContainer = document.getElementById('chat-container');
     const sessionIdInput = document.getElementById('session-id-input');
     const typingIndicator = document.getElementById('typing-indicator');
+    
+    // Listen for chat deleted event to update the UI in real-time
+    socket.on('chat_deleted', function(data) {
+        updateRecentConversations();
+    });
 
     // Check for URL parameters for a session ID
     const urlParams = new URLSearchParams(window.location.search);
@@ -100,6 +110,9 @@ document.addEventListener('DOMContentLoaded', function() {
             typingIndicator.style.display = 'none';
         }
         addChatMessage(data.message, false);
+        
+        // Update recent conversations list to show the new message
+        setTimeout(updateRecentConversations, 500);
     });
 
     socket.on('error', function(data) {
@@ -299,6 +312,9 @@ document.addEventListener('DOMContentLoaded', function() {
                                             }
                                         }, 400);
                                     }
+                                    
+                                    // Force update the recent conversations list
+                                    updateRecentConversations();
                                 });
                             } else {
                                 // Error
@@ -329,6 +345,52 @@ document.addEventListener('DOMContentLoaded', function() {
                 });
             });
         });
+    }
+    
+    // Function to update recent conversations in real-time
+    function updateRecentConversations() {
+        fetch('/chat/recent_conversations')
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const conversationsContainer = document.querySelector('.recent-conversations');
+                    if (!conversationsContainer) return;
+                    
+                    // Clear current conversations except load more button
+                    const loadMoreContainer = conversationsContainer.querySelector('.load-more-container');
+                    const conversationItems = conversationsContainer.querySelectorAll('.conversation-preview:not(.load-more-container)');
+                    
+                    conversationItems.forEach(item => item.remove());
+                    
+                    // Add updated conversations
+                    if (data.conversations && data.conversations.length > 0) {
+                        data.conversations.forEach(convo => {
+                            const convoElement = createConversationElement(convo);
+                            if (loadMoreContainer) {
+                                conversationsContainer.insertBefore(convoElement, loadMoreContainer);
+                            } else {
+                                conversationsContainer.appendChild(convoElement);
+                            }
+                        });
+                        
+                        // Set up event handlers for new items
+                        setupConversationHandlers();
+                        setupChatDeletionHandlers();
+                    } else {
+                        // Show empty state if no conversations
+                        conversationsContainer.innerHTML = `
+                            <div class="empty-state">
+                                <i class="fas fa-comments empty-icon"></i>
+                                <h4 class="empty-title">No conversations yet</h4>
+                                <p class="empty-description">Start a new conversation to interact with the AI assistant.</p>
+                            </div>
+                        `;
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Error updating recent conversations:', error);
+            });
     }
 
     // Function to setup document preview handlers
@@ -453,60 +515,26 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Setup new chat button handler
-    const newChatBtn = document.createElement('button');
-    newChatBtn.className = 'new-chat-btn';
-    newChatBtn.innerHTML = '<i class="fas fa-plus"></i> New Chat';
-
-    const chatSection = document.querySelector('.chat-section .card-body');
-    if (chatSection) {
-        chatSection.insertBefore(newChatBtn, chatSection.firstChild);
-    }
+    const newChatBtn = document.querySelector('.new-chat-btn');
 
     newChatBtn.addEventListener('click', function() {
-        // Create a new session first
-        fetch('/chat/new_session', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                // Clear chat container
-                const chatContainer = document.getElementById('chat-container');
-                chatContainer.innerHTML = '<div class="text-center py-5"><i class="fas fa-comments fa-4x mb-3 text-muted"></i><h4>Start a conversation</h4><p>Ask any question about your documents.</p></div>';
+        // Clear chat container first
+        const chatContainer = document.getElementById('chat-container');
+        chatContainer.innerHTML = '<div class="text-center py-5"><i class="fas fa-comments fa-4x mb-3 text-muted"></i><h4>Start a conversation</h4><p>Ask any question about your documents.</p></div>';
 
-                // Set the new session ID
-                document.getElementById('session-id-input').value = data.session_id;
-
-                // Clear any active selection in Recent Conversations
-                document.querySelectorAll('.conversation-preview.active').forEach(item => {
-                    item.classList.remove('active');
-                });
-
-                // Setup message input focus
-                const messageInput = document.getElementById('message-input');
-                if (messageInput) {
-                    messageInput.focus();
-                }
-            } else {
-                console.error('Failed to create new session');
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error',
-                    text: 'Failed to create new chat session. Please try again.'
-                });
-            }
-        })
-        .catch(err => {
-            console.error('Error creating session:', err);
-            Swal.fire({
-                icon: 'error',
-                title: 'Error',
-                text: 'Error creating chat session. Please try again.'
-            });
+        // Clear any active selection in Recent Conversations
+        document.querySelectorAll('.conversation-preview.active').forEach(item => {
+            item.classList.remove('active');
         });
+        
+        // Clear the session ID input - we'll only create a session when the user sends a message
+        document.getElementById('session-id-input').value = '';
+
+        // Setup message input focus
+        const messageInput = document.getElementById('message-input');
+        if (messageInput) {
+            messageInput.focus();
+        }
     });
 
 

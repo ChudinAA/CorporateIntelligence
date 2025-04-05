@@ -161,6 +161,7 @@ footer.footer .text-muted {
     background: var(--bg-light);
     border-radius: var(--border-radius);
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.05);
+    position: relative; /* Added for floating effect */
 }
 
 #chat-container::-webkit-scrollbar {
@@ -1022,8 +1023,7 @@ main {
   padding: 0.7rem 1rem !important;
 }
 
-/* Scroll to top button with animation */
-.scroll-top-btn {
+/* Scroll to top button with animation */.scroll-top-btn {
   position: fixed;
   bottom: 20px;
   right: 20px;
@@ -1118,6 +1118,38 @@ main {
     width: 100%;
     height: 10px;
     background: rgba(142, 68, 173, 0.25);
+    filter: blur(15px);
+    border-radius: 50%;
+    z-index: -1;
+}
+
+/* Chat container */
+#chat-container {
+    height: 400px;
+    overflow-y: auto;
+    padding: 1rem;
+    background-color: rgba(248, 249, 250, 0.7);
+    box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.05);
+    position: relative;
+}
+
+.floating-chat-container {
+    box-shadow: 0 10px 25px rgba(108, 92, 231, 0.2);
+    background-color: rgba(255, 255, 255, 0.9);
+    border-radius: 8px;
+    margin: 5px;
+    position: relative;
+    z-index: 2;
+}
+
+.floating-chat-container::after {
+    content: '';
+    position: absolute;
+    left: 10px;
+    right: 10px;
+    bottom: -8px;
+    height: 30px;
+    background-color: rgba(108, 92, 231, 0.2);
     filter: blur(15px);
     border-radius: 50%;
     z-index: -1;

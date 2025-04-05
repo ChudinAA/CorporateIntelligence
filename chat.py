@@ -77,19 +77,12 @@ def dashboard():
 @login_required
 def new_chat_session():
     try:
-        # Create a new session
+        # Create a new session but don't save it until there are messages
         from datetime import datetime
         session_id = str(uuid.uuid4())
-        new_chat = ChatHistory(
-            session_id=session_id,
-            user_id=current_user.id,
-            is_active=True,
-            created_at=datetime.utcnow(),
-            updated_at=datetime.utcnow()
-        )
-        db.session.add(new_chat)
-        db.session.commit()
-        logger.info(f"Created new chat session: {session_id} for user {current_user.id}")
+        # We'll just return the session_id without saving to the database
+        # It will be saved when the first message is sent
+        logger.info(f"Generated new chat session ID: {session_id} for user {current_user.id}")
         return jsonify({'success': True, 'session_id': session_id})
     except Exception as e:
         logger.error(f"Error creating new chat session: {str(e)}", exc_info=True)

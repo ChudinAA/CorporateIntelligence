@@ -5,7 +5,8 @@ document.addEventListener('DOMContentLoaded', function() {
         reconnection: true,
         reconnectionAttempts: 5,
         reconnectionDelay: 1000,
-        timeout: 20000
+        timeout: 20000,
+        forceNew: true
     };
     
     const socket = io(window.location.origin, socketIOConfig);
