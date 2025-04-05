@@ -665,4 +665,196 @@ document.addEventListener('DOMContentLoaded', function() {
             });
     }
 
+// Setup Load More button handlers
+    setupLoadMoreHandlers();
+
+    function setupLoadMoreHandlers() {
+        const loadMoreButtons = document.querySelectorAll('.load-more-btn');
+
+        loadMoreButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const type = this.getAttribute('data-type');
+                const container = type === 'documents' ? 
+                    document.querySelector('.recent-documents') : 
+                    document.querySelector('.recent-conversations');
+
+                // Calculate current offset based on number of items
+                const currentItems = container.querySelectorAll(type === 'documents' ? 
+                    '.document-item:not(.load-more-container)' : 
+                    '.conversation-preview:not(.load-more-container)').length;
+
+                // Show loading state
+                this.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> Loading...';
+
+                if (type === 'documents') {
+                    // Load more documents
+                    fetch(`/documents/more?offset=${currentItems}&limit=5`)
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                // Remove loading state
+                                this.innerHTML = '<i class="fas fa-sync-alt me-1"></i> Load More';
+
+                                // Insert new documents before the load more container
+                                const loadMoreContainer = container.querySelector('.load-more-container');
+
+                                data.documents.forEach(doc => {
+                                    const docElement = createDocumentElement(doc);
+                                    container.insertBefore(docElement, loadMoreContainer);
+                                });
+
+                                // Setup event handlers for new items
+                                setupDocumentPreviewHandlers();
+
+                                // Hide load more button if no more items
+                                if (!data.has_more) {
+                                    loadMoreContainer.innerHTML = `
+                                        <button class="btn btn-sm btn-outline-secondary hide-extra-btn" data-type="documents">
+                                            <i class="fas fa-chevron-up me-1"></i> Hide
+                                        </button>
+                                    `;
+
+                                    // Setup hide button handler
+                                    setupHideButtonHandler();
+                                }
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error loading more documents:', error);
+                            this.innerHTML = '<i class="fas fa-exclamation-triangle me-1"></i> Error';
+                        });
+                } else {
+                    // Load more conversations
+                    fetch(`/chat/more_conversations?offset=${currentItems}&limit=5`)
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                // Remove loading state
+                                this.innerHTML = '<i class="fas fa-sync-alt me-1"></i> Load More';
+
+                                // Insert new conversations before the load more container
+                                const loadMoreContainer = container.querySelector('.load-more-container');
+
+                                data.conversations.forEach(convo => {
+                                    const convoElement = createConversationElement(convo);
+                                    container.insertBefore(convoElement, loadMoreContainer);
+                                });
+
+                                // Setup event handlers for new items
+                                setupConversationHandlers();
+
+                                // Hide load more button if no more items
+                                if (!data.has_more) {
+                                    loadMoreContainer.innerHTML = `
+                                        <button class="btn btn-sm btn-outline-secondary hide-extra-btn" data-type="conversations">
+                                            <i class="fas fa-chevron-up me-1"></i> Hide
+                                        </button>
+                                    `;
+
+                                    // Setup hide button handler
+                                    setupHideButtonHandler();
+                                }
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error loading more conversations:', error);
+                            this.innerHTML = '<i class="fas fa-exclamation-triangle me-1"></i> Error';
+                        });
+                }
+            });
+        });
+    }
+
+    function setupHideButtonHandler() {
+        const hideButtons = document.querySelectorAll('.hide-extra-btn');
+
+        hideButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const type = this.getAttribute('data-type');
+                const container = type === 'documents' ? 
+                    document.querySelector('.recent-documents') : 
+                    document.querySelector('.recent-conversations');
+
+                // Keep only the first 5 items
+                const items = container.querySelectorAll(type === 'documents' ? 
+                    '.document-item:not(.load-more-container)' : 
+                    '.conversation-preview:not(.load-more-container)');
+
+                items.forEach((item, index) => {
+                    if (index >= 5) {
+                        item.remove();
+                    }
+                });
+
+                // Restore load more button
+                const loadMoreContainer = container.querySelector('.load-more-container');
+                loadMoreContainer.innerHTML = `
+                    <button class="btn btn-sm btn-outline-primary load-more-btn" data-type="${type}">
+                        <i class="fas fa-sync-alt me-1"></i> Load More
+                    </button>
+                `;
+
+                // Setup load more button handler
+                setupLoadMoreHandlers();
+            });
+        });
+    }
+
+    function createDocumentElement(doc) {
+        const element = document.createElement('div');
+        element.className = 'document-item document-preview';
+        element.setAttribute('data-document-id', doc.id);
+
+        element.innerHTML = `
+            <div class="document-icon document-icon-${doc.file_type}">
+                <i class="far fa-file-${doc.file_type === 'pdf' ? 'pdf' : 
+                                         doc.file_type === 'txt' ? 'alt' : 
+                                         doc.file_type === 'docx' ? 'word' : 
+                                         doc.file_type === 'xlsx' || doc.file_type === 'csv' ? 'excel' : 'alt'}"></i>
+            </div>
+            <div class="document-info">
+                <div class="document-title">${doc.original_filename}</div>
+                <div class="document-meta">
+                    <div>${Math.round(doc.file_size / 1024)} KB</div>
+                    <div>${doc.upload_date}</div>
+                </div>
+            </div>
+            <div class="action-btns">
+                <button class="btn-action doc-delete-btn" data-document-id="${doc.id}" 
+                    title="Delete document">
+                    <i class="fas fa-trash-alt"></i>
+                </button>
+            </div>
+        `;
+
+        return element;
+    }
+
+    function createConversationElement(convo) {
+        const element = document.createElement('div');
+        element.className = 'document-item conversation-preview';
+        element.setAttribute('data-session-id', convo.session_id);
+
+        element.innerHTML = `
+            <div class="document-icon document-icon-chat">
+                <i class="far fa-comments"></i>
+            </div>
+            <div class="document-info">
+                <div class="document-title">
+                    Chat #${convo.id}
+                </div>
+                <div class="document-meta">
+                    <div>${convo.recent_message ? (convo.recent_message.substring(0, 30) + '...') : 'No messages'}</div>
+                    <div>${convo.date} ${convo.time}</div>
+                </div>
+            </div>
+            <div class="action-btns">
+                <button class="btn-action chat-delete-btn" data-chat-id="${convo.id}" data-session-id="${convo.session_id}">
+                    <i class="fas fa-trash-alt"></i>
+                </button>
+            </div>
+        `;
+
+        return element;
+    }
 });

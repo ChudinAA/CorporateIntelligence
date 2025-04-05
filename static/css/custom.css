@@ -544,9 +544,12 @@ footer.footer .text-muted {
 .welcome-section {
   background: var(--bg-secondary);
   border-radius: var(--border-radius);
-  padding: 1rem; /* Reduced padding */
+  padding: 0.6rem;
   margin-bottom: 1rem;
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+  height: 50px;
+  display: flex;
+  align-items: center;
 }
 
 .welcome-stats {
@@ -808,7 +811,11 @@ main {
   display: flex;
   gap: 16px;
   align-items: center;
-  margin-top: 10px;
+  margin: 10px;
+}
+
+.input-group {
+  gap: 10px;
 }
 
 .typing-indicator {

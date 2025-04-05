@@ -511,3 +511,43 @@ def load_more_conversations():
             'success': False,
             'message': str(e)
         }), 500
+
+@chat_bp.route('/chat/recent_conversations')
+@login_required
+def get_recent_conversations():
+    """Get recent conversations for real-time updates."""
+    try:
+        # Get recent conversations (first 5)
+        conversations = ChatHistory.query.filter_by(
+            user_id=current_user.id,
+            is_active=True
+        ).order_by(ChatHistory.updated_at.desc()).limit(5).all()
+        
+        # Format conversation data
+        conversations_data = []
+        for convo in conversations:
+            # Get the most recent message
+            recent_message = ChatMessage.query.filter_by(
+                chat_history_id=convo.id
+            ).order_by(ChatMessage.timestamp.desc()).first()
+            
+            message_content = recent_message.content if recent_message else ""
+            
+            conversations_data.append({
+                'id': convo.id,
+                'session_id': convo.session_id,
+                'date': convo.updated_at.strftime('%d %b'),
+                'time': convo.updated_at.strftime('%H:%M'),
+                'recent_message': message_content
+            })
+        
+        return jsonify({
+            'success': True,
+            'conversations': conversations_data
+        })
+    except Exception as e:
+        logger.error(f"Error getting recent conversations: {str(e)}", exc_info=True)
+        return jsonify({
+            'success': False,
+            'message': str(e)
+        }), 500
