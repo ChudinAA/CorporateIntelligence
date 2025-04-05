@@ -453,14 +453,14 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Setup new chat button handler
-    const newChatBtn = document.createElement('button');
-    newChatBtn.className = 'new-chat-btn';
-    newChatBtn.innerHTML = '<i class="fas fa-plus"></i> New Chat';
+    const newChatBtn = document.getElementById('new-chat-btn');
+    // newChatBtn.className = 'btn btn-sm btn-primary new-chat-btn upload-btn';
+    // newChatBtn.innerHTML = '<i class="fas fa-plus"></i> New Chat';
 
-    const chatSection = document.querySelector('.chat-section .card-body');
-    if (chatSection) {
-        chatSection.insertBefore(newChatBtn, chatSection.firstChild);
-    }
+    //const chatSection = document.querySelector('.chat-section .card-body');
+    //if (chatSection) {
+    //    chatSection.insertBefore(newChatBtn, chatSection.firstChild);
+    //}
 
     newChatBtn.addEventListener('click', function() {
         // Create a new session first

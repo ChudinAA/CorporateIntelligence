@@ -27,7 +27,7 @@ def dashboard():
     active_sessions = ChatHistory.query.filter_by(
         user_id=current_user.id,
         is_active=True
-    ).order_by(ChatHistory.updated_at.desc()).limit(5).all()
+    ).order_by(ChatHistory.updated_at.desc()).limit(3).all()
 
     # Get recent messages for each session
     for session in active_sessions:
@@ -40,7 +40,7 @@ def dashboard():
     # Get most recent user documents for dashboard
     recent_documents = Document.query.filter_by(
         user_id=current_user.id
-    ).order_by(Document.upload_date.desc()).limit(5).all()
+    ).order_by(Document.upload_date.desc()).limit(3).all()
 
     # Get all documents for reference
     all_documents = Document.query.filter_by(
