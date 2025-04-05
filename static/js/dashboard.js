@@ -288,9 +288,6 @@ document.addEventListener('DOMContentLoaded', function() {
                                                                 <i class="fas fa-comments empty-icon"></i>
                                                                 <h3 class="empty-title">No conversations yet</h3>
                                                                 <p class="empty-description">Start a new conversation to interact with the AI assistant.</p>
-                                                                <a href="/new-chat" class="btn btn-primary">
-                                                                    <i class="fas fa-plus me-2"></i>Start New Chat
-                                                                </a>
                                                             </div>
                                                         </div>
                                                     `;
@@ -454,13 +451,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Setup new chat button handler
     const newChatBtn = document.getElementById('new-chat-btn');
-    // newChatBtn.className = 'btn btn-sm btn-primary new-chat-btn upload-btn';
-    // newChatBtn.innerHTML = '<i class="fas fa-plus"></i> New Chat';
-
-    //const chatSection = document.querySelector('.chat-section .card-body');
-    //if (chatSection) {
-    //    chatSection.insertBefore(newChatBtn, chatSection.firstChild);
-    //}
 
     newChatBtn.addEventListener('click', function() {
         // Create a new session first
