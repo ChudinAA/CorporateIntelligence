@@ -295,8 +295,12 @@ footer.footer .text-muted {
   background: var(--bg-secondary);
   position: relative;
   overflow: hidden;
+  min-height: 180px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }
-
 
 .upload-zone > * {
   position: relative;
@@ -308,6 +312,49 @@ footer.footer .text-muted {
   background: rgba(108, 92, 231, 0.05);
   transform: translateY(-2px);
   box-shadow: 0 5px 15px rgba(108, 92, 231, 0.15);
+}
+
+.upload-zone.uploading {
+  border-color: var(--primary-color);
+  background: rgba(108, 92, 231, 0.05);
+  box-shadow: 0 5px 15px rgba(108, 92, 231, 0.15);
+}
+
+.upload-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+}
+
+.upload-loading .spinner-border {
+  width: 3rem;
+  height: 3rem;
+  color: var(--primary-color);
+}
+
+/* Animation for removed items */
+.conversation-preview.removing,
+.document-item.removing {
+  animation: fadeOutUp 0.4s forwards;
+}
+
+@keyframes fadeOutUp {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+    max-height: 100px;
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-10px);
+    max-height: 0;
+    margin: 0;
+    padding: 0;
+    border: none;
+  }
 }
 
 

@@ -243,22 +243,30 @@ document.addEventListener('DOMContentLoaded', function() {
                                             // Also remove from Recent Conversations if exists
                                             const conversationItem = document.querySelector(`.conversation-preview[data-session-id="${session_id}"]`);
                                             if (conversationItem) {
-                                                conversationItem.remove();
+                                                // Add smooth removal animation
+                                                conversationItem.style.transition = 'all 0.4s ease';
+                                                conversationItem.style.opacity = '0';
+                                                conversationItem.style.height = '0';
+                                                conversationItem.style.overflow = 'hidden';
 
-                                                // Check if there are no conversation items left
-                                                const remainingConversations = document.querySelectorAll('.conversation-preview');
-                                                if (remainingConversations.length === 0) {
-                                                    const conversationsContainer = document.querySelector('.recent-conversations');
-                                                    if (conversationsContainer) {
-                                                        conversationsContainer.innerHTML = `
-                                                            <div class="empty-state">
-                                                                <i class="fas fa-comments empty-icon"></i>
-                                                                <h4 class="empty-title">No conversations yet</h4>
-                                                                <p class="empty-description">Start a new conversation to interact with the AI assistant.</p>
-                                                            </div>
-                                                        `;
+                                                setTimeout(() => {
+                                                    conversationItem.remove();
+
+                                                    // Check if there are no conversation items left
+                                                    const remainingConversations = document.querySelectorAll('.conversation-preview');
+                                                    if (remainingConversations.length === 0) {
+                                                        const conversationsContainer = document.querySelector('.recent-conversations');
+                                                        if (conversationsContainer) {
+                                                            conversationsContainer.innerHTML = `
+                                                                <div class="empty-state">
+                                                                    <i class="fas fa-comments empty-icon"></i>
+                                                                    <h4 class="empty-title">No conversations yet</h4>
+                                                                    <p class="empty-description">Start a new conversation to interact with the AI assistant.</p>
+                                                                </div>
+                                                            `;
+                                                        }
                                                     }
-                                                }
+                                                }, 400);
                                             }
 
                                             // Check if there are no chat cards left

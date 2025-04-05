@@ -243,6 +243,7 @@ def delete_document(document_id):
 def delete_chat(chat_id):
     """Delete a chat session."""
     chat = ChatHistory.query.filter_by(id=chat_id, user_id=current_user.id).first_or_404()
+    session_id = chat.session_id
 
     try:
         # Delete all messages in the chat
@@ -252,7 +253,14 @@ def delete_chat(chat_id):
         db.session.delete(chat)
         db.session.commit()
 
-        return jsonify({"success": True, "message": "Chat deleted successfully"})
+        # Emit a socket event to notify clients about the deletion
+        try:
+            from app import socketio
+            socketio.emit('chat_deleted', {'chat_id': chat_id, 'session_id': session_id})
+        except Exception as socket_err:
+            logger.error(f"Error emitting socket event for chat deletion: {str(socket_err)}")
+
+        return jsonify({"success": True, "message": "Chat deleted successfully", "session_id": session_id})
     except Exception as e:
         db.session.rollback()
         logger.error(f"Error deleting chat: {str(e)}")
@@ -288,8 +296,9 @@ def handle_message(data):
             user_id=user_id
         ).first()
 
+        # Create new chat history if not found
         if not chat_history:
-            # Create new chat history if not found
+            # Only create a new chat history when there's an actual message
             from datetime import datetime
             chat_history = ChatHistory(
                 session_id=session_id,

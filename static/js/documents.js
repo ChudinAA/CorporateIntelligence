@@ -1,76 +1,96 @@
 document.addEventListener('DOMContentLoaded', function() {
-    // Drag and drop file upload
-    const uploadZone = document.getElementById('upload-zone');
-    const fileInput = document.getElementById('document-file');
+    initializeDocumentUpload();
+    initializeDocumentDeletion();
+});
+
+function initializeDocumentUpload() {
+    const dropZone = document.getElementById('drop-zone');
+    const fileInput = document.getElementById('document');
     const uploadForm = document.getElementById('upload-form');
 
-    if (uploadZone && fileInput) {
-        // Make the upload zone clickable to select files
-        uploadZone.addEventListener('click', function() {
-            fileInput.click();
-        });
+    if (!dropZone || !fileInput || !uploadForm) return;
 
-        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-            uploadZone.addEventListener(eventName, preventDefaults, false);
-        });
-
-        ['dragenter', 'dragover'].forEach(eventName => {
-            uploadZone.addEventListener(eventName, highlight, false);
-        });
-
-        ['dragleave', 'drop'].forEach(eventName => {
-            uploadZone.addEventListener(eventName, unhighlight, false);
-        });
-
-        uploadZone.addEventListener('drop', handleDrop, false);
-        fileInput.addEventListener('change', handleFiles, false);
-    }
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+        dropZone.addEventListener(eventName, preventDefaults, false);
+    });
 
     function preventDefaults(e) {
         e.preventDefault();
         e.stopPropagation();
     }
 
+    ['dragenter', 'dragover'].forEach(eventName => {
+        dropZone.addEventListener(eventName, highlight, false);
+    });
+
+    ['dragleave', 'drop'].forEach(eventName => {
+        dropZone.addEventListener(eventName, unhighlight, false);
+    });
+
     function highlight(e) {
-        uploadZone.classList.add('highlight');
+        dropZone.classList.add('dragover');
     }
 
     function unhighlight(e) {
-        uploadZone.classList.remove('highlight');
+        dropZone.classList.remove('dragover');
     }
+
+    dropZone.addEventListener('click', () => {
+        fileInput.click();
+    });
+
+    dropZone.addEventListener('drop', handleDrop, false);
+    fileInput.addEventListener('change', handleFiles, false);
 
     function handleDrop(e) {
         const dt = e.dataTransfer;
         const files = dt.files;
-        fileInput.files = files;
-        handleFiles(e);
+        handleFiles({ target: { files: files } });
     }
 
     function handleFiles(e) {
-        const files = fileInput.files;
-        if (files.length) {
+        if (e.target.files.length) {
+            // Show loading state
+            showUploadingState(dropZone);
+
+            // Submit the form
             uploadForm.submit();
         }
     }
 
-    // Document search functionality
-    const searchInput = document.getElementById('document-search');
-    if (searchInput) {
-        searchInput.addEventListener('input', function(e) {
-            const searchTerm = e.target.value.toLowerCase();
-            const documentCards = document.querySelectorAll('.document-card');
+    // Create a loading overlay for the upload zone
+    function showUploadingState(element) {
+        // Store original content
+        const originalContent = element.innerHTML;
 
-            documentCards.forEach(card => {
-                const title = card.querySelector('.document-title').textContent.toLowerCase();
-                if (title.includes(searchTerm)) {
-                    card.style.display = '';
-                } else {
-                    card.style.display = 'none';
-                }
-            });
-        });
+        // Create loading overlay
+        element.innerHTML = `
+            <div class="upload-loading">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <p class="mt-3">Uploading and processing document...</p>
+                <p class="small text-muted">This may take a moment depending on the file size</p>
+            </div>
+        `;
+
+        element.classList.add('uploading');
+
+        // Disable further uploads
+        element.style.pointerEvents = 'none';
     }
 
+    // Check if we've just returned from an upload (flash message exists)
+    const flashMessage = document.querySelector('.alert');
+    if (flashMessage && (flashMessage.textContent.includes('uploaded') || flashMessage.textContent.includes('Error'))) {
+        // Reset the upload zone styling
+        dropZone.classList.remove('uploading');
+        dropZone.style.pointerEvents = '';
+    }
+}
+
+
+function initializeDocumentDeletion() {
     // Handle document deletion
     const deleteButtons = document.querySelectorAll('.delete-document');
     deleteButtons.forEach(button => {
@@ -131,52 +151,52 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
     });
+}
 
-    // Document preview in modal
-    const previewButtons = document.querySelectorAll('.document-preview');
-    previewButtons.forEach(button => {
-        button.addEventListener('click', function(e) {
-            e.preventDefault();
-            const documentId = this.dataset.documentId;
+// Document preview in modal
+const previewButtons = document.querySelectorAll('.document-preview');
+previewButtons.forEach(button => {
+    button.addEventListener('click', function(e) {
+        e.preventDefault();
+        const documentId = this.dataset.documentId;
 
-            Swal.fire({
-                title: 'Loading Preview...',
-                html: '<div class="text-center"><div class="spinner-border text-primary"></div></div>',
-                showConfirmButton: false,
-                showClass: {
-                    popup: 'animate__animated animate__fadeIn'
+        Swal.fire({
+            title: 'Loading Preview...',
+            html: '<div class="text-center"><div class="spinner-border text-primary"></div></div>',
+            showConfirmButton: false,
+            showClass: {
+                popup: 'animate__animated animate__fadeIn'
+            }
+        });
+
+        fetch(`/documents/preview/${documentId}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    let formattedContent = data.content;
+                    if (data.file_type === 'txt') {
+                        formattedContent = data.content.replace(/\n/g, '<br>');
+                    }
+
+                    Swal.fire({
+                        title: data.filename,
+                        html: `
+                            <div class="small text-muted mb-2">
+                                ${data.file_type.toUpperCase()} · ${Math.round(data.file_size / 1024)} KB
+                            </div>
+                            <div class="preview-content bg-white p-3 rounded border">
+                                ${formattedContent}
+                            </div>
+                        `,
+                        width: '800px',
+                        showClass: {
+                            popup: 'animate__animated animate__fadeIn'
+                        },
+                        hideClass: {
+                            popup: 'animate__animated animate__fadeOut'
+                        }
+                    });
                 }
             });
-
-            fetch(`/documents/preview/${documentId}`)
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        let formattedContent = data.content;
-                        if (data.file_type === 'txt') {
-                            formattedContent = data.content.replace(/\n/g, '<br>');
-                        }
-
-                        Swal.fire({
-                            title: data.filename,
-                            html: `
-                                <div class="small text-muted mb-2">
-                                    ${data.file_type.toUpperCase()} · ${Math.round(data.file_size / 1024)} KB
-                                </div>
-                                <div class="preview-content bg-white p-3 rounded border">
-                                    ${formattedContent}
-                                </div>
-                            `,
-                            width: '800px',
-                            showClass: {
-                                popup: 'animate__animated animate__fadeIn'
-                            },
-                            hideClass: {
-                                popup: 'animate__animated animate__fadeOut'
-                            }
-                        });
-                    }
-                });
-        });
     });
 });
