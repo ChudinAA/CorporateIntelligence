@@ -161,6 +161,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 e.preventDefault();
                 e.stopPropagation();
                 const chatId = this.getAttribute('data-chat-id');
+                const session_id = this.getAttribute('data-session-id'); // Added to get session ID
 
                 // Show confirmation dialog with smoother animation
                 Swal.fire({
@@ -238,6 +239,27 @@ document.addEventListener('DOMContentLoaded', function() {
                                         setTimeout(() => {
                                             chatCard.remove();
                                             updateChatCounter();
+
+                                            // Also remove from Recent Conversations if exists
+                                            const conversationItem = document.querySelector(`.conversation-preview[data-session-id="${session_id}"]`);
+                                            if (conversationItem) {
+                                                conversationItem.remove();
+
+                                                // Check if there are no conversation items left
+                                                const remainingConversations = document.querySelectorAll('.conversation-preview');
+                                                if (remainingConversations.length === 0) {
+                                                    const conversationsContainer = document.querySelector('.recent-conversations');
+                                                    if (conversationsContainer) {
+                                                        conversationsContainer.innerHTML = `
+                                                            <div class="empty-state">
+                                                                <i class="fas fa-comments empty-icon"></i>
+                                                                <h4 class="empty-title">No conversations yet</h4>
+                                                                <p class="empty-description">Start a new conversation to interact with the AI assistant.</p>
+                                                            </div>
+                                                        `;
+                                                    }
+                                                }
+                                            }
 
                                             // Check if there are no chat cards left
                                             const remainingCards = document.querySelectorAll('.chat-section .col-md-6:not([style*="opacity: 0"])');

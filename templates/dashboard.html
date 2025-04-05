@@ -396,6 +396,9 @@
     .staggered-item:nth-child(4) { animation-delay: 0.4s; }
     .staggered-item:nth-child(5) { animation-delay: 0.5s; }
     .staggered-item:nth-child(6) { animation-delay: 0.6s; }
+    .load-more-container {
+        margin-top: 1rem;
+    }
 </style>
 {% endblock %}
 
@@ -431,12 +434,15 @@
         <div class="col-lg-6">
             <!-- Chat Section -->
             <section class="chat-section mb-4">
-                <div class="section-header">
+                <div class="section-header d-flex justify-content-between align-items-center">
                     <h2><i class="fas fa-comment-dots section-icon"></i> Chat</h2>
+                    <button class="btn btn-sm btn-primary new-chat-btn upload-btn">
+                        <i class="fas fa-plus upload-icon"></i> New Chat
+                    </button>
                 </div>
                 <div class="card">
                     <div class="card-body p-0">
-                        <div id="chat-container" class="chat-container">
+                        <div id="chat-container" class="floating-chat-container">
                             {% if messages %}
                                 {% for message in messages %}
                                     <div class="message {% if message.role == 'user' %}user-message{% else %}ai-message{% endif %} animate__animated animate__fadeInUp">
@@ -521,6 +527,13 @@
                                         </div>
                                     </div>
                                 {% endfor %}
+                                {% if total_documents > 5 %}
+                                <div class="load-more-container text-center p-2">
+                                    <button class="btn btn-sm btn-outline-primary load-more-btn" data-type="documents">
+                                        <i class="fas fa-sync-alt me-1"></i> Load More
+                                    </button>
+                                </div>
+                                {% endif %}
                             </div>
                         {% else %}
                             <div class="empty-state">
@@ -570,6 +583,13 @@
                                         </div>
                                     </div>
                                 {% endfor %}
+                                {% if total_conversations > 5 %}
+                                <div class="load-more-container text-center p-2">
+                                    <button class="btn btn-sm btn-outline-primary load-more-btn" data-type="conversations">
+                                        <i class="fas fa-sync-alt me-1"></i> Load More
+                                    </button>
+                                </div>
+                                {% endif %}
                             </div>
                         {% else %}
                             <div class="empty-state">

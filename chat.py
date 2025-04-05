@@ -421,3 +421,93 @@ def get_chat_messages(session_id):
             'success': False,
             'message': str(e)
         }), 500
+
+@chat_bp.route('/documents/more')
+@login_required
+def load_more_documents():
+    """Load more documents for pagination."""
+    try:
+        offset = int(request.args.get('offset', 0))
+        limit = int(request.args.get('limit', 5))
+        
+        # Get additional documents
+        documents = Document.query.filter_by(
+            user_id=current_user.id
+        ).order_by(Document.upload_date.desc()).offset(offset).limit(limit+1).all()
+        
+        # Check if there are more documents beyond this batch
+        has_more = len(documents) > limit
+        if has_more:
+            documents = documents[:limit]  # Remove the extra document we fetched
+        
+        # Format document data
+        documents_data = []
+        for doc in documents:
+            documents_data.append({
+                'id': doc.id,
+                'original_filename': doc.original_filename,
+                'file_type': doc.file_type,
+                'file_size': doc.file_size,
+                'upload_date': doc.upload_date.strftime('%Y-%m-%d %H:%M')
+            })
+        
+        return jsonify({
+            'success': True,
+            'documents': documents_data,
+            'has_more': has_more
+        })
+    except Exception as e:
+        logger.error(f"Error loading more documents: {str(e)}", exc_info=True)
+        return jsonify({
+            'success': False,
+            'message': str(e)
+        }), 500
+
+@chat_bp.route('/chat/more_conversations')
+@login_required
+def load_more_conversations():
+    """Load more conversations for pagination."""
+    try:
+        offset = int(request.args.get('offset', 0))
+        limit = int(request.args.get('limit', 5))
+        
+        # Get additional conversations
+        conversations = ChatHistory.query.filter_by(
+            user_id=current_user.id,
+            is_active=True
+        ).order_by(ChatHistory.updated_at.desc()).offset(offset).limit(limit+1).all()
+        
+        # Check if there are more conversations beyond this batch
+        has_more = len(conversations) > limit
+        if has_more:
+            conversations = conversations[:limit]  # Remove the extra conversation we fetched
+        
+        # Format conversation data
+        conversations_data = []
+        for convo in conversations:
+            # Get the most recent message
+            recent_message = ChatMessage.query.filter_by(
+                chat_history_id=convo.id
+            ).order_by(ChatMessage.timestamp.desc()).first()
+            
+            message_content = recent_message.content if recent_message else ""
+            
+            conversations_data.append({
+                'id': convo.id,
+                'session_id': convo.session_id,
+                'date': convo.updated_at.strftime('%d %b'),
+                'time': convo.updated_at.strftime('%H:%M'),
+                'recent_message': message_content
+            })
+        
+        return jsonify({
+            'success': True,
+            'conversations': conversations_data,
+            'has_more': has_more
+        })
+    except Exception as e:
+        logger.error(f"Error loading more conversations: {str(e)}", exc_info=True)
+        return jsonify({
+            'success': False,
+            'message': str(e)
+        }), 500

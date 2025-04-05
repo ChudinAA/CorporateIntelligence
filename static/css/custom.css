@@ -1038,3 +1038,33 @@ main {
   background: rgba(108, 92, 231, 0.1);
   border-left: 3px solid var(--primary-color);
 }
+
+/* Chat container height */
+#chat-container {
+    height: 400px;
+    min-height: 400px;
+}
+
+/* Floating chat container with purple glow */
+.floating-chat-container {
+    background: var(--bg-light);
+    border-radius: var(--border-radius);
+    box-shadow: 0 8px 32px rgba(108, 92, 231, 0.6);
+    position: relative;
+    z-index: 1;
+    transform: translateY(-3px);
+    margin-bottom: 15px;
+}
+
+.floating-chat-container::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: -15px;
+    width: 100%;
+    height: 10px;
+    background: rgba(142, 68, 173, 0.25);
+    filter: blur(15px);
+    border-radius: 50%;
+    z-index: -1;
+}
