@@ -1,0 +1,28 @@
+
+# Exclude uploads and attached_assets folders
+/uploads/
+/attached_assets/
+
+# Python cache files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environment
+venv/
+env/
+ENV/
+
+# Database files
+*.sqlite3
+*.db
+
+# Log files
+*.log
+
+# Environment variables
+.env
+
+# OS specific files
+.DS_Store
+Thumbs.db
